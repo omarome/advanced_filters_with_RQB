@@ -25,6 +25,8 @@ pnpm start
 
 The app will be available at `http://localhost:5173` (or the port shown in the terminal).
 
+![Query Builder component preview](./public/images/filter_with_suggestions.png)
+
 ## Usage
 
 1. Click the "Advanced filters [X selected]" button to expand/collapse the query builder

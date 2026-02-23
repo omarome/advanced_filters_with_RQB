@@ -1,5 +1,7 @@
 # Components Documentation
 
+![Query Builder component preview](./images/query-builder-preview.png)
+
 ## Component Architecture
 
 This directory contains reusable, well-structured React components following best practices.
