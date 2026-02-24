@@ -22,6 +22,10 @@ const InputWrapper = ({
   onClear,
   fieldData,
   className,
+  ariaActivedescendant,
+  ariaAutocomplete,
+  ariaExpanded,
+  ariaControls,
   ...inputProps
 }) => {
   return (
@@ -38,6 +42,10 @@ const InputWrapper = ({
         className="autocomplete-value-editor__input"
         aria-invalid={showValidation && !isValid}
         aria-describedby={showValidation ? `validation-${fieldData.name || 'value'}` : undefined}
+        aria-activedescendant={ariaActivedescendant}
+        aria-autocomplete={ariaAutocomplete}
+        aria-expanded={ariaExpanded}
+        aria-controls={ariaControls}
         {...inputProps}
       />
       {hasClearButton && (
@@ -79,9 +87,10 @@ InputWrapper.propTypes = {
   onClear: PropTypes.func.isRequired,
   fieldData: PropTypes.object,
   className: PropTypes.string.isRequired,
-  // Allow other input props to be passed through
-  'aria-invalid': PropTypes.bool,
-  'aria-describedby': PropTypes.string,
+  ariaActivedescendant: PropTypes.string,
+  ariaAutocomplete: PropTypes.string,
+  ariaExpanded: PropTypes.bool,
+  ariaControls: PropTypes.string,
 };
 
 export default InputWrapper;

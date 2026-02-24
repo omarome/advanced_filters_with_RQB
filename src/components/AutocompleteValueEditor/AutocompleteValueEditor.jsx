@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   useAutocompleteSuggestions,
@@ -46,12 +46,18 @@ const AutocompleteValueEditor = ({
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const containerRef = useRef(null);
-  const editorIdRef = useRef(`editor-${Math.random().toString(36).substr(2, 9)}`);
+  const editorIdRef = useRef(`editor-${Math.random().toString(36).slice(2, 11)}`);
 
   // Custom hooks
   const { filteredSuggestions } = useAutocompleteSuggestions(values, inputValue);
   const { isValid, error: validationError } = useInputValidation(inputValue, fieldData, operator);
   const suggestionsPosition = useSuggestionsPosition(showSuggestions, filteredSuggestions.length, inputRef);
+
+  // Computed values (before callbacks to ensure consistent hook order)
+  const hasValue = Boolean(inputValue && inputValue.trim() !== '');
+  const showValidation = Boolean(hasValue && validationError !== null);
+  const hasClearButton = Boolean(hasValue && !disabled);
+  const hasSuggestionsOpen = Boolean(showSuggestions && filteredSuggestions.length > 0);
 
   // Event handlers (defined early so they can be used in hooks)
   const handleSuggestionSelect = useCallback((suggestion) => {
@@ -99,6 +105,42 @@ const AutocompleteValueEditor = ({
     inputValue
   );
 
+  // Filter out React Query Builder specific props that shouldn't be passed to DOM
+  const {
+    testID,
+    valueSource,
+    listsAsArrays,
+    parseNumbers,
+    validation,
+    schema,
+    selectorComponent,
+    title,
+    separator,
+    valueListItemClassName,
+    ...safeInputProps
+  } = props;
+
+  // Build wrapper classes (memoized for performance)
+  const wrapperClasses = useMemo(() => [
+    'autocomplete-value-editor__input-wrapper',
+    showValidation && (isValid ? 'autocomplete-value-editor__input-wrapper--valid' : 'autocomplete-value-editor__input-wrapper--invalid'),
+    hasClearButton && 'autocomplete-value-editor__input-wrapper--has-clear',
+    showValidation && 'autocomplete-value-editor__input-wrapper--has-validation',
+  ].filter(Boolean).join(' '), [showValidation, isValid, hasClearButton]);
+
+  const containerClasses = useMemo(() => [
+    'autocomplete-value-editor',
+    showValidation && validationError && 'autocomplete-value-editor--has-error',
+    hasSuggestionsOpen && 'autocomplete-value-editor--has-suggestions',
+  ].filter(Boolean).join(' '), [showValidation, validationError, hasSuggestionsOpen]);
+
+  // Generate stable ID for active descendant
+  const activeDescendantId = useMemo(() => 
+    hasSuggestionsOpen && selectedIndex >= 0 
+      ? `suggestion-${editorIdRef.current}-${selectedIndex}` 
+      : undefined
+  , [hasSuggestionsOpen, selectedIndex]);
+
   // Sync external value changes
   useEffect(() => {
     setInputValue(value || '');
@@ -130,41 +172,6 @@ const AutocompleteValueEditor = ({
     handleCloseSuggestions
   );
 
-  // Computed values
-  const hasValue = Boolean(inputValue && inputValue.trim() !== '');
-  const showValidation = Boolean(hasValue && validationError !== null);
-  const hasClearButton = Boolean(hasValue && !disabled);
-  const hasSuggestionsOpen = Boolean(showSuggestions && filteredSuggestions.length > 0);
-  
-  // Filter out React Query Builder specific props that shouldn't be passed to DOM
-  const {
-    testID,
-    valueSource,
-    listsAsArrays,
-    parseNumbers,
-    validation,
-    schema,
-    selectorComponent,
-    title,
-    separator,
-    valueListItemClassName,
-    ...safeInputProps
-  } = props;
-
-  // Build wrapper classes
-  const wrapperClasses = [
-    'autocomplete-value-editor__input-wrapper',
-    showValidation && (isValid ? 'autocomplete-value-editor__input-wrapper--valid' : 'autocomplete-value-editor__input-wrapper--invalid'),
-    hasClearButton && 'autocomplete-value-editor__input-wrapper--has-clear',
-    showValidation && 'autocomplete-value-editor__input-wrapper--has-validation',
-  ].filter(Boolean).join(' ');
-
-  const containerClasses = [
-    'autocomplete-value-editor',
-    showValidation && validationError && 'autocomplete-value-editor--has-error',
-    hasSuggestionsOpen && 'autocomplete-value-editor--has-suggestions',
-  ].filter(Boolean).join(' ');
-
   return (
     <div className={containerClasses} ref={containerRef}>
       <InputWrapper
@@ -182,6 +189,10 @@ const AutocompleteValueEditor = ({
         onClear={handleClear}
         fieldData={fieldData}
         className={wrapperClasses}
+        ariaActivedescendant={activeDescendantId}
+        ariaAutocomplete="list"
+        ariaExpanded={hasSuggestionsOpen}
+        ariaControls={hasSuggestionsOpen ? `suggestions-${editorIdRef.current}` : undefined}
         {...safeInputProps}
       />
       
@@ -198,6 +209,7 @@ const AutocompleteValueEditor = ({
           position={suggestionsPosition}
           onSuggestionSelect={handleSuggestionSelect}
           onSuggestionHover={setSelectedIndex}
+          editorId={editorIdRef.current}
         />
       )}
     </div>

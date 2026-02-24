@@ -71,7 +71,8 @@
 
   &__clear-button {
     position: absolute;
-    right: 28px; // Position before validation icon
+    right: 8px;
+    top:6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,6 +88,11 @@
     transition: background-color @transition-duration ease, color @transition-duration ease;
     flex-shrink: 0;
     z-index: 1;
+
+    // Position before validation icon when validation is shown
+    .autocomplete-value-editor__input-wrapper--has-validation & {
+      right: 28px;
+    }
 
     &:hover {
       background-color: #e9ecef;
@@ -118,7 +124,11 @@
   }
   
   // Adjust input padding when buttons are visible
-  &__input-wrapper--has-clear &__input {
+  &__input-wrapper--has-clear:not(&__input-wrapper--has-validation) &__input {
+    padding-right: 36px; // Space for clear button only
+  }
+  
+  &__input-wrapper--has-clear&__input-wrapper--has-validation &__input {
     padding-right: 56px; // Space for clear button + validation icon
   }
   
