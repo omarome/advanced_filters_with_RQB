@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
+
 export const useClickOutside = (isActive, containerRef, suggestionsRef, onClose) => {
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || !onClose) return;
 
     const handleClickOutside = (event) => {
       const target = event.target;
       const isClickInsideInput = containerRef.current?.contains(target);
       const isClickInsideSuggestions = suggestionsRef.current?.contains(target);
-      
+
       if (!isClickInsideInput && !isClickInsideSuggestions) {
         onClose();
       }
@@ -17,5 +18,5 @@ export const useClickOutside = (isActive, containerRef, suggestionsRef, onClose)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isActive, containerRef, suggestionsRef, onClose]);
+  }, [isActive, onClose]);
 };

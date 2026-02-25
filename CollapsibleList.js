@@ -5,6 +5,7 @@ import ResultsTable from './src/components/ResultsTable/ResultsTable';
 import { filterData } from './src/utils/queryFilter';
 import { mockUsers } from './src/data/mockData';
 import { enhanceFieldWithValues } from './src/utils/fieldUtils';
+import { baseFields, defaultOperators } from './src/config/queryConfig';
 import './src/styles/CollapsibleList.less';
 
 /**
@@ -19,29 +20,12 @@ const CollapsibleList = () => {
   });
 
   // Enhanced fields with autocomplete values and validation
-  const fields = useMemo(() => {
-    const baseFields = [
-      { name: 'firstName', label: 'First Name', type: 'string' },
-      { name: 'lastName', label: 'Last Name', type: 'string' },
-      { name: 'age', label: 'Age', type: 'number' },
-      { name: 'email', label: 'Email', type: 'email' },
-      { name: 'status', label: 'Status', type: 'string' },
-    ];
+  const fields = useMemo(
+    () => baseFields.map((field) => enhanceFieldWithValues(mockUsers, field)),
+    []
+  );
 
-    return baseFields.map(field => enhanceFieldWithValues(mockUsers, field));
-  }, []);
-
-  const operators = [
-    { name: '=', label: '=' },
-    { name: '!=', label: '!=' },
-    { name: '<', label: '<' },
-    { name: '>', label: '>' },
-    { name: '<=', label: '<=' },
-    { name: '>=', label: '>=' },
-    { name: 'contains', label: 'contains' },
-    { name: 'beginsWith', label: 'begins with' },
-    { name: 'endsWith', label: 'ends with' },
-  ];
+  const operators = defaultOperators;
 
   const handleQueryChange = useCallback((newQuery) => {
     setQuery(newQuery);

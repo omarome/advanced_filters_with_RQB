@@ -13,6 +13,13 @@ import SuggestionsList from './subcomponents/SuggestionsList';
 import ValidationMessage from './subcomponents/ValidationMessage';
 import '../../styles/AutocompleteValueEditor.less';
 
+/**
+ * AutocompleteValueEditor
+ * 
+ * Reusable value editor for React Query Builder that provides
+ * autocomplete suggestions, validation feedback, and rich keyboard/mouse UX.
+ */
+
 const AutocompleteValueEditor = ({
   value = '',
   handleOnChange,

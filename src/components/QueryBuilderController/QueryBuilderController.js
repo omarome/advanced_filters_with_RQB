@@ -6,6 +6,15 @@ import AutocompleteValueEditor from '../AutocompleteValueEditor/AutocompleteValu
 import { countRules } from '../../utils/queryUtils';
 import '../../styles/QueryBuilderController.less';
 import '../../styles/QueryBuilderController.query-builder.less';
+
+/**
+ * QueryBuilderController
+ *
+ * Wraps React Query Builder with:
+ * - a collapsible panel
+ * - autocomplete value editor integration
+ * - tracking of open suggestion popovers for layout adjustments.
+ */
 const QueryBuilderController = ({
   fields,
   operators,
