@@ -1,0 +1,40 @@
+@import './variables.less';
+
+.query-builder-controller {
+  position: relative;
+  width: 100%;
+  font-family: @font-family;
+
+  &__content {
+    position: absolute;
+    top: calc(100% + @spacing);
+    left: 0;
+    right: 0;
+    padding: @spacing * 2;
+    background-color: @background;
+    border: 1px solid @border-color-light;
+    border-radius: @border-radius;
+    z-index: @z-index-content;
+    max-height: 75vh;
+    overflow-y: auto;
+    box-shadow: @shadow-md;
+    animation: slideDown @transition-duration @transition-easing;
+  }
+
+  &--has-suggestions {
+    max-height: 92vh;
+    overflow: visible;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import './CollapseButton.less';
+import '../../styles/CollapseButton.less';
 const CollapseButton = ({
   isExpanded,
   onToggle,

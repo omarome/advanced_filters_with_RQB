@@ -1,75 +1,75 @@
+@import './variables.less';
+
 /* Query Builder Override Styles */
 .query-builder-controller__content .ruleGroup {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 12px;
-  margin: 6px 0;
+  background-color: @background-muted;
+  border: 1px solid @border-color-light;
+  border-radius: @border-radius;
+  padding: @spacing;
+  margin: @spacing-xs 0;
 }
 
 .query-builder-controller__content .rule {
-  background-color: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 12px;
-  margin: 6px 0;
+  background-color: @background;
+  border: 1px solid @border-color-light;
+  border-radius: @border-radius;
+  padding: @spacing;
+  margin: @spacing-xs 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: @spacing;
   position: relative;
-  z-index: 1;
+  z-index: @z-index-base;
 }
 
-/* When rule contains autocomplete with suggestions, increase z-index */
 .query-builder-controller__content .rule:has(.autocomplete-value-editor__suggestions),
 .query-builder-controller__content .rule:has(.autocomplete-value-editor--has-suggestions) {
-  z-index: 100;
+  z-index: @z-index-content;
 }
 
 .query-builder-controller__content .ruleGroup-addRule,
 .query-builder-controller__content .ruleGroup-addGroup {
-  background-color: #007bff;
-  color: #ffffff;
+  background-color: @primary-color;
+  color: @background;
   border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
+  border-radius: @border-radius;
+  padding: @spacing-xs @spacing;
   cursor: pointer;
-  font-size: 12px;
-  margin: 6px;
-  transition: background-color 0.3s ease-in-out;
+  font-size: @font-size-sm;
+  margin: @spacing-xs;
+  transition: background-color @transition-duration @transition-easing;
 }
 
 .query-builder-controller__content .ruleGroup-addRule:hover,
 .query-builder-controller__content .ruleGroup-addGroup:hover {
-  background-color: #0056b3;
+  background-color: @primary-hover;
 }
 
 .query-builder-controller__content .ruleGroup-remove,
 .query-builder-controller__content .rule-remove {
-  background-color: #dc3545;
-  color: #ffffff;
+  background-color: @error-color;
+  color: @background;
   border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
+  border-radius: @border-radius;
+  padding: @spacing-xs @spacing;
   cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.3s ease-in-out;
+  font-size: @font-size-sm;
+  transition: background-color @transition-duration @transition-easing;
 }
 
 .query-builder-controller__content .ruleGroup-remove:hover,
 .query-builder-controller__content .rule-remove:hover {
-  background-color: #c82333;
+  background-color: @error-hover;
 }
 
 .query-builder-controller__content select,
 .query-builder-controller__content input {
-  padding: 6px;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: @spacing-xs;
+  border: 1px solid @border-color-light;
+  border-radius: @border-radius;
+  font-size: @font-size-base;
 }
 
-/* Layout: field + operator fixed, value grows */
 .query-builder-controller__content .rule .rule-field {
   flex: 0 0 auto;
   min-width: 140px;
@@ -87,7 +87,8 @@
 
 .query-builder-controller__content select:focus,
 .query-builder-controller__content input:focus {
-  outline: 2px solid rgba(0, 123, 255, 0.2);
+  outline: 2px solid @primary-focus-rgba;
   outline-offset: 2px;
-  border-color: #007bff;
+  border-color: @primary-color;
 }
+

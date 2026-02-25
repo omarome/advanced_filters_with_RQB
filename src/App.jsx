@@ -1,6 +1,6 @@
 import React from 'react';
 import CollapsibleList from '../CollapsibleList';
-import './App.css';
+import './styles/App.less';
 
 function App() {
   return (

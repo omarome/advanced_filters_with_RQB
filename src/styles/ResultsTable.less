@@ -1,29 +1,23 @@
-// Variables
-@border-color: #e9ecef;
-@background-color: #ffffff;
-@header-background: #f8f9fa;
-@text-color: #212529;
-@spacing: 12px;
-@transition-duration: 0.3s;
+@import './variables.less';
 
 .results-table {
   width: 100%;
   margin-top: @spacing * 2;
-  background-color: @background-color;
-  border: 1px solid @border-color;
-  border-radius: 4px;
+  background-color: @background;
+  border: 1px solid @border-color-light;
+  border-radius: @border-radius;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: @shadow-sm;
 
   &__header {
     padding: @spacing * 1.5;
-    background-color: @header-background;
-    border-bottom: 1px solid @border-color;
+    background-color: @background-muted;
+    border-bottom: 1px solid @border-color-light;
   }
 
   &__title {
     margin: 0;
-    font-size: 16px;
+    font-size: @font-size-lg;
     font-weight: 600;
     color: @text-color;
   }
@@ -35,11 +29,11 @@
   &__table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: @font-size-base;
   }
 
   &__thead {
-    background-color: @header-background;
+    background-color: @background-muted;
   }
 
   &__th {
@@ -47,7 +41,7 @@
     text-align: left;
     font-weight: 600;
     color: @text-color;
-    border-bottom: 2px solid @border-color;
+    border-bottom: 2px solid @border-color-light;
     white-space: nowrap;
   }
 
@@ -56,11 +50,11 @@
       transition: background-color @transition-duration ease;
 
       &:hover {
-        background-color: lighten(@header-background, 2%);
+        background-color: lighten(@background-muted, 2%);
       }
 
       &:not(:last-child) {
-        border-bottom: 1px solid @border-color;
+        border-bottom: 1px solid @border-color-light;
       }
     }
   }
@@ -75,8 +69,8 @@
   &__empty {
     padding: @spacing * 3;
     text-align: center;
-    color: lighten(@text-color, 30%);
-    font-size: 14px;
+    color: @text-muted-light;
+    font-size: @font-size-base;
   }
 
   &__empty {
@@ -84,7 +78,6 @@
   }
 }
 
-// Responsive design
 @media (max-width: 768px) {
   .results-table {
     &__container {
@@ -94,7 +87,8 @@
     &__th,
     &__td {
       padding: @spacing / 2;
-      font-size: 12px;
+      font-size: @font-size-sm;
     }
   }
 }
+

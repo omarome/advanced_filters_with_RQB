@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import CollapseButton from '../CollapseButton/CollapseButton';
 import AutocompleteValueEditor from '../AutocompleteValueEditor/AutocompleteValueEditor';
 import { countRules } from '../../utils/queryUtils';
-import './QueryBuilderController.less';
-import './QueryBuilderController.query-builder.css';
+import '../../styles/QueryBuilderController.less';
+import '../../styles/QueryBuilderController.query-builder.less';
 const QueryBuilderController = ({
   fields,
   operators,

@@ -5,7 +5,7 @@ import ResultsTable from './src/components/ResultsTable/ResultsTable';
 import { filterData } from './src/utils/queryFilter';
 import { mockUsers } from './src/data/mockData';
 import { enhanceFieldWithValues } from './src/utils/fieldUtils';
-import './CollapsibleList.less';
+import './src/styles/CollapsibleList.less';
 
 /**
  * CollapsibleList Component

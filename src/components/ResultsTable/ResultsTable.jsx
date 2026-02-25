@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './ResultsTable.less';
+import '../../styles/ResultsTable.less';
 const ResultsTable = ({ data, columns, isLoading = false }) => {
   if (isLoading) {
     return (

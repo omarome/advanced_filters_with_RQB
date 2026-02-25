@@ -11,7 +11,7 @@ import {
 import InputWrapper from './parts/InputWrapper';
 import SuggestionsList from './parts/SuggestionsList';
 import ValidationMessage from './parts/ValidationMessage';
-import './AutocompleteValueEditor.less';
+import '../../styles/AutocompleteValueEditor.less';
 
 const AutocompleteValueEditor = ({
   value = '',

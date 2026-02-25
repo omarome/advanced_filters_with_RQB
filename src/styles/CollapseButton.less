@@ -1,8 +1,4 @@
-// Variables
-@primary-color: #007bff;
-@spacing: 12px;
-@transition-duration: 0.3s;
-@transition-easing: ease-in-out;
+@import './variables.less';
 
 .collapse-button {
   display: flex;
@@ -13,15 +9,16 @@
   margin-bottom: @spacing;
   background-color: transparent;
   border: 1px solid @primary-color;
-  border-radius: 4px;
+  border-radius: @border-radius;
   color: @primary-color;
-  font-size: 14px;
+  font-size: @font-size-base;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color @transition-duration @transition-easing,
-              color @transition-duration @transition-easing,
-              border-color @transition-duration @transition-easing,
-              transform 0.1s @transition-easing;
+  transition:
+    background-color @transition-duration @transition-easing,
+    color @transition-duration @transition-easing,
+    border-color @transition-duration @transition-easing,
+    transform 0.1s @transition-easing;
   font-family: inherit;
   gap: @spacing / 2;
 
@@ -36,7 +33,7 @@
 
   &:hover {
     background-color: @primary-color;
-    color: #ffffff;
+    color: @background;
   }
 
   &:active {
@@ -51,10 +48,11 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    
+
     &:hover {
       background-color: transparent;
       color: @primary-color;
     }
   }
 }
+

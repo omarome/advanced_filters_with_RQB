@@ -1,17 +1,10 @@
-@primary-color: #007bff;
-@error-color: #dc3545;
-@success-color: #28a745;
-@border-color: #ced4da;
-@border-radius: 4px;
-@transition-duration: 0.2s;
-@suggestion-hover-bg: #f8f9fa;
-@suggestion-selected-bg: #e9ecef;
+@import './variables.less';
 
 .autocomplete-value-editor {
   position: relative;
   width: 100%;
   min-width: 200px;
-  z-index: 1; // Ensure it's above other elements in the rule
+  z-index: @z-index-base;
 
   &__input-wrapper {
     position: relative;
@@ -19,51 +12,52 @@
     align-items: center;
     border: 1px solid @border-color;
     border-radius: @border-radius;
-    background-color: #fff;
-    transition: border-color @transition-duration ease, box-shadow @transition-duration ease;
+    background-color: @background;
+    transition: border-color @transition-duration-fast ease,
+      box-shadow @transition-duration-fast ease;
 
     &:focus-within {
       border-color: @primary-color;
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      box-shadow: 0 0 0 0.2rem @primary-focus-rgba;
     }
 
     &--valid {
       border-color: @success-color;
-      
+
       &:focus-within {
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        box-shadow: 0 0 0 0.2rem @success-focus-rgba;
       }
     }
 
     &--invalid {
       border-color: @error-color;
-      
+
       &:focus-within {
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        box-shadow: 0 0 0 0.2rem @error-focus-rgba;
       }
     }
   }
 
   &__input {
     flex: 1;
-    min-width: 0; // Allow flex item to shrink below content size
+    min-width: 0;
     border: none;
     outline: none;
-    padding: 8px 12px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #495057;
+    padding: 8px @spacing;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+    color: @text-muted;
     background: transparent;
     width: 100%;
     box-sizing: border-box;
 
     &::placeholder {
-      color: #6c757d;
+      color: @text-placeholder;
       opacity: 1;
     }
 
     &:disabled {
-      background-color: #e9ecef;
+      background-color: @background-disabled;
       cursor: not-allowed;
       opacity: 0.6;
     }
@@ -72,7 +66,7 @@
   &__clear-button {
     position: absolute;
     right: 8px;
-    top:6px;
+    top: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,25 +76,25 @@
     padding: 0;
     border: none;
     background: transparent;
-    color: #6c757d;
+    color: @text-placeholder;
     cursor: pointer;
     border-radius: 50%;
-    transition: background-color @transition-duration ease, color @transition-duration ease;
+    transition: background-color @transition-duration-fast ease,
+      color @transition-duration-fast ease;
     flex-shrink: 0;
-    z-index: 1;
+    z-index: @z-index-base;
 
-    // Position before validation icon when validation is shown
     .autocomplete-value-editor__input-wrapper--has-validation & {
       right: 28px;
     }
 
     &:hover {
-      background-color: #e9ecef;
-      color: #495057;
+      background-color: @background-disabled;
+      color: @text-muted;
     }
 
     &:active {
-      background-color: #dee2e6;
+      background-color: @background-active;
     }
 
     &:focus {
@@ -120,20 +114,19 @@
     min-width: 20px;
     pointer-events: none;
     flex-shrink: 0;
-    z-index: 1;
+    z-index: @z-index-base;
   }
-  
-  // Adjust input padding when buttons are visible
+
   &__input-wrapper--has-clear:not(&__input-wrapper--has-validation) &__input {
-    padding-right: 36px; // Space for clear button only
+    padding-right: 36px;
   }
-  
+
   &__input-wrapper--has-clear&__input-wrapper--has-validation &__input {
-    padding-right: 56px; // Space for clear button + validation icon
+    padding-right: 56px;
   }
-  
+
   &__input-wrapper--has-validation:not(&__input-wrapper--has-clear) &__input {
-    padding-right: 36px; // Space for validation icon only
+    padding-right: 36px;
   }
 
   &__icon {
@@ -153,52 +146,51 @@
     right: 0;
     margin-top: 2px;
     padding: 4px 0;
-    font-size: 12px;
+    font-size: @font-size-sm;
     color: @error-color;
     line-height: 1.4;
     z-index: 999;
-    background-color: #fff;
+    background-color: @background;
     pointer-events: none;
   }
 
   &--has-error &__suggestions {
-    margin-top: 24px; // Space for error message
+    margin-top: 24px;
   }
 
   &__suggestions {
-    // Portal-based positioning using CSS custom properties
     position: fixed;
     top: var(--suggestions-top, 0);
     left: var(--suggestions-left, 0);
     width: var(--suggestions-width, 200px);
-    z-index: 99999; // Very high z-index to appear above all elements
+    z-index: @z-index-overlay;
     margin: 0;
     padding: 0;
     list-style: none;
-    background-color: #fff;
+    background-color: @background;
     border: 1px solid @border-color;
     border-radius: @border-radius;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); // Stronger shadow for better visibility
-    max-height: 280px; // Show more items before scrolling
+    box-shadow: @shadow-lg;
+    max-height: 280px;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
   &__suggestion {
-    padding: 8px 12px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #495057;
+    padding: 8px @spacing;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+    color: @text-muted;
     cursor: pointer;
-    transition: background-color @transition-duration ease;
+    transition: background-color @transition-duration-fast ease;
 
     &:hover,
     &--selected {
-      background-color: @suggestion-hover-bg;
+      background-color: @background-muted;
     }
 
     &--selected {
-      background-color: @suggestion-selected-bg;
+      background-color: lighten(@background-muted, 5%);
       font-weight: 500;
     }
 
@@ -214,21 +206,21 @@
   }
 }
 
-// Scrollbar styling for suggestions
 .autocomplete-value-editor__suggestions::-webkit-scrollbar {
   width: 8px;
 }
 
 .autocomplete-value-editor__suggestions::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: @scrollbar-track;
   border-radius: @border-radius;
 }
 
 .autocomplete-value-editor__suggestions::-webkit-scrollbar-thumb {
-  background: #888;
+  background: @scrollbar-thumb;
   border-radius: @border-radius;
 
   &:hover {
-    background: #555;
+    background: @scrollbar-thumb-hover;
   }
 }
+
