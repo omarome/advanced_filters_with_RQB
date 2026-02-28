@@ -83,6 +83,21 @@ export const createFieldValidator = (fieldName, fieldType = 'string') => {
 export const enhanceFieldWithValues = (data, fieldConfig) => {
   const { name, label, type = 'string', values: customValues } = fieldConfig;
 
+  // Boolean fields use radio buttons with True / False labels.
+  // They don't need suggestion values or a custom validator.
+  if (type === 'boolean') {
+    return {
+      ...fieldConfig,
+      valueEditorType: 'radio',
+      values: [
+        { name: 'true', label: 'True' },
+        { name: 'false', label: 'False' },
+      ],
+      defaultValue: 'true',
+      operators: [{ name: '=', label: '=' }],
+    };
+  }
+
   // Use custom values if provided, otherwise extract from data
   const values = customValues || extractUniqueValues(data, name);
 

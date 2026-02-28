@@ -10,6 +10,7 @@ export const mockUsers = [
     age: 28,
     email: 'john.doe@example.com',
     status: 'Active',
+    isOnline: true,
   },
   {
     id: 2,
@@ -18,6 +19,7 @@ export const mockUsers = [
     age: 32,
     email: 'jane.smith@example.com',
     status: 'Active',
+    isOnline: false,
   },
   {
     id: 3,
@@ -26,6 +28,7 @@ export const mockUsers = [
     age: 45,
     email: 'bob.johnson@example.com',
     status: 'Inactive',
+    isOnline: false,
   },
   {
     id: 4,
@@ -34,6 +37,7 @@ export const mockUsers = [
     age: 29,
     email: 'alice.williams@example.com',
     status: 'Active',
+    isOnline: true,
   },
   {
     id: 5,
@@ -42,6 +46,7 @@ export const mockUsers = [
     age: 35,
     email: 'charlie.brown@example.com',
     status: 'Pending',
+    isOnline: true,
   },
   {
     id: 6,
@@ -50,6 +55,7 @@ export const mockUsers = [
     age: 27,
     email: 'diana.davis@example.com',
     status: 'Active',
+    isOnline: false,
   },
   {
     id: 7,
@@ -58,6 +64,7 @@ export const mockUsers = [
     age: 41,
     email: 'edward.miller@example.com',
     status: 'Inactive',
+    isOnline: false,
   },
   {
     id: 8,
@@ -66,6 +73,7 @@ export const mockUsers = [
     age: 33,
     email: 'fiona.wilson@example.com',
     status: 'Active',
+    isOnline: true,
   },
   {
     id: 9,
@@ -74,6 +82,7 @@ export const mockUsers = [
     age: 38,
     email: 'george.moore@example.com',
     status: 'Pending',
+    isOnline: false,
   },
   {
     id: 10,
@@ -82,5 +91,6 @@ export const mockUsers = [
     age: 26,
     email: 'helen.taylor@example.com',
     status: 'Active',
+    isOnline: true,
   },
 ];

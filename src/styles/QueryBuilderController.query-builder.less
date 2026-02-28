@@ -85,6 +85,15 @@
   min-width: 0;
 }
 
+/* Radio button group (e.g. boolean True / False) */
+.query-builder-controller__content .rule .rule-value label {
+  margin-right: @spacing;
+  display: inline-flex;
+  align-items: center;
+  gap: @spacing-xs;
+  cursor: pointer;
+}
+
 .query-builder-controller__content select:focus,
 .query-builder-controller__content input:focus {
   outline: 2px solid @primary-focus-rgba;

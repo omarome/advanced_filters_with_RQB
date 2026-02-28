@@ -4,6 +4,7 @@ export const baseFields = [
   { name: 'age', label: 'Age', type: 'number' },
   { name: 'email', label: 'Email', type: 'email' },
   { name: 'status', label: 'Status', type: 'string' },
+  { name: 'isOnline', label: 'Is Online', type: 'boolean' },
 ];
 
 export const defaultOperators = [

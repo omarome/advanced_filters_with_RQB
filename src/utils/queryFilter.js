@@ -13,7 +13,23 @@ const evaluateRule = (rule, item) => {
   
   const fieldValue = item[field];
   const ruleValue = value;
-  
+
+  // Handle boolean fields (checkbox value comes as true/false or "true"/"false")
+  if (typeof fieldValue === 'boolean') {
+    const boolRuleValue = typeof ruleValue === 'boolean'
+      ? ruleValue
+      : String(ruleValue).toLowerCase() === 'true';
+
+    switch (operator) {
+      case '=':
+        return fieldValue === boolRuleValue;
+      case '!=':
+        return fieldValue !== boolRuleValue;
+      default:
+        return true;
+    }
+  }
+
   // Convert to string for comparison if needed
   const itemValueStr = String(fieldValue || '').toLowerCase();
   const ruleValueStr = String(ruleValue || '').toLowerCase();

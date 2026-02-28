@@ -60,15 +60,22 @@ const ResultsTable = ({ data, columns, isLoading = false, testIdPrefix = 'result
                   className="results-table__tr"
                   data-testid={`${testIdPrefix}-row-${rowId}`}
                 >
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      className="results-table__td"
-                      data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
-                    >
-                      {row[column.key]}
-                    </td>
-                  ))}
+                  {columns.map((column) => {
+                    const cellValue = row[column.key];
+                    const displayValue = typeof cellValue === 'boolean'
+                      ? (cellValue ? 'Yes' : 'No')
+                      : cellValue;
+
+                    return (
+                      <td
+                        key={column.key}
+                        className="results-table__td"
+                        data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
+                      >
+                        {displayValue}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}

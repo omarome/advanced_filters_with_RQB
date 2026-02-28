@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { QueryBuilder } from 'react-querybuilder';
+import { QueryBuilder, ValueEditor } from 'react-querybuilder';
 import PropTypes from 'prop-types';
 import CollapseButton from '../CollapseButton/CollapseButton';
 import AutocompleteValueEditor from '../AutocompleteValueEditor/AutocompleteValueEditor';
@@ -59,42 +59,69 @@ const QueryBuilderController = ({
     setHasSuggestionsOpen(openSuggestionsRef.current.size > 0);
   }, []);
 
-  // Custom controls to use AutocompleteValueEditor for text inputs
+  // Custom controls to use AutocompleteValueEditor for text inputs.
+  // IMPORTANT: We import the library's default ValueEditor and use it as the
+  // fallback.  Using `props.schema.controls.valueEditor` would recursively
+  // call *this* custom component and freeze the UI.
   const customControls = useMemo(() => ({
     valueEditor: (props) => {
-      // Use autocomplete editor for text type inputs when values are available
       const { fieldData, type, values, operator } = props;
-      
-      // Don't use autocomplete for null/notNull operators
-      if (operator === 'null' || operator === 'notNull') {
-        return <props.schema.controls.valueEditor {...props} />;
+
+      // Boolean / radio fields → always use the library's default editor
+      if (
+        type === 'checkbox' ||
+        type === 'radio' ||
+        fieldData?.valueEditorType === 'radio' ||
+        fieldData?.valueEditorType === 'checkbox' ||
+        fieldData?.type === 'boolean'
+      ) {
+        return <ValueEditor {...props} />;
       }
-      
-      // Use autocomplete for text inputs when values are available
-      const shouldUseAutocomplete = 
-        (type === 'text' || !type) && 
-        values && 
+
+      // Null-check operators don't need a value editor
+      if (operator === 'null' || operator === 'notNull') {
+        return <ValueEditor {...props} />;
+      }
+
+      // Use autocomplete for text inputs when suggestion values are available
+      const shouldUseAutocomplete =
+        (type === 'text' || !type) &&
+        values &&
         Array.isArray(values) &&
         values.length > 0;
-      
+
       if (shouldUseAutocomplete) {
         return <AutocompleteValueEditor {...props} onSuggestionsChange={handleSuggestionsChange} />;
       }
-      
-      // Fall back to default value editor for other types
-      return <props.schema.controls.valueEditor {...props} />;
+
+      // Fall back to the library's default value editor
+      return <ValueEditor {...props} />;
     },
   }), [handleSuggestionsChange]);
 
-  // Determine value editor type - use 'text' for autocomplete when values are available
-  const getValueEditorType = useCallback((field, operator, { fieldData }) => {
-    // If field has values defined, use text editor (which will be replaced by autocomplete)
-    if (fieldData?.values && fieldData.values.length > 0) {
+  // Determine value editor type based on field configuration
+  const getValueEditorType = useCallback((_field, _operator, { fieldData }) => {
+    // Boolean fields → render as radio buttons
+    if (fieldData?.valueEditorType === 'radio' || fieldData?.type === 'boolean') {
+      return 'radio';
+    }
+
+    // Fields with suggestion values → text (handled by AutocompleteValueEditor)
+    if (fieldData?.values && Array.isArray(fieldData.values) && fieldData.values.length > 0) {
       return 'text';
     }
-    // Use default based on field data or input type
+
     return fieldData?.valueEditorType || 'text';
   }, []);
+
+  // Restrict operators for specific field types (e.g. boolean → only "=")
+  const getOperators = useCallback((_field, { fieldData }) => {
+    if (fieldData?.type === 'boolean') {
+      return [{ name: '=', label: '=' }];
+    }
+    // Return the default operators passed as prop
+    return operators;
+  }, [operators]);
 
   // Close panel when clicking outside for better UX
   useEffect(() => {
@@ -152,6 +179,7 @@ const QueryBuilderController = ({
             showCombinatorsBetweenRules={true}
             showNotToggle={true}
             getValueEditorType={getValueEditorType}
+            getOperators={getOperators}
             controlElements={customControls}
             {...queryBuilderProps}
           />
