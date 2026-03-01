@@ -1,17 +1,35 @@
-## React Query Builder Advanced Filters
+## Smart Filter Hub
 
-A React demo application that showcases a collapsible **advanced filters panel** built on top of `react-querybuilder`, with an **autocomplete value editor** and a live-updating results table.
+A production-ready React application for dynamic data filtering, built on top of [React Query Builder](https://react-querybuilder.js.org/). It connects to a Spring Boot backend for live data and field definitions, with automatic fallback to local mock data when the API is unavailable.
 
 ![Query Builder component preview](./public/images/filters_with_suggestions.png)
 
 ### Features
 
-- **Collapsible advanced filters panel** with dynamic rule count in the toggle button
-- **Autocomplete value editor** for fields with predefined values (e.g. status, names)
-- **Keyboard and mouse friendly UX** (arrow navigation, Enter to select, click outside to close)
-- **React Query Builder integration** with custom value editor controls
-- **Results table** that updates in real time as filters change
-- **Modern LESS-based styling** with smooth layout for suggestions and panel transitions
+- **Dynamic field definitions** — fields, operators, and types are fetched from the backend (`/api/variables`), not hardcoded
+- **Autocomplete value editor** — type-ahead suggestions extracted from live data, with keyboard and mouse navigation
+- **Type-aware validation** — field validators follow the RQB convention (`validator(rule)`); results are consumed via `props.validation` — no duplicate work
+- **SQL injection protection** — cross-cutting sanitization rejects dangerous characters and patterns
+- **Boolean / select / radio support** — fields like `isOnline` (radio) and `status` (select) use the library's built-in `ValueEditor`
+- **Per-field operators** — each field declares its own operator set (string, number, email, boolean); no top-level `operators` prop needed
+- **Collapsible filter panel** — toggle button shows the active rule count
+- **Live results table** — filters data in real time as rules change, with full operator coverage including `between`, `doesNotContain`, etc.
+- **Floating UI positioning** — suggestion list uses [`@floating-ui/react`](https://floating-ui.com/) for robust, viewport-aware positioning via portal
+- **Graceful API fallback** — if the backend is unreachable, the app falls back to mock data with a one-time notification banner
+- **Accessible** — ARIA attributes (`aria-expanded`, `aria-activedescendant`, `aria-controls`, `role="listbox"`) and full keyboard navigation
+
+### Tech Stack
+
+| Layer | Technology |
+|---|---|
+| UI Framework | React 18 |
+| Query Builder | [react-querybuilder](https://react-querybuilder.js.org/) v7 |
+| Positioning | [@floating-ui/react](https://floating-ui.com/) |
+| Icons | [@mui/icons-material](https://mui.com/material-ui/material-icons/) |
+| Styling | LESS with design tokens |
+| Build Tool | Vite 5 |
+| Backend | Spring Boot (separate repository) |
+| Package Manager | pnpm |
 
 ### Setup
 
@@ -21,7 +39,13 @@ A React demo application that showcases a collapsible **advanced filters panel**
 pnpm install
 ```
 
-2. **Start the development server**
+2. **Start the backend** (optional — the app falls back to mock data if unavailable)
+
+The Spring Boot backend should be running at `http://localhost:8080` with these endpoints:
+- `GET /api/users` — user data
+- `GET /api/variables` — field definitions (name, label, type, offset)
+
+3. **Start the development server**
 
 ```bash
 pnpm start
@@ -31,91 +55,92 @@ The app will be available at `http://localhost:5173` (or the port shown in the t
 
 ### Usage
 
-1. Click the **"Advanced filters [X selected]"** button to expand or collapse the query builder panel.
-2. Add rules using the **"Add rule"** and **"Add group"** buttons from `react-querybuilder`.
-3. For fields with predefined values, start typing to see **autocomplete suggestions**, then:
-   - Use arrow keys + Enter, or
-   - Click a suggestion to select it.
-4. The button label automatically updates to show the number of selected rules.
-5. The **results table below** automatically filters and displays matching records based on your rules.
+1. On startup, a **notification banner** indicates whether the app is connected to the backend (green) or using mock data (orange). It auto-dismisses after 5 seconds.
+2. Click the **"Advanced filters [X selected]"** button to expand the query builder panel.
+3. Add rules using **"Add rule"** and **"Add group"** buttons.
+4. For text fields, start typing to see **autocomplete suggestions**:
+   - Use Arrow keys + Enter, or click a suggestion to select it.
+   - A **clear button** (×) appears inside the input when it has a value.
+5. **Validation feedback** appears inline — powered by RQB's built-in validation flow.
+6. The **results table** automatically filters and displays matching records.
+7. Use the **"not"** toggle on any group to negate its result.
 
 Example filters to try:
 
-- `age > 30` to see users older than 30  
-- `status = Active` to see only active users  
-- `email contains example` to filter by email domain  
-- Combine multiple rules with AND/OR logic
+- `age > 30` — users older than 30
+- `status = Active` — only active users
+- `email contains example` — filter by email domain
+- `nickname null` — users without a nickname
+- `isOnline = True` — only online users
+- Combine multiple rules with AND/OR logic and nested groups
 
-### Project Structure (high level)
+### Project Structure
 
 ```text
-├── CollapsibleList.js                 # Page-level shell: query builder + results table
+├── CollapsibleList.js                    # Page-level shell: data fetching, query state, fields
 ├── src/
-│   ├── App.js                         # Top-level app component
+│   ├── App.js                            # Top-level app component
 │   ├── config/
-│   │   └── queryConfig.js             # Base fields and default operators
+│   │   └── queryConfig.js                # Field builder, operator sets, type mappings
 │   ├── components/
-│   │   ├── QueryBuilderController/    # Collapsible query builder controller
-│   │   ├── AutocompleteValueEditor/   # Autocomplete value editor + hooks/subcomponents
-│   │   └── ResultsTable/              # Simple results table for mock data
+│   │   ├── QueryBuilderController/       # Collapsible query builder (controlled mode)
+│   │   ├── AutocompleteValueEditor/      # Custom value editor with autocomplete
+│   │   │   ├── hooks/                    # useAutocompleteSuggestions, useInputValidation,
+│   │   │   │                             # useSuggestionsPosition (Floating UI), useClickOutside,
+│   │   │   │                             # useKeyboardNavigation, useSuggestionsState
+│   │   │   └── subcomponents/            # InputWrapper, SuggestionsList, ValidationMessage
+│   │   ├── CollapseButton/               # Expand/collapse toggle with MUI icons
+│   │   ├── DataSourceBanner/             # One-time live/mock notification
+│   │   └── ResultsTable/                 # Filtered results display
 │   ├── data/
-│   │   └── mockData.js                # Mock users dataset
+│   │   ├── mockData.js                   # Mock users (fallback)
+│   │   └── mockVariables.js              # Mock field definitions (fallback)
+│   ├── services/
+│   │   └── userApi.js                    # API client (fetchUsers, fetchVariables)
 │   ├── utils/
-│   │   ├── queryFilter.js             # Applies query rules to data
-│   │   ├── fieldUtils.js              # Enhances fields with values for autocomplete
-│   │   └── queryUtils.js              # Helper utilities (e.g., rule counting)
+│   │   ├── queryFilter.js                # Client-side rule evaluation (all operators)
+│   │   ├── fieldUtils.js                 # Field enhancement (suggestions + validator wiring)
+│   │   ├── queryUtils.js                 # Helper utilities (rule counting)
+│   │   └── validators/                   # Separated validation modules
+│   │       ├── index.js                  # createFieldValidator composer
+│   │       ├── sanitize.js               # SQL injection / dangerous char detection
+│   │       ├── stringValidator.js        # String length checks
+│   │       ├── numberValidator.js        # Number, non-negative, whole-number checks
+│   │       └── emailValidator.js         # Email regex validation
 │   └── styles/
+│       ├── variables.less                # Design tokens (colors, spacing, z-index)
 │       ├── App.less
 │       ├── CollapsibleList.less
 │       ├── AutocompleteValueEditor.less
+│       ├── DataSourceBanner.less
 │       ├── QueryBuilderController.less
 │       ├── QueryBuilderController.query-builder.less
-│       └── index.less                 # Global styles and layout
-├── public/
-│   └── images/filter_with_suggestions.png
+│       ├── CollapseButton.less
+│       ├── ResultsTable.less
+│       └── index.less                    # Global styles
 ├── package.json
-└── vite.config.js (or similar tooling config)
+└── vite.config.js
 ```
 
-### Future automated test ideas
+### Architecture Decisions
 
-Below are high-level test ideas you can turn into robot / E2E tests later (e.g. Playwright, Cypress, Selenium). They are written to focus on observable behavior and avoid coupling to internal implementation details.
+| Decision | Rationale |
+|---|---|
+| **Controlled query mode** | `CollapsibleList` owns the query state; `QueryBuilderController` is a pure presentational wrapper |
+| **Per-field operators** | Each field declares its own operators via `field.operators` — no top-level `operators` prop or `getOperators` callback |
+| **RQB validation flow** | Validators follow the `(rule) => result` signature; `AutocompleteValueEditor` reads `props.validation` instead of re-running the validator |
+| **Floating UI for positioning** | Replaces manual `getBoundingClientRect` + `rAF` with a battle-tested positioning library; rendered via `createPortal` to avoid overflow clipping |
+| **Separated validators** | Each type (string, number, email) has its own module; `sanitize.js` is a cross-cutting concern composed into all validators |
+| **API fallback** | `try/catch` around `Promise.all` in `useEffect`; on failure, mock data is used seamlessly |
 
-- **Collapsible advanced filters panel**
-  - Verify the panel is collapsed by default and expands when the "Advanced filters" button is clicked.
-  - Verify the button label updates from `Advanced filters [0 selected]` to the correct count as rules are added/removed.
-  - Verify clicking outside the panel closes it (unless a suggestion popover is open).
+### Future Automated Test Ideas
 
-- **Autocomplete value editor**
-  - For fields with predefined values, verify typing shows suggestions that match the input text.
-  - Verify keyboard navigation (Arrow Up/Down + Enter) selects a suggestion and updates the underlying rule value.
-  - Verify clicking a suggestion selects it, closes the suggestions list, and keeps focus behavior correct.
-  - Verify the clear button appears only when there is a value and clears the input + rule value when clicked.
-  - Verify validation icons and messages appear correctly for valid/invalid inputs.
-
-- **Suggestions popover behavior**
-  - Verify the suggestions list positions correctly relative to the input (no clipping / overlap issues).
-  - Verify clicking outside both the input and the suggestions list closes the list.
-  - Verify clicking inside the suggestions list does **not** close the query builder panel.
-
-- **Query builder rules and operators**
-  - Verify each operator (`=`, `!=`, `<`, `>`, `<=`, `>=`, `contains`, `beginsWith`, `endsWith`) can be selected and applied.
-  - Verify combining multiple rules with AND/OR produces the expected filtered results for known mock users.
-  - Verify "null"/"notNull" operators bypass autocomplete and use the default value editor.
-
-- **Results table filtering**
-  - For a fixed mock dataset, define a small set of canonical queries and expected rows, then:
-    - Apply the query via the UI.
-    - Assert that only the expected rows are rendered and the count is correct.
-  - Verify clearing all rules restores the full dataset.
-
-- **Accessibility & keyboard usage**
-  - Verify focus order when tabbing through the page (button → value editor → suggestions → clear button, etc.).
-  - Verify ARIA attributes such as `aria-expanded`, `aria-activedescendant`, `aria-controls`, and `aria-invalid` update as expected.
-  - Verify the app is usable using only the keyboard (no mouse).
-
-- **Configuration-driven behavior**
-  - With a modified `queryConfig` (e.g. adding a new field with values), verify:
-    - The new field appears in the field dropdown.
-    - The autocomplete editor activates for that field.
-    - The new field participates correctly in filtering the results table.
+- **Collapsible panel** — verify toggle, rule count label, click-outside dismissal
+- **Autocomplete** — verify suggestions appear on typing, keyboard/mouse selection, clear button behavior
+- **Suggestions positioning** — verify no clipping on scroll, portal renders correctly
+- **Validation** — verify inline error messages for invalid inputs (SQL patterns, empty fields, negative numbers for unsigned types, invalid emails)
+- **Operators** — verify all operators (`=`, `!=`, `<`, `>`, `contains`, `doesNotContain`, `beginsWith`, `doesNotBeginWith`, `endsWith`, `doesNotEndWith`, `between`, `notBetween`, `null`, `notNull`) filter correctly
+- **Boolean/select fields** — verify radio buttons for boolean, dropdown for status, correct operator restrictions
+- **NOT toggle** — verify negation works at any nesting level
+- **API fallback** — verify banner shows "live" or "mock" depending on backend availability
+- **Accessibility** — verify ARIA attributes, focus order, keyboard-only usage

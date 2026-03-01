@@ -5,14 +5,14 @@ import './styles/App.less';
 /**
  * App
  *
- * Top-level demo shell that renders the advanced filters
- * `CollapsibleList` with mock data.
+ * Top-level shell that renders the advanced data explorer
+ * with dynamic filtering powered by React Query Builder.
  */
 
 function App() {
   return (
     <div className="app">
-      <h1>React Query Builder Demo</h1>
+      <h1>Smart Filter Hub</h1>
       <CollapsibleList />
     </div>
   );
