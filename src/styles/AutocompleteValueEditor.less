@@ -154,15 +154,9 @@
     pointer-events: none;
   }
 
-  &--has-error &__suggestions {
-    margin-top: 24px;
-  }
-
+  // Positioning (top, left, width, position, transform) is handled
+  // entirely by Floating UI via inline styles on the element.
   &__suggestions {
-    position: fixed;
-    top: var(--suggestions-top, 0);
-    left: var(--suggestions-left, 0);
-    width: var(--suggestions-width, 200px);
     z-index: @z-index-overlay;
     margin: 0;
     padding: 0;

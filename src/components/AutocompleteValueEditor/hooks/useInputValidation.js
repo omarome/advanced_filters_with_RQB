@@ -1,33 +1,34 @@
-import { useState, useEffect, useMemo } from 'react';
-export const useInputValidation = (inputValue, fieldData, operator) => {
-  const [validationError, setValidationError] = useState(null);
+import { useMemo } from 'react';
 
-  // Validate input value
-  const validateValue = useMemo(() => {
-    if (!fieldData.validator) return { isValid: true, error: null };
-    
-    try {
-      const result = fieldData.validator(inputValue, { fieldData, operator });
-      if (result === true) {
-        return { isValid: true, error: null };
-      } else if (typeof result === 'string') {
-        return { isValid: false, error: result };
-      } else if (result && typeof result === 'object') {
-        return { isValid: result.valid !== false, error: result.message || null };
-      }
+/**
+ * Parses the `validation` prop that React Query Builder already computed
+ * by calling `field.validator(rule)` internally.
+ *
+ * Instead of re-running the validator ourselves, we simply normalise
+ * RQB's result into a consistent `{ isValid, error }` shape.
+ *
+ * @param {boolean|Object|undefined} validation — `props.validation` from RQB
+ * @returns {{ isValid: boolean, error: string|null }}
+ */
+export const useInputValidation = (validation) => {
+  return useMemo(() => {
+    // No validator assigned or not yet evaluated
+    if (validation === undefined || validation === null) {
       return { isValid: true, error: null };
-    } catch (error) {
-      return { isValid: false, error: error.message || 'Validation error' };
     }
-  }, [inputValue, fieldData, operator]);
 
-  // Update validation error when validation changes
-  useEffect(() => {
-    setValidationError(validateValue.error);
-  }, [validateValue]);
+    // Boolean result (field.validator returned true / false)
+    if (validation === true) return { isValid: true, error: null };
+    if (validation === false) return { isValid: false, error: null };
 
-  return {
-    isValid: validateValue.isValid && !validationError,
-    error: validationError,
-  };
+    // Object result { valid, message } (our createFieldValidator pattern)
+    if (typeof validation === 'object') {
+      return {
+        isValid: validation.valid !== false,
+        error: validation.message || null,
+      };
+    }
+
+    return { isValid: true, error: null };
+  }, [validation]);
 };

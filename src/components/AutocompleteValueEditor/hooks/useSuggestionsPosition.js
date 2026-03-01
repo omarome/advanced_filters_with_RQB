@@ -1,52 +1,47 @@
-import { useState, useEffect, useRef } from 'react';
-const throttle = (func, limit) => {
-  let inThrottle;
-  return function(...args) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-};
+import { useFloating, offset, flip, shift, size, autoUpdate } from '@floating-ui/react';
 
-export const useSuggestionsPosition = (showSuggestions, filteredSuggestionsLength, inputRef) => {
-  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
-  const throttledUpdateRef = useRef(null);
+/**
+ * Positions the suggestions list relative to the input using Floating UI.
+ *
+ * Floating UI handles:
+ *   • Tracking on scroll & resize (via `autoUpdate` — only the actual
+ *     scrollable ancestors, not a global capture listener)
+ *   • Flipping above the input when there's no room below
+ *   • Shifting horizontally so the list never overflows the viewport
+ *   • Matching the width of the input
+ *
+ * @param {boolean} isOpen - whether the suggestions list is visible
+ * @returns {{ refs, floatingStyles }} — refs to attach + inline styles for the list
+ */
+export const useSuggestionsPosition = (isOpen) => {
+  const { refs, floatingStyles } = useFloating({
+    open: isOpen,
+    placement: 'bottom-start',
+    strategy: 'fixed',
 
-  useEffect(() => {
-    if (showSuggestions && filteredSuggestionsLength > 0 && inputRef.current) {
-      const updatePosition = () => {
-        if (!inputRef.current) return;
-        const inputRect = inputRef.current.getBoundingClientRect();
-        setPosition({
-          top: inputRect.bottom + window.scrollY + 4,
-          left: inputRect.left + window.scrollX,
-          width: inputRect.width,
-        });
-      };
-      
-      // Initial position update
-      updatePosition();
-      
-      // Create throttled version (updates max once per 16ms ~ 60fps)
-      throttledUpdateRef.current = throttle(updatePosition, 16);
-      
-      // Use throttled version for scroll/resize
-      window.addEventListener('scroll', throttledUpdateRef.current, true);
-      window.addEventListener('resize', throttledUpdateRef.current);
-      
-      return () => {
-        if (throttledUpdateRef.current) {
-          window.removeEventListener('scroll', throttledUpdateRef.current, true);
-          window.removeEventListener('resize', throttledUpdateRef.current);
-        }
-      };
-    } else {
-      // Reset position when suggestions are closed
-      setPosition({ top: 0, left: 0, width: 0 });
-    }
-  }, [showSuggestions, filteredSuggestionsLength, inputRef]);
+    // Only attach scroll/resize listeners while the list is open
+    whileElementsMounted: autoUpdate,
 
-  return position;
+    middleware: [
+      // 4px gap between input and list
+      offset(4),
+
+      // Flip above when not enough space below
+      flip({ padding: 8 }),
+
+      // Shift horizontally to stay inside viewport
+      shift({ padding: 8 }),
+
+      // Match the width of the reference (input) element
+      size({
+        apply({ rects, elements }) {
+          Object.assign(elements.floating.style, {
+            width: `${rects.reference.width}px`,
+          });
+        },
+      }),
+    ],
+  });
+
+  return { refs, floatingStyles };
 };

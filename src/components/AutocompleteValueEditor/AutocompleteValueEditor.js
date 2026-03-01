@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useMergeRefs } from '@floating-ui/react';
 import {
   useAutocompleteSuggestions,
   useInputValidation,
@@ -30,6 +31,7 @@ const AutocompleteValueEditor = ({
   disabled = false,
   placeholder = '',
   onSuggestionsChange,
+  validation,        // RQB already ran field.validator(rule) — use its result
   ...props
 }) => {
   // State
@@ -45,14 +47,22 @@ const AutocompleteValueEditor = ({
 
   // Custom hooks
   const { filteredSuggestions } = useAutocompleteSuggestions(values, inputValue);
-  const { isValid, error: validationError } = useInputValidation(inputValue, fieldData, operator);
-  const suggestionsPosition = useSuggestionsPosition(showSuggestions, filteredSuggestions.length, inputRef);
+  // Read the validation result RQB already computed (no re-running the validator)
+  const { isValid, error: validationError } = useInputValidation(validation);
 
-  // Computed values (before callbacks to ensure consistent hook order)
+  // Floating UI — positions the suggestions list relative to the input
+  const hasSuggestionsOpen = Boolean(showSuggestions && filteredSuggestions.length > 0);
+  const { refs: floatingRefs, floatingStyles } = useSuggestionsPosition(hasSuggestionsOpen);
+
+  // Merge Floating UI's reference ref with our inputRef so both work
+  const mergedInputRef = useMergeRefs([inputRef, floatingRefs.setReference]);
+  // Merge Floating UI's floating ref with our suggestionsRef
+  const mergedSuggestionsRef = useMergeRefs([suggestionsRef, floatingRefs.setFloating]);
+
+  // Computed values
   const hasValue = Boolean(inputValue && inputValue.trim() !== '');
   const showValidation = Boolean(hasValue && validationError !== null);
   const hasClearButton = Boolean(hasValue && !disabled);
-  const hasSuggestionsOpen = Boolean(showSuggestions && filteredSuggestions.length > 0);
 
   // Event handlers (defined early so they can be used in hooks)
   const handleSuggestionSelect = useCallback((suggestion) => {
@@ -106,7 +116,6 @@ const AutocompleteValueEditor = ({
     valueSource,
     listsAsArrays,
     parseNumbers,
-    validation,
     schema,
     selectorComponent,
     title,
@@ -180,7 +189,7 @@ const AutocompleteValueEditor = ({
     >
       <InputWrapper
         inputValue={inputValue}
-        inputRef={inputRef}
+        inputRef={mergedInputRef}
         inputType={inputType}
         placeholder={placeholder}
         disabled={disabled}
@@ -211,8 +220,8 @@ const AutocompleteValueEditor = ({
         <SuggestionsList
           suggestions={filteredSuggestions}
           selectedIndex={selectedIndex}
-          suggestionsRef={suggestionsRef}
-          position={suggestionsPosition}
+          suggestionsRef={mergedSuggestionsRef}
+          floatingStyles={floatingStyles}
           onSuggestionSelect={handleSuggestionSelect}
           onSuggestionHover={setSelectedIndex}
           editorId={editorIdRef.current}
@@ -234,6 +243,14 @@ AutocompleteValueEditor.propTypes = {
   disabled: PropTypes.bool,
   placeholder: PropTypes.string,
   onSuggestionsChange: PropTypes.func,
+  /** Validation result computed by RQB from field.validator(rule) */
+  validation: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.shape({
+      valid: PropTypes.bool,
+      message: PropTypes.string,
+    }),
+  ]),
 };
 
 export default AutocompleteValueEditor;

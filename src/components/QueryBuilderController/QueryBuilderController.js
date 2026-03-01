@@ -10,21 +10,22 @@ import '../../styles/QueryBuilderController.query-builder.less';
 /**
  * QueryBuilderController
  *
- * Wraps React Query Builder with:
- * - a collapsible panel
- * - autocomplete value editor integration
- * - tracking of open suggestion popovers for layout adjustments.
+ * Presentational wrapper around React Query Builder:
+ * - collapsible panel
+ * - autocomplete value editor for text fields
+ * - tracks open suggestion popovers for layout adjustments
+ *
+ * Query state is owned by the **parent** (controlled mode).
+ * This component never holds its own copy of the query.
  */
 const QueryBuilderController = ({
   fields,
-  operators,
-  initialQuery = { combinator: 'and', rules: [] },
+  query,
   onQueryChange,
   label = 'Advanced filters',
   ...queryBuilderProps
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [query, setQuery] = useState(initialQuery);
   const openSuggestionsRef = useRef(new Set());
   const [hasSuggestionsOpen, setHasSuggestionsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -33,16 +34,7 @@ const QueryBuilderController = ({
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const handleQueryChange = useCallback(
-    (newQuery) => {
-      setQuery(newQuery);
-      if (onQueryChange) {
-        onQueryChange(newQuery);
-      }
-    },
-    [onQueryChange]
-  );
-
+  // Derive rule count from the query prop (single source of truth)
   const rulesCount = useMemo(() => countRules(query), [query]);
 
   const expandedLabel = `Hide ${label}`;
@@ -67,12 +59,12 @@ const QueryBuilderController = ({
     valueEditor: (props) => {
       const { fieldData, type, values, operator } = props;
 
-      // Boolean / radio fields → always use the library's default editor
+      // Non-text editors (select, radio, checkbox) → use the library's default
       if (
-        type === 'checkbox' ||
+        type === 'select' ||
         type === 'radio' ||
+        fieldData?.valueEditorType === 'select' ||
         fieldData?.valueEditorType === 'radio' ||
-        fieldData?.valueEditorType === 'checkbox' ||
         fieldData?.type === 'boolean'
       ) {
         return <ValueEditor {...props} />;
@@ -162,9 +154,8 @@ const QueryBuilderController = ({
         >
           <QueryBuilder
             fields={fields}
-            operators={operators}
             query={query}
-            onQueryChange={handleQueryChange}
+            onQueryChange={onQueryChange}
             showCombinatorsBetweenRules={true}
             showNotToggle={true}
             getValueEditorType={getValueEditorType}
@@ -178,20 +169,18 @@ const QueryBuilderController = ({
 };
 
 QueryBuilderController.propTypes = {
+  /** Field definitions (with per-field operators, validators, etc.) */
   fields: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       label: PropTypes.string,
     })
   ).isRequired,
-  operators: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      label: PropTypes.string,
-    })
-  ).isRequired,
-  initialQuery: PropTypes.object,
-  onQueryChange: PropTypes.func,
+  /** Controlled query object — parent is the single source of truth */
+  query: PropTypes.object.isRequired,
+  /** Called whenever the query changes */
+  onQueryChange: PropTypes.func.isRequired,
+  /** Label shown on the collapse button */
   label: PropTypes.string,
 };
 
