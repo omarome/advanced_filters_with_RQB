@@ -100,7 +100,10 @@ const CollapsibleList = () => {
   return (
     <div className="collapsible-list" data-testid="collapsible-list">
       {isLive !== null && (
-        <DataSourceBanner isLive={isLive} />
+        <DataSourceBanner
+          isLive={isLive}
+          duration={Number(import.meta.env.VITE_BANNER_DURATION) || 3000}
+        />
       )}
       <QueryBuilderController
         fields={fields}

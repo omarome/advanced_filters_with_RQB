@@ -1,4 +1,11 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+/**
+ * API client for the Smart Filter Hub backend.
+ *
+ * The base URL is configured via the VITE_API_BASE_URL environment variable:
+ *   - Development: http://localhost:8080/api  (direct to Spring Boot)
+ *   - Production:  /api                       (NGINX reverse proxy)
+ */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * Fetches all users from the backend API.
