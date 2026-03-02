@@ -1,5 +1,107 @@
 @import './variables.less';
 
+// ── Light theme (default) ───────────────────────────────────
+:root,
+[data-theme='light'] {
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-focus: rgba(99, 102, 241, 0.25);
+  --color-primary-subtle: rgba(99, 102, 241, 0.08);
+
+  --color-error: #ef4444;
+  --color-error-hover: #dc2626;
+  --color-error-focus: rgba(239, 68, 68, 0.2);
+
+  --color-success: #22c55e;
+  --color-success-focus: rgba(34, 197, 94, 0.2);
+
+  --color-bg-page: #f8fafc;
+  --color-bg: #ffffff;
+  --color-bg-muted: #f1f5f9;
+  --color-bg-disabled: #e2e8f0;
+  --color-bg-active: #cbd5e1;
+  --color-bg-hover-row: #f8fafc;
+
+  --color-border: #cbd5e1;
+  --color-border-light: #e2e8f0;
+
+  --color-text: #0f172a;
+  --color-text-muted: #334155;
+  --color-text-placeholder: #94a3b8;
+  --color-text-light: #64748b;
+
+  --color-scrollbar-track: #f1f5f9;
+  --color-scrollbar-thumb: #94a3b8;
+  --color-scrollbar-thumb-hover: #64748b;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+  --color-banner-live-bg: #ecfdf5;
+  --color-banner-live-border: #a7f3d0;
+  --color-banner-live-text: #065f46;
+  --color-banner-mock-bg: #fffbeb;
+  --color-banner-mock-border: #fde68a;
+  --color-banner-mock-text: #92400e;
+
+  --color-toggle-bg: #e2e8f0;
+  --color-toggle-icon: #64748b;
+
+  color-scheme: light;
+}
+
+// ── Dark theme ──────────────────────────────────────────────
+[data-theme='dark'] {
+  --color-primary: #818cf8;
+  --color-primary-hover: #6366f1;
+  --color-primary-focus: rgba(129, 140, 248, 0.3);
+  --color-primary-subtle: rgba(129, 140, 248, 0.1);
+
+  --color-error: #f87171;
+  --color-error-hover: #ef4444;
+  --color-error-focus: rgba(248, 113, 113, 0.25);
+
+  --color-success: #4ade80;
+  --color-success-focus: rgba(74, 222, 128, 0.25);
+
+  --color-bg-page: #0f172a;
+  --color-bg: #1e293b;
+  --color-bg-muted: #283548;
+  --color-bg-disabled: #334155;
+  --color-bg-active: #475569;
+  --color-bg-hover-row: #283548;
+
+  --color-border: #334155;
+  --color-border-light: #283548;
+
+  --color-text: #f1f5f9;
+  --color-text-muted: #cbd5e1;
+  --color-text-placeholder: #64748b;
+  --color-text-light: #94a3b8;
+
+  --color-scrollbar-track: #1e293b;
+  --color-scrollbar-thumb: #475569;
+  --color-scrollbar-thumb-hover: #64748b;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+
+  --color-banner-live-bg: #064e3b;
+  --color-banner-live-border: #065f46;
+  --color-banner-live-text: #a7f3d0;
+  --color-banner-mock-bg: #451a03;
+  --color-banner-mock-border: #78350f;
+  --color-banner-mock-text: #fde68a;
+
+  --color-toggle-bg: #334155;
+  --color-toggle-icon: #fbbf24;
+
+  color-scheme: dark;
+}
+
+// ── Global resets ───────────────────────────────────────────
 * {
   margin: 0;
   padding: 0;
@@ -10,12 +112,13 @@ body {
   font-family: @font-family;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: @background-page;
+  background-color: var(--color-bg-page);
+  color: var(--color-text);
   padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   max-width: 1200px;
   margin: 0 auto;
 }
-

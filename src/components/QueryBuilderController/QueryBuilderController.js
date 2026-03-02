@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { QueryBuilder, ValueEditor } from 'react-querybuilder';
 import PropTypes from 'prop-types';
+import CloseIcon from '@mui/icons-material/Close';
 import CollapseButton from '../CollapseButton/CollapseButton';
 import AutocompleteValueEditor from '../AutocompleteValueEditor/AutocompleteValueEditor';
 import { countRules } from '../../utils/queryUtils';
@@ -152,6 +153,17 @@ const QueryBuilderController = ({
           className={`query-builder-controller__content ${hasSuggestionsOpen ? 'query-builder-controller__content--has-suggestions' : ''}`}
           data-testid="query-builder-content"
         >
+          <div className="query-builder-controller__mobile-header">
+            <span className="query-builder-controller__mobile-title">{label}</span>
+            <button
+              className="query-builder-controller__close-btn"
+              onClick={handleToggle}
+              aria-label="Close filters"
+              type="button"
+            >
+              <CloseIcon fontSize="small" />
+            </button>
+          </div>
           <QueryBuilder
             fields={fields}
             query={query}

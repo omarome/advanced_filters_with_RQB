@@ -2,10 +2,28 @@
 
 .app {
   padding: 20px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+  }
 }
 
-.app h1 {
-  margin-bottom: 30px;
-  color: @text-color;
-}
+@media (max-width: 640px) {
+  .app {
+    padding: 12px;
 
+    &__title {
+      font-size: 20px;
+    }
+  }
+}

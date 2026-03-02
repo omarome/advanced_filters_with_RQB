@@ -15,24 +15,24 @@
   &__title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #d32f2f;
+    color: var(--color-error);
     margin: 0 0 12px;
   }
 
   &__message {
     font-size: 1rem;
-    color: #555;
+    color: var(--color-text-muted);
     margin: 0 0 20px;
     line-height: 1.5;
   }
 
   &__details {
-    background: #fafafa;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border-light);
+    border-radius: @border-radius;
     padding: 12px;
     font-size: 0.8rem;
-    color: #b71c1c;
+    color: var(--color-error);
     text-align: left;
     white-space: pre-wrap;
     word-break: break-word;
@@ -44,18 +44,18 @@
     font-size: 0.95rem;
     font-weight: 500;
     color: #fff;
-    background: #1976d2;
+    background: var(--color-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: @border-radius;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background @transition-duration-fast;
 
     &:hover {
-      background: #1565c0;
+      background: var(--color-primary-hover);
     }
 
     &:focus-visible {
-      outline: 2px solid #1976d2;
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
   }

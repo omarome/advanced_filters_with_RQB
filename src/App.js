@@ -1,19 +1,18 @@
 import React from 'react';
 import CollapsibleList from './components/CollapsibleList/CollapsibleList';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import ThemeToggle from './components/ThemeToggle/ThemeToggle';
 import './styles/App.less';
-
-/**
- * App
- *
- * Top-level shell that renders the advanced data explorer
- * with dynamic filtering powered by React Query Builder.
- */
 
 function App() {
   return (
     <div className="app">
-      <h1>{import.meta.env.VITE_APP_TITLE || 'Smart Filter Hub'}</h1>
+      <header className="app__header">
+        <h1 className="app__title">
+          {import.meta.env.VITE_APP_TITLE || 'Smart Filter Hub'}
+        </h1>
+        <ThemeToggle />
+      </header>
       <ErrorBoundary>
         <CollapsibleList />
       </ErrorBoundary>

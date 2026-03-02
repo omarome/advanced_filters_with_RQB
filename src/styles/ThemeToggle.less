@@ -1,0 +1,48 @@
+@import './variables.less';
+
+.theme-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-toggle-bg);
+  color: var(--color-toggle-icon);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color @transition-duration @transition-easing,
+    color @transition-duration @transition-easing,
+    transform 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: scale(1.1);
+    background-color: var(--color-bg-active);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &__icon {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity @transition-duration @transition-easing,
+      transform @transition-duration @transition-easing;
+
+    &--hidden {
+      opacity: 0;
+      transform: rotate(90deg) scale(0);
+    }
+  }
+}

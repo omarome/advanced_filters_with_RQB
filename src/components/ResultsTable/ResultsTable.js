@@ -70,6 +70,7 @@ const ResultsTable = ({ data, columns, isLoading = false, testIdPrefix = 'result
                       <td
                         key={column.key}
                         className="results-table__td"
+                        data-label={column.label || column.key}
                         data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
                       >
                         {displayValue}

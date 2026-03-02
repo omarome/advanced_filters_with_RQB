@@ -2,16 +2,16 @@
 
 /* Query Builder Override Styles */
 .query-builder-controller__content .ruleGroup {
-  background-color: @background-muted;
-  border: 1px solid @border-color-light;
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
   border-radius: @border-radius;
   padding: @spacing;
   margin: @spacing-xs 0;
 }
 
 .query-builder-controller__content .rule {
-  background-color: @background;
-  border: 1px solid @border-color-light;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border-light);
   border-radius: @border-radius;
   padding: @spacing;
   margin: @spacing-xs 0;
@@ -29,45 +29,53 @@
 
 .query-builder-controller__content .ruleGroup-addRule,
 .query-builder-controller__content .ruleGroup-addGroup {
-  background-color: @primary-color;
-  color: @background;
+  background-color: var(--color-primary);
+  color: #fff;
   border: none;
   border-radius: @border-radius;
   padding: @spacing-xs @spacing;
   cursor: pointer;
   font-size: @font-size-sm;
   margin: @spacing-xs;
-  transition: background-color @transition-duration @transition-easing;
+  font-weight: 500;
+  transition: background-color @transition-duration @transition-easing,
+    box-shadow @transition-duration @transition-easing;
 }
 
 .query-builder-controller__content .ruleGroup-addRule:hover,
 .query-builder-controller__content .ruleGroup-addGroup:hover {
-  background-color: @primary-hover;
+  background-color: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .query-builder-controller__content .ruleGroup-remove,
 .query-builder-controller__content .rule-remove {
-  background-color: @error-color;
-  color: @background;
+  background-color: var(--color-error);
+  color: #fff;
   border: none;
   border-radius: @border-radius;
   padding: @spacing-xs @spacing;
   cursor: pointer;
   font-size: @font-size-sm;
+  font-weight: 500;
   transition: background-color @transition-duration @transition-easing;
 }
 
 .query-builder-controller__content .ruleGroup-remove:hover,
 .query-builder-controller__content .rule-remove:hover {
-  background-color: @error-hover;
+  background-color: var(--color-error-hover);
 }
 
 .query-builder-controller__content select,
 .query-builder-controller__content input {
-  padding: @spacing-xs;
-  border: 1px solid @border-color-light;
+  padding: @spacing-xs 10px;
+  border: 1px solid var(--color-border);
   border-radius: @border-radius;
   font-size: @font-size-base;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color @transition-duration-fast ease,
+    box-shadow @transition-duration-fast ease;
 }
 
 .query-builder-controller__content .rule .rule-field {
@@ -85,19 +93,58 @@
   min-width: 0;
 }
 
-/* Radio button group (e.g. boolean True / False) */
 .query-builder-controller__content .rule .rule-value label {
   margin-right: @spacing;
   display: inline-flex;
   align-items: center;
   gap: @spacing-xs;
   cursor: pointer;
+  color: var(--color-text);
 }
 
 .query-builder-controller__content select:focus,
 .query-builder-controller__content input:focus {
-  outline: 2px solid @primary-focus-rgba;
-  outline-offset: 2px;
-  border-color: @primary-color;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus);
 }
 
+/* Combinator select between rules */
+.query-builder-controller__content .ruleGroup-combinators {
+  color: var(--color-text);
+}
+
+/* NOT toggle */
+.query-builder-controller__content .ruleGroup-notToggle label {
+  color: var(--color-text-muted);
+}
+
+/* ── Responsive: stack rules vertically on small screens ── */
+@media (max-width: 768px) {
+  .query-builder-controller__content .rule {
+    flex-wrap: wrap;
+    gap: @spacing-xs;
+  }
+
+  .query-builder-controller__content .rule .rule-field,
+  .query-builder-controller__content .rule .rule-operator {
+    flex: 1 1 calc(50% - @spacing-xs);
+    min-width: 0;
+  }
+
+  .query-builder-controller__content .rule .rule-value {
+    flex: 1 1 100%;
+  }
+
+  .query-builder-controller__content select,
+  .query-builder-controller__content input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .query-builder-controller__content .rule .rule-field,
+  .query-builder-controller__content .rule .rule-operator {
+    flex: 1 1 100%;
+  }
+}

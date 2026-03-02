@@ -1,58 +1,72 @@
 @import './variables.less';
 
 .collapse-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: @spacing;
+  justify-content: center;
+  padding: 10px 20px;
   margin-bottom: @spacing;
-  background-color: transparent;
-  border: 1px solid @primary-color;
-  border-radius: @border-radius;
-  color: @primary-color;
+  background-color: var(--color-primary-subtle);
+  border: 1px solid var(--color-primary);
+  border-radius: @border-radius-lg;
+  color: var(--color-primary);
   font-size: @font-size-base;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition:
     background-color @transition-duration @transition-easing,
     color @transition-duration @transition-easing,
     border-color @transition-duration @transition-easing,
+    box-shadow @transition-duration @transition-easing,
     transform 0.1s @transition-easing;
   font-family: inherit;
-  gap: @spacing / 2;
+  gap: @spacing-xs;
+  white-space: nowrap;
 
   &__text {
-    flex: 1;
     text-align: left;
   }
 
   &__icon {
     flex-shrink: 0;
+    font-size: 20px;
   }
 
   &:hover {
-    background-color: @primary-color;
-    color: @background;
+    background-color: var(--color-primary);
+    color: #fff;
+    box-shadow: var(--shadow-md);
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
-  &:focus {
-    outline: 2px solid lighten(@primary-color, 20%);
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 
     &:hover {
-      background-color: transparent;
-      color: @primary-color;
+      background-color: var(--color-primary-subtle);
+      color: var(--color-primary);
+      box-shadow: none;
     }
+  }
+
+  &--expanded {
+    background-color: var(--color-primary);
+    color: #fff;
   }
 }
 
+@media (max-width: 480px) {
+  .collapse-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

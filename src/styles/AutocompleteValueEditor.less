@@ -10,30 +10,30 @@
     position: relative;
     display: flex;
     align-items: center;
-    border: 1px solid @border-color;
+    border: 1px solid var(--color-border);
     border-radius: @border-radius;
-    background-color: @background;
+    background-color: var(--color-bg);
     transition: border-color @transition-duration-fast ease,
       box-shadow @transition-duration-fast ease;
 
     &:focus-within {
-      border-color: @primary-color;
-      box-shadow: 0 0 0 0.2rem @primary-focus-rgba;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-focus);
     }
 
     &--valid {
-      border-color: @success-color;
+      border-color: var(--color-success);
 
       &:focus-within {
-        box-shadow: 0 0 0 0.2rem @success-focus-rgba;
+        box-shadow: 0 0 0 3px var(--color-success-focus);
       }
     }
 
     &--invalid {
-      border-color: @error-color;
+      border-color: var(--color-error);
 
       &:focus-within {
-        box-shadow: 0 0 0 0.2rem @error-focus-rgba;
+        box-shadow: 0 0 0 3px var(--color-error-focus);
       }
     }
   }
@@ -46,18 +46,18 @@
     padding: 8px @spacing;
     font-size: @font-size-base;
     line-height: @line-height-base;
-    color: @text-muted;
+    color: var(--color-text);
     background: transparent;
     width: 100%;
     box-sizing: border-box;
 
     &::placeholder {
-      color: @text-placeholder;
+      color: var(--color-text-placeholder);
       opacity: 1;
     }
 
     &:disabled {
-      background-color: @background-disabled;
+      background-color: var(--color-bg-disabled);
       cursor: not-allowed;
       opacity: 0.6;
     }
@@ -76,7 +76,7 @@
     padding: 0;
     border: none;
     background: transparent;
-    color: @text-placeholder;
+    color: var(--color-text-placeholder);
     cursor: pointer;
     border-radius: 50%;
     transition: background-color @transition-duration-fast ease,
@@ -89,16 +89,16 @@
     }
 
     &:hover {
-      background-color: @background-disabled;
-      color: @text-muted;
+      background-color: var(--color-bg-disabled);
+      color: var(--color-text-muted);
     }
 
     &:active {
-      background-color: @background-active;
+      background-color: var(--color-bg-active);
     }
 
     &:focus {
-      outline: 2px solid @primary-color;
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
   }
@@ -131,11 +131,11 @@
 
   &__icon {
     &--valid {
-      color: @success-color;
+      color: var(--color-success);
     }
 
     &--invalid {
-      color: @error-color;
+      color: var(--color-error);
     }
   }
 
@@ -147,24 +147,22 @@
     margin-top: 2px;
     padding: 4px 0;
     font-size: @font-size-sm;
-    color: @error-color;
+    color: var(--color-error);
     line-height: 1.4;
     z-index: 999;
-    background-color: @background;
+    background-color: var(--color-bg);
     pointer-events: none;
   }
 
-  // Positioning (top, left, width, position, transform) is handled
-  // entirely by Floating UI via inline styles on the element.
   &__suggestions {
     z-index: @z-index-overlay;
     margin: 0;
     padding: 0;
     list-style: none;
-    background-color: @background;
-    border: 1px solid @border-color;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: @border-radius;
-    box-shadow: @shadow-lg;
+    box-shadow: var(--shadow-lg);
     max-height: 280px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -174,17 +172,17 @@
     padding: 8px @spacing;
     font-size: @font-size-base;
     line-height: @line-height-base;
-    color: @text-muted;
+    color: var(--color-text-muted);
     cursor: pointer;
     transition: background-color @transition-duration-fast ease;
 
     &:hover,
     &--selected {
-      background-color: @background-muted;
+      background-color: var(--color-bg-muted);
     }
 
     &--selected {
-      background-color: lighten(@background-muted, 5%);
+      color: var(--color-primary);
       font-weight: 500;
     }
 
@@ -205,16 +203,15 @@
 }
 
 .autocomplete-value-editor__suggestions::-webkit-scrollbar-track {
-  background: @scrollbar-track;
+  background: var(--color-scrollbar-track);
   border-radius: @border-radius;
 }
 
 .autocomplete-value-editor__suggestions::-webkit-scrollbar-thumb {
-  background: @scrollbar-thumb;
+  background: var(--color-scrollbar-thumb);
   border-radius: @border-radius;
 
   &:hover {
-    background: @scrollbar-thumb-hover;
+    background: var(--color-scrollbar-thumb-hover);
   }
 }
-
