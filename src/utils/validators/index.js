@@ -11,25 +11,52 @@
  * This means RQB can call it internally and expose the result via
  * `props.validation` on the value editor — no need to re-run it.
  */
-export { detectDangerousInput } from './sanitize';
-export { validateString } from './stringValidator';
-export { validateNumber } from './numberValidator';
-export { validateEmail } from './emailValidator';
-
 import { detectDangerousInput } from './sanitize';
 import { validateString } from './stringValidator';
 import { validateNumber } from './numberValidator';
 import { validateEmail } from './emailValidator';
 
-/**
- * Type → validator mapping.
- * Each entry is a function: (value, fieldName, options) => result
- */
+export { detectDangerousInput, validateString, validateNumber, validateEmail };
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
 const typeValidators = {
   string: (value, fieldName) => validateString(value, fieldName),
   email: (value, fieldName) => validateEmail(value),
   number: (value, fieldName, opts) => validateNumber(value, fieldName, opts),
 };
+
+/** Operators that require no user-supplied value. */
+const NO_VALUE_OPERATORS = new Set(['null', 'notNull']);
+
+/** Operators whose value is a pair (lo, hi). RQB may send a comma string or an array. */
+const MULTI_VALUE_OPERATORS = new Set(['between', 'notBetween']);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Normalises a rule's value into an array of trimmed string parts.
+ *
+ * For multi-value operators (`between`, `notBetween`) RQB may deliver
+ * a comma-separated string (`"10,20"`) *or* a real array (`[10, 20]`)
+ * depending on the `listsAsArrays` prop.  This helper handles both.
+ *
+ * @returns {string[]} one element for single-value ops, two for multi-value
+ */
+const normaliseValueParts = (value, isMultiValue) => {
+  if (!isMultiValue) return [String(value).trim()];
+  return Array.isArray(value)
+    ? value.map((v) => String(v).trim())
+    : String(value).split(',').map((v) => v.trim());
+};
+
+// ---------------------------------------------------------------------------
+// Main factory
+// ---------------------------------------------------------------------------
 
 /**
  * Creates a validator function for a field.
@@ -51,32 +78,45 @@ const typeValidators = {
  * @returns {(rule: RuleType) => true | { valid: false, message: string }}
  */
 export const createFieldValidator = (fieldName, fieldType = 'string', options = {}) => {
+  const typeValidator = typeValidators[fieldType];
+
   return (rule) => {
-    const value = rule?.value;
-    const operator = rule?.operator;
+    const { value, operator } = rule ?? {};
 
     // 1. Operators that don't require a value
-    if (operator === 'null' || operator === 'notNull') {
+    if (NO_VALUE_OPERATORS.has(operator)) {
       return true;
     }
 
-    // 2. Empty check
+    // 2. Empty check (before normalisation — catches null/undefined/blank)
     if (value === null || value === undefined || String(value).trim() === '') {
       return { valid: false, message: `${fieldName} cannot be empty` };
     }
 
-    const trimmed = String(value).trim();
+    // 3. Normalise into parts (single-value → 1 element, between → 2)
+    const isMultiValue = MULTI_VALUE_OPERATORS.has(operator);
+    const parts = normaliseValueParts(value, isMultiValue);
 
-    // 3. Sanitization (cross-cutting — all types)
-    const dangerousMsg = detectDangerousInput(trimmed);
-    if (dangerousMsg) {
-      return { valid: false, message: dangerousMsg };
+    if (isMultiValue && parts.length !== 2) {
+      return { valid: false, message: `${fieldName} requires exactly two values` };
     }
 
-    // 4. Type-specific validation
-    const typeValidator = typeValidators[fieldType];
-    if (typeValidator) {
-      return typeValidator(trimmed, fieldName, options);
+    for (const p of parts) {
+      if (p === '') {
+        return { valid: false, message: `${fieldName} cannot be empty` };
+      }
+
+      // 4. Sanitization (cross-cutting — all types)
+      const dangerousMsg = detectDangerousInput(p);
+      if (dangerousMsg) {
+        return { valid: false, message: dangerousMsg };
+      }
+
+      // 5. Type-specific validation
+      if (typeValidator) {
+        const result = typeValidator(p, fieldName, options);
+        if (result !== true) return result;
+      }
     }
 
     return true;
