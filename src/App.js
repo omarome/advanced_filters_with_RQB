@@ -12,7 +12,7 @@ import './styles/App.less';
 function App() {
   return (
     <div className="app">
-      <h1>Smart Filter Hub</h1>
+      <h1>{import.meta.env.VITE_APP_TITLE || 'Smart Filter Hub'}</h1>
       <CollapsibleList />
     </div>
   );
