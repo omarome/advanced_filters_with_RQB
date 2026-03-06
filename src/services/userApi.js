@@ -5,7 +5,7 @@
  *   - Development: http://localhost:8080/api  (direct to Spring Boot)
  *   - Production:  /api                       (NGINX reverse proxy)
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_KEY = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * Fetches all users from the backend API.
