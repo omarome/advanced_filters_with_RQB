@@ -8,6 +8,7 @@
   border-radius: @border-radius;
   overflow: hidden;
   box-shadow: @shadow-sm;
+  backdrop-filter: @glass-blur; // Add glass effect for dark mode
 
   &__header {
     padding: @spacing * 1.5;
@@ -18,8 +19,8 @@
   &__title {
     margin: 0;
     font-size: @font-size-lg;
-    font-weight: 600;
-    color: @text-color;
+    font-weight: 700;
+    color: inherit; // Inherit from parent which is @text-color
   }
 
   &__container {

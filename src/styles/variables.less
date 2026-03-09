@@ -44,19 +44,19 @@
   @border-color: #3a3a4e;
   @border-color-light: #2e2e42;
 
-  @background: #1a1a2e;
-  @background-page: #0f0c29;
-  @background-muted: #16162a;
-  @background-disabled: #252538;
-  @background-active: #2a2a44;
+  @background: @glass-bg-dark;
+  @background-page: transparent; // Let the gradient show through
+  @background-muted: rgba(255, 255, 255, 0.03);
+  @background-disabled: rgba(255, 255, 255, 0.05);
+  @background-active: rgba(255, 255, 255, 0.1);
 
-  @text-color: #e0e0e0;
-  @text-muted: #a0a0b0;
-  @text-placeholder: #707080;
+  @text-color: #ffffff;
+  @text-muted: rgba(255, 255, 255, 0.7);
+  @text-placeholder: rgba(255, 255, 255, 0.45);
   
-  @scrollbar-track: #16162a;
-  @scrollbar-thumb: #3a3a4e;
-  @scrollbar-thumb-hover: #4a4a60;
+  @scrollbar-track: rgba(0, 0, 0, 0.2);
+  @scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  @scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
 }
 
 @text-muted-light: lighten(@text-color, 30%);

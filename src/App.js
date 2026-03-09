@@ -45,7 +45,9 @@ function AppContent() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+          background: mode === 'light' 
+            ? 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' 
+            : 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
         }}
       >
         <CircularProgress sx={{ color: '#667eea' }} size={48} />
@@ -68,14 +70,20 @@ function AppContent() {
         <Typography 
           variant="h1" 
           onClick={() => setAppView('hub')}
-          sx={{ cursor: 'pointer', fontSize: '2rem', m: 0, fontWeight: 700 }}
+          sx={{ 
+            cursor: 'pointer', 
+            fontSize: '2rem', 
+            m: 0, 
+            fontWeight: 700,
+            color: 'text.primary' // Use theme text color
+          }}
         >
           {import.meta.env.VITE_APP_TITLE || 'Smart Filter Hub'}
         </Typography>
 
         <Box className="app-user-menu">
           <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
-            <IconButton onClick={toggleTheme} sx={{ color: '#fff', mr: 1 }}>
+            <IconButton onClick={toggleTheme} sx={{ color: mode === 'light' ? '#333' : '#fff', mr: 1 }}>
               {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
           </Tooltip>
@@ -83,7 +91,7 @@ function AppContent() {
           <IconButton
             id="user-menu-button"
             onClick={(e) => setAnchorEl(e.currentTarget)}
-            sx={{ color: '#fff' }}
+            sx={{ color: mode === 'light' ? '#333' : '#fff' }}
           >
             <AccountCircleIcon />
           </IconButton>
