@@ -1,69 +1,97 @@
 // Design tokens – shared across all styles
 
-// Colors
-@primary-color: #667eea;
-@primary-hover: #5d71d6;
-@primary-focus-rgba: rgba(102, 126, 234, 0.25);
+:root {
+  --primary-color: #667eea;
+  --primary-hover: #5d71d6;
+  --primary-focus-rgba: rgba(102, 126, 234, 0.25);
 
-@error-color: #dc3545;
-@error-hover: #c82333;
-@error-focus-rgba: rgba(220, 53, 69, 0.25);
+  --error-color: #dc3545;
+  --error-hover: #c82333;
+  --error-focus-rgba: rgba(220, 53, 69, 0.25);
 
-@success-color: #28a745;
-@success-focus-rgba: rgba(40, 167, 69, 0.25);
+  --success-color: #28a745;
+  --success-focus-rgba: rgba(40, 167, 69, 0.25);
 
-@border-color: #ced4da;
-@border-color-light: #e9ecef;
+  --border-color: #ced4da;
+  --border-color-light: #e9ecef;
 
-@background: #ffffff;
-@background-page: #f5f5f5;
-@background-muted: #f8f9fa;
-@background-disabled: #e9ecef;
-@background-active: #dee2e6;
+  --background: #ffffff;
+  --background-page: #f5f7fa;
+  --background-muted: #f8f9fa;
+  --background-disabled: #e9ecef;
+  --background-active: #dee2e6;
 
-@text-color: #212529;
-@text-muted: #495057;
-@text-placeholder: #6c757d;
+  --text-color: #212529;
+  --text-muted: #495057;
+  --text-placeholder: #6c757d;
 
-// Premium Backgrounds (Gradients)
-@background-gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-@background-gradient-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  // Premium Backgrounds (Gradients)
+  --background-gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --background-gradient-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
-// Glassmorphism Tokens
-@glass-bg-dark: rgba(255, 255, 255, 0.06);
-@glass-bg-light: rgba(255, 255, 255, 0.7);
-@glass-border-dark: rgba(255, 255, 255, 0.1);
-@glass-border-light: rgba(255, 255, 255, 0.2);
-@glass-blur: blur(24px);
-
-// Dark mode overrides
-.dark-mode {
-  @primary-color: #7d91f1;
-  @primary-hover: #8ba0f5;
-  
-  @border-color: #3a3a4e;
-  @border-color-light: #2e2e42;
-
-  @background: @glass-bg-dark;
-  @background-page: transparent; // Let the gradient show through
-  @background-muted: rgba(255, 255, 255, 0.03);
-  @background-disabled: rgba(255, 255, 255, 0.05);
-  @background-active: rgba(255, 255, 255, 0.1);
-
-  @text-color: #ffffff;
-  @text-muted: rgba(255, 255, 255, 0.7);
-  @text-placeholder: rgba(255, 255, 255, 0.45);
-  
-  @scrollbar-track: rgba(0, 0, 0, 0.2);
-  @scrollbar-thumb: rgba(255, 255, 255, 0.1);
-  @scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  // Glassmorphism Tokens
+  --glass-bg-dark: rgba(255, 255, 255, 0.06);
+  --glass-bg-light: rgba(255, 255, 255, 0.7);
+  --glass-border-dark: rgba(255, 255, 255, 0.1);
+  --glass-border-light: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(24px);
 }
 
-@text-muted-light: lighten(@text-color, 30%);
+.dark-mode {
+  --primary-color: #7d91f1;
+  --primary-hover: #8ba0f5;
+  
+  --border-color: #31314a;
+  --border-color-light: #252538;
 
-@scrollbar-track: #f1f1f1;
-@scrollbar-thumb: #888;
-@scrollbar-thumb-hover: #555;
+  --background: rgba(255, 255, 255, 0.06);
+  --background-page: transparent; 
+  --background-muted: rgba(255, 255, 255, 0.03);
+  --background-disabled: rgba(255, 255, 255, 0.05);
+  --background-active: rgba(255, 255, 255, 0.1);
+
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-placeholder: rgba(255, 255, 255, 0.45);
+  
+  --scrollbar-track: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+}
+
+// Map LESS variables to CSS variables for compatibility
+@primary-color: var(--primary-color);
+@primary-hover: var(--primary-hover);
+@primary-focus-rgba: var(--primary-focus-rgba);
+
+@error-color: var(--error-color);
+@error-hover: var(--error-hover);
+
+@border-color: var(--border-color);
+@border-color-light: var(--border-color-light);
+
+@background: var(--background);
+@background-page: var(--background-page);
+@background-muted: var(--background-muted);
+@background-disabled: var(--background-disabled);
+@background-active: var(--background-active);
+
+@text-color: var(--text-color);
+@text-muted: var(--text-muted);
+@text-placeholder: var(--text-placeholder);
+
+@background-gradient-dark: var(--background-gradient-dark);
+@background-gradient-light: var(--background-gradient-light);
+
+@glass-bg-dark: var(--glass-bg-dark);
+@glass-bg-light: var(--glass-bg-light);
+@glass-border-dark: var(--glass-border-dark);
+@glass-border-light: var(--glass-border-light);
+@glass-blur: var(--glass-blur);
+
+@scrollbar-track: var(--scrollbar-track, #f1f1f1);
+@scrollbar-thumb: var(--scrollbar-thumb, #888);
+@scrollbar-thumb-hover: var(--scrollbar-thumb-hover, #555);
 
 @shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
 @shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -93,4 +121,3 @@
 @z-index-base: 1;
 @z-index-content: 1000;
 @z-index-overlay: 99999;
-

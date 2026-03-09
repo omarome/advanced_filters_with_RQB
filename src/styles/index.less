@@ -19,3 +19,19 @@ body {
 #root {
   margin: 0 auto;
 }
+
+// Global Dark Mode Overrides for Library Components (like Query Builder)
+body.dark-mode {
+  background-color: transparent; // Let the .app gradient show
+  color: #fff;
+
+  .ruleGroup, .rule, table, thead, tbody, tr, th, td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+  }
+
+  h3, h1, h2, span, label, p {
+    color: #fff !important;
+  }
+}

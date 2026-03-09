@@ -75,7 +75,7 @@ function AppContent() {
             fontSize: '2rem', 
             m: 0, 
             fontWeight: 700,
-            color: 'text.primary' // Use theme text color
+            color: mode === 'dark' ? '#fff' : '#000' // Explicit override
           }}
         >
           {import.meta.env.VITE_APP_TITLE || 'Smart Filter Hub'}

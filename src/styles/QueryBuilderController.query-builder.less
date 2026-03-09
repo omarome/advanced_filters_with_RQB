@@ -68,6 +68,18 @@
   border: 1px solid @border-color-light;
   border-radius: @border-radius;
   font-size: @font-size-base;
+  background-color: @background-muted; // Theme-aware background
+  color: inherit; // Use parent text color
+  transition: all 0.2s ease;
+}
+
+.query-builder-controller__content .ruleGroup {
+  background-color: @background-muted;
+  border: 1px solid @border-color-light;
+  border-radius: @border-radius;
+  padding: @spacing;
+  margin: @spacing-xs 0;
+  backdrop-filter: @glass-blur; // Add glass effect for consistency
 }
 
 .query-builder-controller__content .rule .rule-field {
