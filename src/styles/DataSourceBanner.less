@@ -13,9 +13,8 @@
 
   // ── Variants ──────────────────────────────────────────────
   &--live {
-    background-color: #e8f5e9;
+    background-color: var(--primary-gradient);
     border: 1px solid #a5d6a7;
-    color: #2e7d32;
   }
 
   &--mock {
@@ -67,6 +66,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
