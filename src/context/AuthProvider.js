@@ -119,12 +119,9 @@ export function AuthProvider({ children }) {
       return updatedUser;
     } catch (err) {
       console.error('Failed to update profile:', err);
-      // For demo/dev: simulate success if API is not implemented
-      const mockUpdatedUser = { ...user, displayName };
-      setUser(mockUpdatedUser);
-      return mockUpdatedUser;
+      throw err; // Propagate error so UI can handle it
     }
-  }, [user]);
+  }, []);
 
   const deleteAccount = useCallback(async () => {
     if (!_accessToken) return;
