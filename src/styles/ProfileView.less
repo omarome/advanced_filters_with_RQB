@@ -177,6 +177,90 @@
     margin-bottom: @spacing * 1.5;
     line-height: 1.5;
   }
+
+  // ── Refactored Inline Styles ───────────────────────────
+  
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  &__input-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__input {
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 2px 8px;
+    background: var(--background);
+    color: var(--text-color);
+    width: 200px;
+    outline: none;
+
+    &--error {
+      border-color: var(--error-color);
+    }
+  }
+
+  &__action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--success {
+      color: var(--success-color);
+    }
+
+    &--error {
+      color: var(--error-color);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__error-message {
+    color: var(--error-color);
+    font-size: 11px;
+    max-width: 250px;
+  }
+
+  &__icon {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+
+    &--primary {
+      color: var(--primary-color);
+    }
+  }
+
+  &__role-value {
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+
+  &__section-title--small {
+    font-size: 16px !important;
+  }
+
+  &__danger-title {
+    color: #dc2626 !important;
+  }
+
+  &__danger-description {
+    color: #b91c1c !important;
+  }
 }
 
 @keyframes fadeIn {

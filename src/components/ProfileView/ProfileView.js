@@ -13,14 +13,19 @@ export default function ProfileView() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(user?.displayName || '');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   if (!user) return null;
 
   const handleUpdateName = async () => {
     setIsUpdating(true);
+    setNameError('');
     try {
       await updateProfile(newName);
       setIsEditingName(false);
+    } catch (err) {
+      // Backend returns field-specific errors in the response body
+      setNameError(err.message || 'Failed to update name');
     } finally {
       setIsUpdating(false);
     }
@@ -39,9 +44,9 @@ export default function ProfileView() {
         {/* Account Information */}
         <section className="profile-settings__section">
           <div className="profile-settings__avatar-section">
-            <img 
-              src={user?.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`} 
-              alt="Profile" 
+            <img
+              src={user?.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`}
+              alt="Profile"
               className="profile-view-img"
             />
             <div className="avatar-info">
@@ -54,27 +59,34 @@ export default function ProfileView() {
             <div className="item-info">
               <label>Display Name</label>
               {isEditingName ? (
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                  <input
-                    type="text"
-                    className="value"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    style={{
-                      border: '1px solid var(--primary-color)',
-                      borderRadius: '4px',
-                      padding: '2px 8px',
-                      background: 'var(--background)',
-                      color: 'var(--text-color)'
-                    }}
-                    autoFocus
-                  />
-                  <button onClick={handleUpdateName} disabled={isUpdating} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--success-color)' }}>
-                    <LucideCheck size={18} />
-                  </button>
-                  <button onClick={() => { setIsEditingName(false); setNewName(user.displayName); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error-color)' }}>
-                    <LucideX size={18} />
-                  </button>
+                <div className="profile-settings__form">
+                  <div className="profile-settings__input-group">
+                    <input
+                      type="text"
+                      className={`value profile-settings__input ${nameError ? 'profile-settings__input--error' : ''}`}
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleUpdateName}
+                      disabled={isUpdating}
+                      className="profile-settings__action-btn profile-settings__action-btn--success"
+                    >
+                      <LucideCheck size={18} />
+                    </button>
+                    <button
+                      onClick={() => { setIsEditingName(false); setNewName(user.displayName); setNameError(''); }}
+                      className="profile-settings__action-btn profile-settings__action-btn--error"
+                    >
+                      <LucideX size={18} />
+                    </button>
+                  </div>
+                  {nameError && (
+                    <div className="profile-settings__error-message">
+                      {nameError}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="value">{user.displayName || 'No name set'}</div>
@@ -92,7 +104,7 @@ export default function ProfileView() {
               <label>Email</label>
               <div className="value">{user.email}</div>
             </div>
-            <div style={{ color: 'var(--text-muted)' }}>
+            <div className="profile-settings__icon">
               <LucideMail size={18} />
             </div>
           </div>
@@ -100,9 +112,9 @@ export default function ProfileView() {
           <div className="profile-settings__item">
             <div className="item-info">
               <label>Role</label>
-              <div className="value" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>Super Admin</div>
+              <div className="value profile-settings__role-value">Super Admin</div>
             </div>
-            <div style={{ color: 'var(--primary-color)' }}>
+            <div className="profile-settings__icon profile-settings__icon--primary">
               <LucideShield size={18} />
             </div>
           </div>
@@ -111,7 +123,7 @@ export default function ProfileView() {
         {/* Sign Out Section */}
         <section className="profile-settings__section">
           <div className="profile-settings__header">
-            <h2 style={{ fontSize: '16px' }}>Sign Out</h2>
+            <h2 className="profile-settings__section-title--small">Sign Out</h2>
           </div>
           <p className="description">
             Sign out of your account on this device.
@@ -126,13 +138,13 @@ export default function ProfileView() {
         {/* Danger Zone */}
         <section className="profile-settings__section profile-settings__danger-zone">
           <div className="profile-settings__header">
-            <h2 style={{ color: '#dc2626' }}>Danger Zone</h2>
+            <h2 className="profile-settings__danger-title">Danger Zone</h2>
           </div>
-          <p className="description" style={{ color: '#b91c1c' }}>
+          <p className="description profile-settings__danger-description">
             Permanently delete your account and all associated data.
           </p>
           <div className="profile-settings__footer">
-            <button className="delete-btn" onClick={() => { if(window.confirm('Are you sure? This cannot be undone.')) deleteAccount(); }}>
+            <button className="delete-btn" onClick={() => { if (window.confirm('Are you sure? This cannot be undone.')) deleteAccount(); }}>
               <LucideTrash2 size={16} /> Delete Account
             </button>
           </div>
