@@ -1,5 +1,6 @@
 // App.js
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { LucideUsers, LucideActivity, LucidePieChart, LucideRadio } from 'lucide-react';
 
@@ -26,7 +27,6 @@ function AppContent() {
   const { user, isAuthenticated, isLoading, handleOAuthSuccess } = useAuth();
   const { mode } = useThemeControl();
   const [authView, setAuthView] = useState('login'); // 'login' | 'register'
-  const [appView, setAppView] = useState('hub'); // 'hub' | 'profile'
 
   // ── Handle OAuth Success Redirect ──────────────────────
   useEffect(() => {
@@ -168,15 +168,17 @@ function AppContent() {
       bannerContent={banner}
     >
       <ErrorBoundary>
-        {appView === 'profile' ? (
-          <ProfileView onBack={() => setAppView('hub')} />
-        ) : (
-          <CollapsibleList 
-            users={users} 
-            variables={variables} 
-            isDataLoading={isDataLoading} 
-          />
-        )}
+        <Routes>
+          <Route path="/" element={
+            <CollapsibleList 
+              users={users} 
+              variables={variables} 
+              isDataLoading={isDataLoading} 
+            />
+          } />
+          <Route path="/settings/account" element={<ProfileView />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </ErrorBoundary>
     </Layout>
   );
@@ -187,7 +189,9 @@ function App() {
   return (
     <ThemeControlProvider>
       <AuthProvider>
-        <AppContent />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
       </AuthProvider>
     </ThemeControlProvider>
   );

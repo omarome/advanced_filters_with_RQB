@@ -73,3 +73,35 @@ export const getMeApi = async (accessToken) => {
   }
   return response.json();
 };
+
+/**
+ * PATCH /api/auth/profile
+ */
+export const updateProfileApi = async (accessToken, displayName) => {
+  const response = await fetch(`${API_BASE}/auth/profile`, {
+    method: 'PATCH',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ displayName }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || `Update failed: ${response.status}`);
+  }
+  return response.json();
+};
+
+/**
+ * DELETE /api/auth/account
+ */
+export const deleteAccountApi = async (accessToken) => {
+  const response = await fetch(`${API_BASE}/auth/account`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) {
+    throw new Error(`Deletion failed: ${response.status}`);
+  }
+};

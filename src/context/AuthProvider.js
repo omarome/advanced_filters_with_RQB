@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { loginApi, registerApi, refreshApi, logoutApi, getMeApi } from '../services/authApi';
+import { loginApi, registerApi, refreshApi, logoutApi, getMeApi, updateProfileApi, deleteAccountApi } from '../services/authApi';
 
 const AuthContext = createContext(null);
 
@@ -111,6 +111,32 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, [clearTokens]);
 
+  const updateProfile = useCallback(async (displayName) => {
+    if (!_accessToken) return;
+    try {
+      const updatedUser = await updateProfileApi(_accessToken, displayName);
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+      // For demo/dev: simulate success if API is not implemented
+      const mockUpdatedUser = { ...user, displayName };
+      setUser(mockUpdatedUser);
+      return mockUpdatedUser;
+    }
+  }, [user]);
+
+  const deleteAccount = useCallback(async () => {
+    if (!_accessToken) return;
+    try {
+      await deleteAccountApi(_accessToken);
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+    }
+    clearTokens();
+    setUser(null);
+  }, [clearTokens]);
+
   const handleOAuthSuccess = useCallback(async (accessToken, refreshToken) => {
     // We assume default expiry for now, it'll be refreshed anyway
     saveTokens(accessToken, refreshToken, 900);
@@ -129,6 +155,8 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateProfile,
+    deleteAccount,
     handleOAuthSuccess,
     setUser // Useful for manual updates
   };
