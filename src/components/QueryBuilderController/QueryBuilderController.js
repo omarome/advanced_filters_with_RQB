@@ -30,20 +30,36 @@ const QueryBuilderController = ({
   const [hasSuggestionsOpen, setHasSuggestionsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const handleToggle = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
+  const initialRuleAddedRef = useRef(false);
 
-  // Auto-add initial rule when expanded if query is empty and fields are ready
-  useEffect(() => {
-    if (isExpanded && query.rules.length === 0 && fields.length > 0) {
-      const firstField = fields[0].name;
+  const handleToggle = useCallback(() => {
+    const nextExpanded = !isExpanded;
+    setIsExpanded(nextExpanded);
+
+    // Proactively add initial rule on expand if empty
+    if (nextExpanded && query.rules.length === 0 && fields.length > 0) {
+      initialRuleAddedRef.current = true;
       onQueryChange({
         ...query,
-        rules: [{ field: firstField, operator: '=', value: '' }]
+        rules: [{ field: fields[0].name, operator: '=', value: '' }]
       });
     }
-  }, [isExpanded, query.rules.length, fields, onQueryChange, query]);
+    
+    if (!nextExpanded) {
+      initialRuleAddedRef.current = false;
+    }
+  }, [isExpanded, query, fields, onQueryChange]);
+
+  // Fallback: Add initial rule if fields load AFTER expansion
+  useEffect(() => {
+    if (isExpanded && query.rules.length === 0 && fields.length > 0 && !initialRuleAddedRef.current) {
+      initialRuleAddedRef.current = true;
+      onQueryChange({
+        ...query,
+        rules: [{ field: fields[0].name, operator: '=', value: '' }]
+      });
+    }
+  }, [isExpanded, fields.length, onQueryChange]); // Reduced dependencies to avoid loops
 
   // Derive rule count from the query prop (single source of truth)
   const rulesCount = useMemo(() => countRules(query), [query]);

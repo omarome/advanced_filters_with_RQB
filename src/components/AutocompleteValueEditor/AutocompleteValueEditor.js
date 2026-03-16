@@ -152,7 +152,9 @@ const AutocompleteValueEditor = ({
 
   // Sync external value changes
   useEffect(() => {
-    setInputValue(value || '');
+    if (value !== inputValue) {
+      setInputValue(value || '');
+    }
   }, [value]);
 
   // Scroll selected suggestion into view

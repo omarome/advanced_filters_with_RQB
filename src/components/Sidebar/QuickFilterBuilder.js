@@ -39,89 +39,51 @@ const QuickFilterBuilder = ({ query, onQueryChange }) => {
     setLocalUserType(userTypeRule?.value || '');
   }, [query]);
 
+  // ── Reactive Update Helper ─────────────────────────────
+  const updateGlobalQuery = useCallback((statuses, age, type) => {
+    // Preserve rules that AREN'T handled by the Quick Filter sidebar
+    const otherRules = query.rules.filter(r => 
+      r.field !== 'status' && r.field !== 'age' && r.field !== 'userType'
+    );
+    const newRules = [...otherRules];
+
+    // Add sidebar rules
+    if (statuses.length > 0) {
+      newRules.push({ field: 'status', operator: 'in', value: statuses.join(',') });
+    }
+    if (age.min !== '' || age.max !== '') {
+      newRules.push({ field: 'age', operator: 'between', value: `${age.min},${age.max}` });
+    }
+    if (type !== '') {
+      newRules.push({ field: 'userType', operator: '=', value: type });
+    }
+
+    onQueryChange({ ...query, rules: newRules });
+  }, [query, onQueryChange]);
+
   // ── Local UI Handlers ──────────────────────────────────
 
   const handleStatusToggle = useCallback((status) => {
-    setLocalSelectedStatuses(prev => {
-      const index = prev.indexOf(status);
-      if (index === -1) {
-        return [...prev, status];
-      } else {
-        return prev.filter(s => s !== status);
-      }
-    });
-  }, []);
+    const nextStatuses = localSelectedStatuses.includes(status)
+      ? localSelectedStatuses.filter(s => s !== status)
+      : [...localSelectedStatuses, status];
+    
+    setLocalSelectedStatuses(nextStatuses);
+    updateGlobalQuery(nextStatuses, localAgeRange, localUserType);
+  }, [localSelectedStatuses, localAgeRange, localUserType, updateGlobalQuery]);
 
   const handleAgeChange = useCallback((type, value) => {
-    setLocalAgeRange(prev => ({
-      ...prev,
-      [type]: value
-    }));
-  }, []);
+    const nextAgeRange = { ...localAgeRange, [type]: value };
+    setLocalAgeRange(nextAgeRange);
+    updateGlobalQuery(localSelectedStatuses, nextAgeRange, localUserType);
+  }, [localSelectedStatuses, localAgeRange, localUserType, updateGlobalQuery]);
 
   const handleUserTypeChange = useCallback((value) => {
     setLocalUserType(value);
-  }, []);
+    updateGlobalQuery(localSelectedStatuses, localAgeRange, value);
+  }, [localSelectedStatuses, localAgeRange, updateGlobalQuery]);
 
   const isStatusChecked = (status) => localSelectedStatuses.includes(status);
-
-  // ── Apply Logic ────────────────────────────────────────
-
-  const handleApply = useCallback(() => {
-    const otherRules = query.rules.filter(r => r.field !== 'status' && r.field !== 'age' && r.field !== 'userType');
-    const newRules = [...otherRules];
-
-    // Add status rule if any selected
-    if (localSelectedStatuses.length > 0) {
-      newRules.push({
-        field: 'status',
-        operator: 'in',
-        value: localSelectedStatuses.join(',')
-      });
-    }
-
-    // Add age rule if any min/max provided
-    if (localAgeRange.min !== '' || localAgeRange.max !== '') {
-      newRules.push({
-        field: 'age',
-        operator: 'between',
-        value: `${localAgeRange.min},${localAgeRange.max}`
-      });
-    }
-
-    // Add user type rule if selected
-    if (localUserType !== '') {
-      newRules.push({
-        field: 'userType',
-        operator: '=',
-        value: localUserType
-      });
-    }
-
-    onQueryChange({
-      ...query,
-      rules: newRules
-    });
-  }, [localSelectedStatuses, localAgeRange, localUserType, query, onQueryChange]);
-
-  // Determine if there are pending changes
-  const hasPendingChanges = useMemo(() => {
-    const currentStatusRule = query.rules.find(r => r.field === 'status' && r.operator === 'in');
-    const currentStatuses = currentStatusRule?.value ? String(currentStatusRule.value).split(',').map(v => v.trim()) : [];
-    
-    const currentAgeRule = query.rules.find(r => r.field === 'age' && r.operator === 'between');
-    const currentAgeValue = currentAgeRule?.value || ',';
-    const localAgeValue = `${localAgeRange.min},${localAgeRange.max}`;
-
-    const currentUserTypeRule = query.rules.find(r => r.field === 'userType' && r.operator === '=');
-    const currentUserType = currentUserTypeRule?.value || '';
-
-    const statusChanged = JSON.stringify(currentStatuses.sort()) !== JSON.stringify([...localSelectedStatuses].sort());
-    const ageChanged = currentAgeValue !== localAgeValue;
-    const userTypeChanged = currentUserType !== localUserType;
-    
-    return statusChanged || ageChanged || userTypeChanged;
-  }, [query, localSelectedStatuses, localAgeRange, localUserType]);
 
   return (
     <aside className="quick-filter-sidebar">
@@ -198,14 +160,6 @@ const QuickFilterBuilder = ({ query, onQueryChange }) => {
               <option value="retired">Retired</option>
             </select>
           </div>
-
-          <button 
-            className={`apply-btn ${hasPendingChanges ? 'pending' : ''}`}
-            onClick={handleApply}
-          >
-            Apply Quick Filters
-            <LucideArrowRight size={14} />
-          </button>
         </div>
       </div>
 

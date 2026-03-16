@@ -10,8 +10,15 @@ export const countRules = (query) => {
       // This is a rule group, traverse its children
       rule.rules.forEach(traverse);
     } else if (rule.field && rule.operator) {
-      // This is an actual rule
-      count++;
+      // Only count if it's a null-check OR has a non-empty value
+      const isNullOperator = rule.operator === 'null' || rule.operator === 'notNull';
+      const hasValue = rule.value !== undefined && 
+                       rule.value !== null && 
+                       String(rule.value).trim() !== '';
+      
+      if (isNullOperator || hasValue) {
+        count++;
+      }
     }
   };
 

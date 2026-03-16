@@ -1,5 +1,7 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import 'react-querybuilder/dist/query-builder.css';
+import { LucideSave, LucideDownload, LucideX } from 'lucide-react';
+
 import QueryBuilderController from '../QueryBuilderController/QueryBuilderController';
 import ResultsTable from '../ResultsTable/ResultsTable';
 import { filterData } from '../../utils/queryFilter';
@@ -8,6 +10,8 @@ import { enhanceFieldWithValues } from '../../utils/fieldUtils';
 import { buildFieldsFromVariables } from '../../config/queryConfig';
 import { mockUsers } from '../../data/mockData';
 import { mockVariables } from '../../data/mockVariables';
+import { convertToCSV, downloadCSV } from '../../utils/exportUtils';
+
 import '../../styles/CollapsibleList.less';
 
 /**
@@ -107,14 +111,15 @@ const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUse
     }));
   }, [users, variables]);
 
+  // Export to CSV handler
+  const handleExport = useCallback(() => {
+    const csv = convertToCSV(filteredData, tableColumns);
+    downloadCSV(csv, `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+  }, [filteredData, tableColumns]);
 
   return (
     <div className="collapsible-list insight-hub-wrapper" data-testid="collapsible-list">
       
-      {/* 
-          We move the QueryBuilderController inside the children flow 
-          but styled for the main content area.
-      */}
       <div className="main-actions-row animate-slide-up delay-300">
         <div className="primary-actions-group">
           <QueryBuilderController
@@ -134,7 +139,14 @@ const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUse
         </div>
         <div className="secondary-actions">
            <button className="action-btn border-btn"><LucideSave size={16} /> Save View</button>
-           <button className="action-btn border-btn"><LucideDownload size={16} /> Export</button>
+           <button 
+             className="action-btn border-btn"
+             onClick={handleExport}
+             title="Export current view to CSV"
+           >
+             <LucideDownload size={16} /> 
+             Export
+           </button>
         </div>
       </div>
 
@@ -152,8 +164,5 @@ const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUse
     </div>
   );
 };
-
-// Internal imports for the icons used in the new structure
-import { LucideSave, LucideDownload, LucideX } from 'lucide-react';
 
 export default CollapsibleList;

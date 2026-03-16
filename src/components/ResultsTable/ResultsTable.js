@@ -68,7 +68,6 @@ const ResultsTable = ({
                   {column.label || column.key}
                 </th>
               ))}
-              <th className="results-table__th text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="results-table__tbody">
@@ -122,9 +121,6 @@ const ResultsTable = ({
                       </td>
                     );
                   })}
-                  <td className="results-table__td text-right">
-                    <button className="action-dots">•••</button>
-                  </td>
                 </tr>
               );
             })}
