@@ -2,33 +2,32 @@
 
 A production-ready React application for dynamic data filtering, built on top of [React Query Builder](https://react-querybuilder.js.org/). It connects to a Spring Boot backend for live data and field definitions, with automatic fallback to local mock data when the API is unavailable.
 
-![Query Builder component preview](./public/images/filters_with_suggestions.png)
+![Query Builder component preview](./public/images/screenshot_dark_mode.png)
 
 ### Features
 
-- **Dynamic field definitions** — fields, operators, and types are fetched from the backend (`/api/variables`), not hardcoded
-- **Autocomplete value editor** — type-ahead suggestions extracted from live data, with keyboard and mouse navigation
-- **Type-aware validation** — field validators follow the RQB convention (`validator(rule)`); results are consumed via `props.validation` — no duplicate work
-- **SQL injection protection** — cross-cutting sanitization rejects dangerous characters and patterns
-- **Boolean / select / radio support** — fields like `isOnline` (radio) and `status` (select) use the library's built-in `ValueEditor`
-- **Per-field operators** — each field declares its own operator set (string, number, email, boolean); no top-level `operators` prop needed
-- **Collapsible filter panel** — toggle button shows the active rule count
-- **Live results table** — filters data in real time as rules change, with full operator coverage including `between`, `doesNotContain`, etc.
-- **Floating UI positioning** — suggestion list uses [`@floating-ui/react`](https://floating-ui.com/) for robust, viewport-aware positioning via portal
-- **Graceful API fallback** — if the backend is unreachable, the app falls back to mock data with a one-time notification banner
-- **Accessible** — ARIA attributes (`aria-expanded`, `aria-activedescendant`, `aria-controls`, `role="listbox"`) and full keyboard navigation
+- **Paginated results table** — dynamic pagination with total item count and responsive navigation
+- **Auto-initial rule** — filter panel automatically adds the first field rule when expanded if empty
+- **Global Dark/Light Mode** — seamless theme switching in the header and auth pages with persistence
+- **Dynamic field definitions** — fields, operators, and types are fetched from the backend (`/api/variables`)
+- **Autocomplete value editor** — type-ahead suggestions extracted from live data with keyboard navigation
+- **Type-aware validation** — cross-cutting sanitization and RQB-compatible field validators
+- **Collapsible filter panel** — toggle button with active rule count and click-outside dismissal
+- **Floating UI positioning** — robust, viewport-aware positioning for suggestion portals
+- **Graceful API fallback** — automatic mock data fallback with notification banner
+- **Accessible** — full ARIA compliance and keyboard-only navigation support
 
 ### Tech Stack
 
 | Layer | Technology |
 |---|---|
-| UI Framework | React 18 |
+| UI Framework | React 18 / Vite 5 |
+| UI Components | [@mui/material](https://mui.com/material-ui/) |
 | Query Builder | [react-querybuilder](https://react-querybuilder.js.org/) v7 |
 | Positioning | [@floating-ui/react](https://floating-ui.com/) |
-| Icons | [@mui/icons-material](https://mui.com/material-ui/material-icons/) |
-| Styling | LESS with design tokens |
-| Build Tool | Vite 5 |
-| Backend | Spring Boot (separate repository) |
+| Icons | [Lucide React](https://lucide.dev/) |
+| Styling | LESS with CSS Variables (Theming) |
+| State | Custom Context (Auth & Theme) |
 | Package Manager | pnpm |
 
 ### Setup
@@ -72,15 +71,14 @@ In Netlify, define the variables under **Site settings → Build & deploy 
 
 ### Usage
 
-1. On startup, a **notification banner** indicates whether the app is connected to the backend (green) or using mock data (orange). It auto-dismisses after 5 seconds.
-2. Click the **"Advanced filters [X selected]"** button to expand the query builder panel.
-3. Add rules using **"Add rule"** and **"Add group"** buttons.
-4. For text fields, start typing to see **autocomplete suggestions**:
-   - Use Arrow keys + Enter, or click a suggestion to select it.
-   - A **clear button** (×) appears inside the input when it has a value.
-5. **Validation feedback** appears inline — powered by RQB's built-in validation flow.
-6. The **results table** automatically filters and displays matching records.
-7. Use the **"not"** toggle on any group to negate its result.
+1. On startup, a **notification banner** indicates connection status. It auto-dismisses after 3 seconds.
+2. Toggle between **Dark and Light mode** using the sun/moon icon in the top header.
+3. Click the **"Advanced filters"** button to expand the query builder.
+   - If empty, the first field rule is added automatically to get you started.
+   - The button label shows the current active rule count.
+4. For text fields, start typing to see **autocomplete suggestions**.
+5. The **results table** updates in real-time. Use the **pagination controls** at the bottom to navigate large datasets.
+6. Use the **"not"** toggle on any rule or group to negate results.
 
 Example filters to try:
 
@@ -96,45 +94,29 @@ Example filters to try:
 ```text
 ├── CollapsibleList.js                    # Page-level shell: data fetching, query state, fields
 ├── src/
-│   ├── App.js                            # Top-level app component
+│   ├── App.js                            # Main application shell with routing
 │   ├── config/
-│   │   └── queryConfig.js                # Field builder, operator sets, type mappings
+│   │   └── queryConfig.js                # Field definitions and operator sets
+│   ├── context/
+│   │   ├── AuthProvider.js               # Authentication state & OAuth handling
+│   │   └── ThemeContext.js               # Dark/Light mode engine (MUI + LESS)
 │   ├── components/
-│   │   ├── QueryBuilderController/       # Collapsible query builder (controlled mode)
-│   │   ├── AutocompleteValueEditor/      # Custom value editor with autocomplete
-│   │   │   ├── hooks/                    # useAutocompleteSuggestions, useInputValidation,
-│   │   │   │                             # useSuggestionsPosition (Floating UI), useClickOutside,
-│   │   │   │                             # useKeyboardNavigation, useSuggestionsState
-│   │   │   └── subcomponents/            # InputWrapper, SuggestionsList, ValidationMessage
-│   │   ├── CollapseButton/               # Expand/collapse toggle with MUI icons
-│   │   ├── DataSourceBanner/             # One-time live/mock notification
-│   │   └── ResultsTable/                 # Filtered results display
-│   ├── data/
-│   │   ├── mockData.js                   # Mock users (fallback)
-│   │   └── mockVariables.js              # Mock field definitions (fallback)
+│   │   ├── Layout/                       # Shell components (Header, Sidebar, Analytics)
+│   │   ├── LoginPage/                    # OAuth & Email/Password entry
+│   │   ├── RegisterPage/                 # User registration
+│   │   ├── ProfileView/                  # User account settings
+│   │   ├── QueryBuilderController/       # Collapsible RQB wrapper
+│   │   ├── AutocompleteValueEditor/      # Optimized custom editor
+│   │   ├── DataSourceBanner/             # Live/Mock status notifications
+│   │   └── ResultsTable/                 # Paginated data display
 │   ├── services/
-│   │   └── userApi.js                    # API client (fetchUsers, fetchVariables)
+│   │   └── userApi.js                    # API client (Axios/Fetch)
 │   ├── utils/
-│   │   ├── queryFilter.js                # Client-side rule evaluation (all operators)
-│   │   ├── fieldUtils.js                 # Field enhancement (suggestions + validator wiring)
-│   │   ├── queryUtils.js                 # Helper utilities (rule counting)
-│   │   └── validators/                   # Separated validation modules
-│   │       ├── index.js                  # createFieldValidator composer
-│   │       ├── sanitize.js               # SQL injection / dangerous char detection
-│   │       ├── stringValidator.js        # String length checks
-│   │       ├── numberValidator.js        # Number, non-negative, whole-number checks
-│   │       └── emailValidator.js         # Email regex validation
+│   │   ├── queryFilter.js                # Client-side filtering logic
+│   │   └── validators/                   # Type-safe validation modules
 │   └── styles/
-│       ├── variables.less                # Design tokens (colors, spacing, z-index)
-│       ├── App.less
-│       ├── CollapsibleList.less
-│       ├── AutocompleteValueEditor.less
-│       ├── DataSourceBanner.less
-│       ├── QueryBuilderController.less
-│       ├── QueryBuilderController.query-builder.less
-│       ├── CollapseButton.less
-│       ├── ResultsTable.less
-│       └── index.less                    # Global styles
+│       ├── variables.less                # CSS variables & design tokens
+│       └── ...                           # Component-specific styles
 ├── package.json
 └── vite.config.js
 ```
