@@ -19,15 +19,11 @@ import '../../styles/CollapsibleList.less';
  */
 const ITEMS_PER_PAGE = 10;
 
-const CollapsibleList = () => {
+const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUsers, variables: initialVariables, isDataLoading }) => {
   const [users, setUsers] = useState([]);
   const [variables, setVariables] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [query, setQuery] = useState({
-    combinator: 'and',
-    rules: [],
-  });
 
   // null = not yet determined, true = live API, false = mock fallback
   const [isLive, setIsLive] = useState(null);
@@ -79,9 +75,9 @@ const CollapsibleList = () => {
   }, [variables, users]);
 
   const handleQueryChange = useCallback((newQuery) => {
-    setQuery(newQuery);
+    onQueryChange(newQuery);
     setCurrentPage(1); // Reset to first page on query change
-  }, []);
+  }, [onQueryChange]);
 
   // Filter data based on query (client-side filtering)
   const filteredData = useMemo(() => {
@@ -120,12 +116,22 @@ const CollapsibleList = () => {
           but styled for the main content area.
       */}
       <div className="main-actions-row animate-slide-up delay-300">
-        <QueryBuilderController
-          fields={fields}
-          query={query}
-          label="Advanced filters"
-          onQueryChange={handleQueryChange}
-        />
+        <div className="primary-actions-group">
+          <QueryBuilderController
+            fields={fields}
+            query={query}
+            label="Advanced filters"
+            onQueryChange={handleQueryChange}
+          />
+          <button 
+            className="action-btn clear-filters-btn"
+            onClick={onResetQuery}
+            title="Clear all filters"
+          >
+            <LucideX size={16} /> 
+            Clear Filters
+          </button>
+        </div>
         <div className="secondary-actions">
            <button className="action-btn border-btn"><LucideSave size={16} /> Save View</button>
            <button className="action-btn border-btn"><LucideDownload size={16} /> Export</button>
@@ -148,6 +154,6 @@ const CollapsibleList = () => {
 };
 
 // Internal imports for the icons used in the new structure
-import { LucideSave, LucideDownload } from 'lucide-react';
+import { LucideSave, LucideDownload, LucideX } from 'lucide-react';
 
 export default CollapsibleList;

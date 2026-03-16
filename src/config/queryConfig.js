@@ -78,6 +78,16 @@ const fieldEditorOverrides = {
     ],
     operators: selectOperators,
   },
+  userType: {
+    valueEditorType: 'select',
+    values: [
+      { name: 'student', label: 'Student' },
+      { name: 'employee', label: 'Employee' },
+      { name: 'unemployed', label: 'Unemployed' },
+      { name: 'retired', label: 'Retired' },
+    ],
+    operators: selectOperators,
+  },
 };
 
 

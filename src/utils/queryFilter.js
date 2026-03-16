@@ -79,14 +79,24 @@ const evaluateRule = (rule, item) => {
 
     // Range operators (RQB sends "a,b" for between)
     case 'between': {
-      const [lo, hi] = String(value).split(',').map(Number);
+      const [loStr, hiStr] = String(value).split(',');
+      const lo = loStr === '' ? -Infinity : Number(loStr);
+      const hi = hiStr === '' ? Infinity : Number(hiStr);
       const num = Number(fieldValue);
       return num >= lo && num <= hi;
     }
     case 'notBetween': {
-      const [lo, hi] = String(value).split(',').map(Number);
+      const [loStr, hiStr] = String(value).split(',');
+      const lo = loStr === '' ? -Infinity : Number(loStr);
+      const hi = hiStr === '' ? Infinity : Number(hiStr);
       const num = Number(fieldValue);
       return num < lo || num > hi;
+    }
+
+    // List operators (RQB sends "a,b,c" for in)
+    case 'in': {
+      const values = String(value).split(',').map(v => v.trim().toLowerCase());
+      return values.includes(itemValueStr);
     }
 
     default:

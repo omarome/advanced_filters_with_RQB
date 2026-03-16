@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { 
   LucideZap, 
   LucidePlusCircle, 
@@ -11,7 +11,118 @@ import {
 } from 'lucide-react';
 import '../../styles/QuickFilterBuilder.less';
 
-const QuickFilterBuilder = () => {
+const QuickFilterBuilder = ({ query, onQueryChange }) => {
+  // ── Local State for Sidebar ────────────────────────────
+  const [localSelectedStatuses, setLocalSelectedStatuses] = useState([]);
+  const [localAgeRange, setLocalAgeRange] = useState({ min: '', max: '' });
+  const [localUserType, setLocalUserType] = useState('');
+
+  // ── Sync with Global Query Prop ────────────────────────
+  // When the query prop changes (e.g. from Advanced Filters), update local state
+  useEffect(() => {
+    // Extract statuses
+    const statusRule = query.rules.find(r => r.field === 'status' && r.operator === 'in');
+    const statuses = statusRule?.value ? String(statusRule.value).split(',').map(v => v.trim()) : [];
+    setLocalSelectedStatuses(statuses);
+
+    // Extract age range
+    const ageRule = query.rules.find(r => r.field === 'age' && r.operator === 'between');
+    if (ageRule?.value) {
+      const [min, max] = String(ageRule.value).split(',');
+      setLocalAgeRange({ min: min || '', max: max || '' });
+    } else {
+      setLocalAgeRange({ min: '', max: '' });
+    }
+
+    // Extract user type
+    const userTypeRule = query.rules.find(r => r.field === 'userType' && r.operator === '=');
+    setLocalUserType(userTypeRule?.value || '');
+  }, [query]);
+
+  // ── Local UI Handlers ──────────────────────────────────
+
+  const handleStatusToggle = useCallback((status) => {
+    setLocalSelectedStatuses(prev => {
+      const index = prev.indexOf(status);
+      if (index === -1) {
+        return [...prev, status];
+      } else {
+        return prev.filter(s => s !== status);
+      }
+    });
+  }, []);
+
+  const handleAgeChange = useCallback((type, value) => {
+    setLocalAgeRange(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  }, []);
+
+  const handleUserTypeChange = useCallback((value) => {
+    setLocalUserType(value);
+  }, []);
+
+  const isStatusChecked = (status) => localSelectedStatuses.includes(status);
+
+  // ── Apply Logic ────────────────────────────────────────
+
+  const handleApply = useCallback(() => {
+    const otherRules = query.rules.filter(r => r.field !== 'status' && r.field !== 'age' && r.field !== 'userType');
+    const newRules = [...otherRules];
+
+    // Add status rule if any selected
+    if (localSelectedStatuses.length > 0) {
+      newRules.push({
+        field: 'status',
+        operator: 'in',
+        value: localSelectedStatuses.join(',')
+      });
+    }
+
+    // Add age rule if any min/max provided
+    if (localAgeRange.min !== '' || localAgeRange.max !== '') {
+      newRules.push({
+        field: 'age',
+        operator: 'between',
+        value: `${localAgeRange.min},${localAgeRange.max}`
+      });
+    }
+
+    // Add user type rule if selected
+    if (localUserType !== '') {
+      newRules.push({
+        field: 'userType',
+        operator: '=',
+        value: localUserType
+      });
+    }
+
+    onQueryChange({
+      ...query,
+      rules: newRules
+    });
+  }, [localSelectedStatuses, localAgeRange, localUserType, query, onQueryChange]);
+
+  // Determine if there are pending changes
+  const hasPendingChanges = useMemo(() => {
+    const currentStatusRule = query.rules.find(r => r.field === 'status' && r.operator === 'in');
+    const currentStatuses = currentStatusRule?.value ? String(currentStatusRule.value).split(',').map(v => v.trim()) : [];
+    
+    const currentAgeRule = query.rules.find(r => r.field === 'age' && r.operator === 'between');
+    const currentAgeValue = currentAgeRule?.value || ',';
+    const localAgeValue = `${localAgeRange.min},${localAgeRange.max}`;
+
+    const currentUserTypeRule = query.rules.find(r => r.field === 'userType' && r.operator === '=');
+    const currentUserType = currentUserTypeRule?.value || '';
+
+    const statusChanged = JSON.stringify(currentStatuses.sort()) !== JSON.stringify([...localSelectedStatuses].sort());
+    const ageChanged = currentAgeValue !== localAgeValue;
+    const userTypeChanged = currentUserType !== localUserType;
+    
+    return statusChanged || ageChanged || userTypeChanged;
+  }, [query, localSelectedStatuses, localAgeRange, localUserType]);
+
   return (
     <aside className="quick-filter-sidebar">
       {/* Quick Filter Builder Card */}
@@ -25,15 +136,27 @@ const QuickFilterBuilder = () => {
             <label className="field-label">User Status</label>
             <div className="checkbox-group">
               <label className="checkbox-item">
-                <input type="checkbox" defaultChecked />
+                <input 
+                  type="checkbox" 
+                  checked={isStatusChecked('Active')} 
+                  onChange={() => handleStatusToggle('Active')}
+                />
                 <span className="badge badge-active">Active</span>
               </label>
               <label className="checkbox-item">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={isStatusChecked('Inactive')} 
+                  onChange={() => handleStatusToggle('Inactive')}
+                />
                 <span className="badge badge-inactive">Inactive</span>
               </label>
               <label className="checkbox-item">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={isStatusChecked('Pending')} 
+                  onChange={() => handleStatusToggle('Pending')}
+                />
                 <span className="badge badge-pending">Pending</span>
               </label>
             </div>
@@ -42,25 +165,32 @@ const QuickFilterBuilder = () => {
           <div className="filter-field">
             <label className="field-label">Age Range</label>
             <div className="range-inputs">
-              <input type="number" placeholder="Min" className="filter-input" />
+              <input 
+                type="number" 
+                placeholder="Min" 
+                className="filter-input" 
+                value={localAgeRange.min}
+                onChange={(e) => handleAgeChange('min', e.target.value)}
+              />
               <span className="range-separator">-</span>
-              <input type="number" placeholder="Max" className="filter-input" />
+              <input 
+                type="number" 
+                placeholder="Max" 
+                className="filter-input" 
+                value={localAgeRange.max}
+                onChange={(e) => handleAgeChange('max', e.target.value)}
+              />
             </div>
           </div>
 
-          <div className="filter-field">
-            <label className="field-label">Last Login</label>
-            <select className="filter-select">
-              <option value="">Anytime</option>
-              <option value="7d">Within last 7 days</option>
-              <option value="30d">Within last 30 days</option>
-              <option value="90d">Within last 90 days</option>
-            </select>
-          </div>
 
           <div className="filter-field">
             <label className="field-label">User Type</label>
-            <select className="filter-select">
+            <select 
+              className="filter-select" 
+              value={localUserType}
+              onChange={(e) => handleUserTypeChange(e.target.value)}
+            >
               <option value="">All Types</option>
               <option value="student">Student</option>
               <option value="employee">Employee</option>
@@ -69,7 +199,10 @@ const QuickFilterBuilder = () => {
             </select>
           </div>
 
-          <button className="apply-btn">
+          <button 
+            className={`apply-btn ${hasPendingChanges ? 'pending' : ''}`}
+            onClick={handleApply}
+          >
             Apply Quick Filters
             <LucideArrowRight size={14} />
           </button>

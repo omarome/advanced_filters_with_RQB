@@ -1,5 +1,5 @@
 // App.js
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { LucideUsers, LucideActivity, LucidePieChart, LucideRadio } from 'lucide-react';
@@ -48,10 +48,27 @@ function AppContent() {
   const [isDataLoading, setIsDataLoading] = useState(true);
   const dataFetchedRef = useRef(false);
 
+  // ── Handle Global Filtering State ───────────────────────
+  const [query, setQuery] = useState({
+    combinator: 'and',
+    rules: [],
+  });
+
+  const handleQueryChange = useCallback((newQuery) => {
+    setQuery(newQuery);
+  }, []);
+
+  const handleResetQuery = useCallback(() => {
+    setQuery({
+      combinator: 'and',
+      rules: [],
+    });
+  }, []);
+
   useEffect(() => {
     if (!isAuthenticated || dataFetchedRef.current) return;
     dataFetchedRef.current = true;
-    
+
     setIsDataLoading(true);
     Promise.all([fetchUsers(), fetchVariables()])
       .then(([usersData, variablesData]) => {
@@ -77,8 +94,8 @@ function AppContent() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: mode === 'light' 
-            ? 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' 
+          background: mode === 'light'
+            ? 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
             : 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
         }}
       >
@@ -99,7 +116,7 @@ function AppContent() {
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.status === 'Active').length;
   const activePercentage = totalUsers ? Math.round((activeUsers / totalUsers) * 100) : 0;
-  
+
   // Calculate age distribution brackets
   const ageDistribution = [
     { name: '18-24', count: users.filter(u => u.age >= 18 && u.age <= 24).length },
@@ -119,36 +136,36 @@ function AppContent() {
 
   // Calculate online avatars
   const onlineUsers = users.filter(u => u.isOnline === true);
-  const onlineAvatars = onlineUsers.map(u => 
+  const onlineAvatars = onlineUsers.map(u =>
     u.avatar || `https://ui-avatars.com/api/?name=${u.firstName}+${u.lastName}&background=7c69ef&color=fff`
   );
 
   const analytics = (
     <>
       <AnalyticsCard title="Total Users" value={totalUsers.toLocaleString()} icon={LucideUsers} trend trendValue="12%" />
-      <AnalyticsCard 
-        title="Users by Status" 
-        value="" 
-        icon={LucideActivity} 
-        color="primary" 
-        chartData={statusDistribution} 
-        chartType="bar" 
+      <AnalyticsCard
+        title="Users by Status"
+        value=""
+        icon={LucideActivity}
+        color="primary"
+        chartData={statusDistribution}
+        chartType="bar"
         dataKey="count"
       />
-      <AnalyticsCard 
-        title="Age Range" 
-        value="" 
-        icon={LucidePieChart} 
-        color="warning" 
-        chartData={ageDistribution} 
-        chartType="pie" 
+      <AnalyticsCard
+        title="Age Range"
+        value=""
+        icon={LucidePieChart}
+        color="warning"
+        chartData={ageDistribution}
+        chartType="pie"
         dataKey="count"
       />
-      <AnalyticsCard 
-        title="Currently Online" 
-        value={onlineUsers.length} 
-        icon={LucideRadio} 
-        color="success" 
+      <AnalyticsCard
+        title="Currently Online"
+        value={onlineUsers.length}
+        icon={LucideRadio}
+        color="success"
         avatars={onlineAvatars}
       />
     </>
@@ -162,18 +179,26 @@ function AppContent() {
   ) : null;
 
   return (
-    <Layout 
-      analyticsContent={analytics} 
-      sidebarContent={<QuickFilterBuilder />}
+    <Layout
+      analyticsContent={analytics}
+      sidebarContent={
+        <QuickFilterBuilder
+          query={query}
+          onQueryChange={handleQueryChange}
+        />
+      }
       bannerContent={banner}
     >
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={
-            <CollapsibleList 
-              users={users} 
-              variables={variables} 
-              isDataLoading={isDataLoading} 
+            <CollapsibleList
+              users={users}
+              variables={variables}
+              isDataLoading={isDataLoading}
+              query={query}
+              onQueryChange={handleQueryChange}
+              onResetQuery={handleResetQuery}
             />
           } />
           <Route path="/settings/account" element={<ProfileView />} />

@@ -34,6 +34,17 @@ const QueryBuilderController = ({
     setIsExpanded((prev) => !prev);
   }, []);
 
+  // Auto-add initial rule when expanded if query is empty and fields are ready
+  useEffect(() => {
+    if (isExpanded && query.rules.length === 0 && fields.length > 0) {
+      const firstField = fields[0].name;
+      onQueryChange({
+        ...query,
+        rules: [{ field: firstField, operator: '=', value: '' }]
+      });
+    }
+  }, [isExpanded, query.rules.length, fields, onQueryChange, query]);
+
   // Derive rule count from the query prop (single source of truth)
   const rulesCount = useMemo(() => countRules(query), [query]);
 
@@ -52,12 +63,11 @@ const QueryBuilderController = ({
   }, []);
 
   // Custom controls to use AutocompleteValueEditor for text inputs.
-  // IMPORTANT: We import the library's default ValueEditor and use it as the
-  // fallback.  Using `props.schema.controls.valueEditor` would recursively
-  // call *this* custom component and freeze the UI.
+  // We keep the component stable (AutocompleteValueEditor) for all potential
+  // autocomplete fields, even if data hasn't loaded yet.
   const customControls = useMemo(() => ({
     valueEditor: (props) => {
-      const { fieldData, type, values, operator } = props;
+      const { fieldData, type, operator } = props;
 
       // Non-text editors (select, radio, checkbox) → use the library's default
       if (
@@ -75,14 +85,11 @@ const QueryBuilderController = ({
         return <ValueEditor {...props} />;
       }
 
-      // Use autocomplete for text inputs when suggestion values are available
-      const shouldUseAutocomplete =
-        (type === 'text' || !type) &&
-        values &&
-        Array.isArray(values) &&
-        values.length > 0;
-
-      if (shouldUseAutocomplete) {
+      // Use autocomplete for text inputs. We no longer check for values.length here
+      // to keep the component from unmounting/remounting when data arrives.
+      const isTextField = type === 'text' || !type;
+      
+      if (isTextField) {
         return <AutocompleteValueEditor {...props} onSuggestionsChange={handleSuggestionsChange} />;
       }
 

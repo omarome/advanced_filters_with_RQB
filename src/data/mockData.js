@@ -12,6 +12,7 @@ export const mockUsers = [
     status: 'Active',
     isOnline: true,
     nickname: 'Johnny',
+    userType: 'student',
   },
   {
     id: 2,
@@ -22,6 +23,7 @@ export const mockUsers = [
     status: 'Active',
     isOnline: false,
     nickname: null,
+    userType: 'employee',
   },
   {
     id: 3,
@@ -32,6 +34,7 @@ export const mockUsers = [
     status: 'Inactive',
     isOnline: false,
     nickname: 'Bobby',
+    userType: 'unemployed',
   },
   {
     id: 4,
@@ -42,6 +45,7 @@ export const mockUsers = [
     status: 'Active',
     isOnline: true,
     nickname: null,
+    userType: 'student',
   },
   {
     id: 5,
@@ -52,6 +56,7 @@ export const mockUsers = [
     status: 'Pending',
     isOnline: true,
     nickname: 'Chuck',
+    userType: 'employee',
   },
   {
     id: 6,
@@ -62,6 +67,7 @@ export const mockUsers = [
     status: 'Active',
     isOnline: false,
     nickname: null,
+    userType: 'retired',
   },
   {
     id: 7,
@@ -72,6 +78,7 @@ export const mockUsers = [
     status: 'Inactive',
     isOnline: false,
     nickname: 'Ed',
+    userType: 'employee',
   },
   {
     id: 8,
@@ -82,6 +89,7 @@ export const mockUsers = [
     status: 'Active',
     isOnline: true,
     nickname: null,
+    userType: 'student',
   },
   {
     id: 9,
@@ -92,6 +100,7 @@ export const mockUsers = [
     status: 'Pending',
     isOnline: false,
     nickname: 'Geo',
+    userType: 'unemployed',
   },
   {
     id: 10,
@@ -102,5 +111,6 @@ export const mockUsers = [
     status: 'Active',
     isOnline: true,
     nickname: null,
+    userType: 'employee',
   },
 ];

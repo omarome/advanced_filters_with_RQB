@@ -10,4 +10,5 @@ export const mockVariables = [
   { id: 5, name: 'lastName', label: 'Last Name', offset: 16, type: 'STRING' },
   { id: 6, name: 'nickname', label: 'Nickname', offset: 20, type: 'STRING' },
   { id: 7, name: 'status', label: 'Status', offset: 24, type: 'STRING' },
+  { id: 8, name: 'userType', label: 'User Type', offset: 28, type: 'STRING' },
 ];

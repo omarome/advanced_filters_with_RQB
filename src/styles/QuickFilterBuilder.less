@@ -168,6 +168,24 @@
       opacity: 0.9;
       transform: translateY(-1px);
     }
+
+    &.pending {
+      background: linear-gradient(135deg, #7c69ef 0%, #a78bfa 100%); // Brighter gradient
+      animation: pulse-primary 2s infinite;
+      box-shadow: 0 4px 12px rgba(124, 105, 239, 0.4);
+    }
+  }
+
+  @keyframes pulse-primary {
+    0% {
+      box-shadow: 0 0 0 0 rgba(124, 105, 239, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(124, 105, 239, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(124, 105, 239, 0);
+    }
   }
 
   .saved-filters-nav {

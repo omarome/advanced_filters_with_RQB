@@ -193,6 +193,28 @@ describe('filterData', () => {
     });
   });
 
+  describe('in operator', () => {
+    it('filters with in operator (comma-separated)', () => {
+      const query = {
+        combinator: 'and',
+        rules: [{ field: 'name', operator: 'in', value: 'Alice,Bob' }],
+      };
+      const result = filterData(sampleData, query);
+      expect(result).toHaveLength(2);
+      expect(result.find(r => r.name === 'Alice')).toBeDefined();
+      expect(result.find(r => r.name === 'Bob')).toBeDefined();
+    });
+
+    it('filters with in operator (case-insensitive mapping)', () => {
+      const query = {
+        combinator: 'and',
+        rules: [{ field: 'name', operator: 'in', value: 'alice,Charlie' }],
+      };
+      const result = filterData(sampleData, query);
+      expect(result).toHaveLength(2);
+    });
+  });
+
   describe('boolean fields', () => {
     it('filters boolean with = true', () => {
       const query = {
