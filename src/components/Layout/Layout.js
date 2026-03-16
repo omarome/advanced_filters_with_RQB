@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthProvider';
 import { useThemeControl } from '../../context/ThemeContext';
 import '../../styles/Layout.less';
 
-const Layout = ({ children, sidebarContent, analyticsContent, bannerContent }) => {
+const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, modalsContent }) => {
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useThemeControl();
   const location = useLocation();
@@ -52,10 +52,10 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent }) =
             >
               {sidebarOpen ? <LucideX size={24} /> : <LucideMenu size={24} />}
             </IconButton>
-            <div className="logo-box" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <div className="logo-box" onClick={() => navigate('/')}>
               <LucideLayers size={24} />
             </div>
-            <Typography variant="h1" className="site-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Smart Filter Hub</Typography>
+            <Typography variant="h1" className="site-title" onClick={() => navigate('/')}>Smart Filter Hub</Typography>
             {/* <div className="search-bar">
               <LucideSearch className="search-icon" size={18} />
               <input type="text" placeholder="Search across all records..." />
@@ -77,9 +77,6 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent }) =
               <div
                 className="user-profile"
                 onClick={handleMenuOpen}
-                style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
               >
                 <div className="user-info">
                   <span className="user-name">{user?.displayName || 'Admin User'}</span>
@@ -176,6 +173,9 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent }) =
           <section className={`page-content-area animate-slide-up ${isHub ? 'delay-200' : ''}`}>
             {children}
           </section>
+
+          {/* Lifted Modals */}
+          {modalsContent}
         </div>
       </main>
     </div>

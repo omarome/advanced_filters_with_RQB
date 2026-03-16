@@ -18,6 +18,9 @@ import { mockUsers } from './data/mockData';
 import { mockVariables } from './data/mockVariables';
 import { AuthProvider, useAuth } from './context/AuthProvider';
 import { ThemeControlProvider, useThemeControl } from './context/ThemeContext';
+import { Toaster, toast } from 'react-hot-toast';
+import EmailModal from './components/EmailModal/EmailModal';
+import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal';
 import './styles/App.less';
 
 /**
@@ -65,6 +68,61 @@ function AppContent() {
     });
   }, []);
 
+  // ── Modal State & Handlers ──────────────────────────────
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailRecipients, setEmailRecipients] = useState([]);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemsToDelete, setItemsToDelete] = useState([]);
+
+  const handleBulkDeleteRequested = useCallback((ids) => {
+    setItemsToDelete(ids);
+    setIsConfirmModalOpen(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    const ids = itemsToDelete;
+    setUsers(prev => prev.filter((user, idx) => {
+      const userId = user.id ?? idx;
+      return !ids.includes(userId);
+    }));
+    
+    toast.success(`${ids.length} ${ids.length === 1 ? 'item' : 'items'} deleted successfully.`, {
+      icon: '🗑️',
+      style: {
+        background: mode === 'dark' ? '#0f172a' : '#fff',
+        color: mode === 'dark' ? '#fff' : '#1e293b',
+        border: mode === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0'
+      }
+    });
+    setIsConfirmModalOpen(false);
+    setItemsToDelete([]);
+  }, [itemsToDelete, mode]);
+
+  const handleBulkEmailRequested = useCallback((ids) => {
+    const selectedUsers = users.filter((user, idx) => {
+      const userId = user.id ?? idx;
+      return ids.includes(userId);
+    });
+    setEmailRecipients(selectedUsers);
+    setIsEmailModalOpen(true);
+  }, [users]);
+
+  const handleSendEmail = useCallback((emailData) => {
+    console.log('Sending bulk email:', {
+      recipients: emailRecipients.map(u => u.email || u.name),
+      ...emailData
+    });
+    toast.success(`Email sent to ${emailRecipients.length} recipients!`, {
+      icon: '🚀',
+      style: {
+        background: mode === 'dark' ? '#0f172a' : '#fff',
+        color: mode === 'dark' ? '#fff' : '#1e293b',
+        border: mode === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0'
+      }
+    });
+    setIsEmailModalOpen(false);
+  }, [emailRecipients, mode]);
+
   useEffect(() => {
     if (!isAuthenticated || dataFetchedRef.current) return;
     dataFetchedRef.current = true;
@@ -86,6 +144,7 @@ function AppContent() {
       });
   }, [isAuthenticated]);
 
+  // ── Early Returns ─────────────────────────────────────
   if (isLoading) {
     return (
       <Box
@@ -104,7 +163,6 @@ function AppContent() {
     );
   }
 
-  // ── Not authenticated → show login or register ──────────
   if (!isAuthenticated) {
     if (authView === 'register') {
       return <RegisterPage onSwitchToLogin={() => setAuthView('login')} />;
@@ -178,6 +236,25 @@ function AppContent() {
     />
   ) : null;
 
+  const modals = (
+    <>
+      <EmailModal 
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        recipients={emailRecipients}
+        onSend={handleSendEmail}
+      />
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Items"
+        message={`Are you sure you want to delete ${itemsToDelete.length} ${itemsToDelete.length === 1 ? 'item' : 'items'}? This action cannot be undone.`}
+        confirmText="Confirm Delete"
+      />
+    </>
+  );
+
   return (
     <Layout
       analyticsContent={analytics}
@@ -188,6 +265,7 @@ function AppContent() {
         />
       }
       bannerContent={banner}
+      modalsContent={modals}
     >
       <ErrorBoundary>
         <Routes>
@@ -199,6 +277,8 @@ function AppContent() {
               query={query}
               onQueryChange={handleQueryChange}
               onResetQuery={handleResetQuery}
+              onBulkDelete={handleBulkDeleteRequested}
+              onBulkEmail={handleBulkEmailRequested}
             />
           } />
           <Route path="/settings/account" element={<ProfileView />} />
@@ -215,6 +295,18 @@ function App() {
     <ThemeControlProvider>
       <AuthProvider>
         <BrowserRouter>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#1e293b',
+                color: '#fff',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.1)'
+              },
+            }}
+          />
           <AppContent />
         </BrowserRouter>
       </AuthProvider>

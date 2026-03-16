@@ -23,57 +23,29 @@ import '../../styles/CollapsibleList.less';
  */
 const ITEMS_PER_PAGE = 10;
 
-const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUsers, variables: initialVariables, isDataLoading }) => {
-  const [users, setUsers] = useState([]);
-  const [variables, setVariables] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const CollapsibleList = ({ 
+  query, 
+  onQueryChange, 
+  onResetQuery, 
+  users, 
+  variables, 
+  isDataLoading: isLoading,
+  onBulkDelete,
+  onBulkEmail
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
-
-  // null = not yet determined, true = live API, false = mock fallback
-  const [isLive, setIsLive] = useState(null);
-  // Only show the banner once (on initial load)
   const hasLoadedRef = useRef(false);
 
-  // Fetch from API; fall back to mock data on any error
+  // Track if initial load is done
   useEffect(() => {
-    let cancelled = false;
-
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        const [usersData, variablesData] = await Promise.all([
-          fetchUsers(),
-          fetchVariables(),
-        ]);
-        if (!cancelled) {
-          setUsers(usersData);
-          setVariables(variablesData);
-          setIsLive(true);
-        }
-      } catch {
-        // Backend unreachable — use mock data
-        if (!cancelled) {
-          setUsers(mockUsers);
-          setVariables(mockVariables);
-          setIsLive(false);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-          hasLoadedRef.current = true;
-        }
-      }
-    };
-
-    loadData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    if (!isLoading) {
+      hasLoadedRef.current = true;
+    }
+  }, [isLoading]);
 
   // Build fields from variables, then enhance with autocomplete values from data
   const fields = useMemo(() => {
+    if (!variables) return [];
     const baseFields = buildFieldsFromVariables(variables);
     return baseFields.map((field) => enhanceFieldWithValues(users, field));
   }, [variables, users]);
@@ -157,6 +129,8 @@ const CollapsibleList = ({ query, onQueryChange, onResetQuery, users: initialUse
           itemsPerPage={ITEMS_PER_PAGE}
           currentPage={currentPage}
           onPageChange={handlePageChange}
+          onBulkDelete={onBulkDelete}
+          onBulkEmail={onBulkEmail}
           columns={tableColumns}
           isLoading={isLoading}
         />

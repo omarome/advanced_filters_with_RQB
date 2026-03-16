@@ -1,0 +1,128 @@
+@import '../styles/variables.less';
+
+.confirm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4); /* Lighter overlay */
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  display: flex;
+  align-items: center; /* Center vertically now that margin-top is gone */
+  justify-content: center;
+  padding: 20px;
+}
+
+.confirm-modal-container {
+  background: var(--dropdown-bg);
+  width: 100%;
+  max-width: 400px;
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--dropdown-shadow);
+  padding: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.confirm-modal-header {
+  display: flex;
+  justify-content: center;
+  position: relative;
+
+  .icon-badge {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  .close-btn {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+  }
+}
+
+.confirm-modal-content {
+  h3 {
+    margin: 0 0 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+}
+
+.confirm-modal-footer {
+  display: flex;
+  gap: 12px;
+
+  .confirm-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+
+    &.cancel {
+      background: var(--background-btn);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+
+      &:hover {
+        background: var(--background-active);
+        border-color: var(--text-muted);
+      }
+    }
+
+    &.action.danger {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+
+      &:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}

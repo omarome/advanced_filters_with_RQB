@@ -10,9 +10,34 @@ const ResultsTable = ({
   currentPage = 1,
   totalItems = 0,
   itemsPerPage = 10,
-  onPageChange
+  onPageChange,
+  onBulkDelete,
+  onBulkEmail
 }) => {
+  const [selectedIds, setSelectedIds] = React.useState([]);
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+  // Clear selection on page change or data refresh
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [currentPage, data]);
+
+  const handleToggleRow = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const allPageIds = data.map((row, idx) => row.id ?? idx);
+      setSelectedIds(allPageIds);
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const isAllSelected = data.length > 0 && selectedIds.length === data.length;
 
   if (isLoading) {
     return (
@@ -45,8 +70,20 @@ const ResultsTable = ({
         </h3>
         <div className="bulk-actions">
           <span className="bulk-label">Bulk Actions:</span>
-          <button className="bulk-btn">Email</button>
-          <button className="bulk-btn">Delete</button>
+          <button 
+            className="bulk-btn" 
+            disabled={selectedIds.length === 0}
+            onClick={() => onBulkEmail && onBulkEmail(selectedIds)}
+          >
+            Email
+          </button>
+          <button 
+            className="bulk-btn delete" 
+            disabled={selectedIds.length === 0}
+            onClick={() => onBulkDelete && onBulkDelete(selectedIds)}
+          >
+            Delete
+          </button>
         </div>
       </div>
       <div className="results-table__container custom-scrollbar">
@@ -57,7 +94,11 @@ const ResultsTable = ({
           <thead className="results-table__thead">
             <tr>
               <th className="results-table__th checkbox-cell">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  onChange={handleSelectAll}
+                  checked={isAllSelected}
+                />
               </th>
               {columns.map((column) => (
                 <th
@@ -73,14 +114,19 @@ const ResultsTable = ({
           <tbody className="results-table__tbody">
             {data.map((row, index) => {
               const rowId = row.id ?? index;
+              const isSelected = selectedIds.includes(rowId);
               return (
                 <tr
                   key={rowId}
-                  className="results-table__tr"
+                  className={`results-table__tr ${isSelected ? 'selected' : ''}`}
                   data-testid={`${testIdPrefix}-row-${rowId}`}
                 >
                   <td className="results-table__td checkbox-cell">
-                    <input type="checkbox" />
+                    <input 
+                      type="checkbox" 
+                      checked={isSelected}
+                      onChange={() => handleToggleRow(rowId)}
+                    />
                   </td>
                   {columns.map((column) => {
                     const cellValue = row[column.key];
@@ -164,6 +210,8 @@ ResultsTable.propTypes = {
   totalItems: PropTypes.number,
   itemsPerPage: PropTypes.number,
   onPageChange: PropTypes.func,
+  onBulkDelete: PropTypes.func,
+  onBulkEmail: PropTypes.func,
 };
 
 export default ResultsTable;
