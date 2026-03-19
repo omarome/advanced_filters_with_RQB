@@ -1,21 +1,27 @@
-## Smart Filter Hub
+## QueryForge
 
-A production-ready React application for dynamic data filtering, built on top of [React Query Builder](https://react-querybuilder.js.org/). It connects to a Spring Boot backend for live data and field definitions, with automatic fallback to local mock data when the API is unavailable.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Production-success?style=for-the-badge&logo=netlify)](https://smart-filter-hub.netlify.app/)
+[![Frontend Repo](https://img.shields.io/badge/Frontend-React-blue?style=for-the-badge&logo=react)](https://github.com/omarome/smart_filter_hub)
+[![Backend Repo](https://img.shields.io/badge/Backend-Spring_Boot-green?style=for-the-badge&logo=spring)](https://github.com/omarome/smart-filter-hub-backend)
+
+**QueryForge** is a full-stack, production-ready data querying dashboard designed to demonstrate advanced frontend and backend development skills. Built with **React** and **Spring Boot**, it provides a powerful, dynamic rule-based query engine that allows users to construct complex data filters with ease.
+
+At its core, the application integrates a robust query builder interface to deliver an intuitive experience for building nested logic (AND/OR) queries. It connects to a REST API for live data and dynamic field definitions, seamlessly handling complex state management, custom UI components, and real-time data table updates.
 
 ![Query Builder component preview](./public/images/screenshot_dark_mode.png)
 
-### Features
+### 🔥 Key Features
 
-- **Paginated results table** — dynamic pagination with total item count and responsive navigation
-- **Auto-initial rule** — filter panel automatically adds the first field rule when expanded if empty
-- **Global Dark/Light Mode** — seamless theme switching in the header and auth pages with persistence
-- **Dynamic field definitions** — fields, operators, and types are fetched from the backend (`/api/variables`)
-- **Autocomplete value editor** — type-ahead suggestions extracted from live data with keyboard navigation
-- **Type-aware validation** — cross-cutting sanitization and RQB-compatible field validators
-- **Collapsible filter panel** — toggle button with active rule count and click-outside dismissal
-- **Floating UI positioning** — robust, viewport-aware positioning for suggestion portals
-- **Graceful API fallback** — automatic mock data fallback with notification banner
-- **Accessible** — full ARIA compliance and keyboard-only navigation support
+- **Advanced Query Engine:** Build complex, nested logic rules with a visual, intuitive interface based on React Query Builder.
+- **Quick Filter Sidebar:** Rapidly apply common filters (status, age ranges, user types) that sync bidirectionally with the advanced query state.
+- **Saved Filter Views:** Create, name, and persist custom queries for quick access, complete with applied state indicators.
+- **Dynamic Data Definitions:** Fields, operators, and data types are fetched dynamically from the backend (`/api/variables`), making the UI entirely data-driven.
+- **Intelligent Autocomplete:** Custom value editors feature type-ahead suggestions extracted from live data, with full keyboard navigation and type-aware validation.
+- **Comprehensive Testing:** Backed by **over 100+ unit tests** ensuring complete reliability, edge-case handling, and stability across the frontend and backend architectures.
+- **Real-time Pagination & Notifications:** Fast, responsive data table with pagination, alongside a live notification system with optimistic UI updates.
+- **Full-Stack Authentication:** Secure user registration and login flows, including OAuth2 (Google) capabilities.
+- **Theme & State Resilience:** Global Dark/Light mode with persistence, and a graceful fallback mechanism that automatically switches to local mock data if the backend API is unavailable.
+- **Accessibility & UX:** Fully ARIA compliant, keyboard navigable, floating UI positioning for portals, and click-outside dismissal.
 
 ### Tech Stack
 
@@ -61,7 +67,7 @@ The application uses Vite environment variables (prefixed with `VITE_`). These c
 | `VITE_API_BASE_URL` | Base URL for the backend API. Should include `/api` suffix if using proxy. | `/api` |
 | `VITE_API_USERNAME` | HTTP Basic auth username for API requests. Leave blank to disable authentication. | *(none)* |
 | `VITE_API_PASSWORD` | HTTP Basic auth password for API requests. | *(none)* |
-| `VITE_APP_TITLE` | Text displayed in the header. | `Smart Filter Hub` |
+| `VITE_APP_TITLE` | Text displayed in the header. | `QueryForge` |
 | `VITE_BANNER_DURATION` | Milliseconds before the live/mock notification banner auto-dismisses. | `3000` |
 
 In Netlify, define the variables under **Site settings → Build & deploy → Environment**. Do **not** commit a `.env` file containing secrets; configure them via the platform or local tooling.
@@ -143,3 +149,9 @@ Example filters to try:
 - **NOT toggle** — verify negation works at any nesting level
 - **API fallback** — verify banner shows "live" or "mock" depending on backend availability
 - **Accessibility** — verify ARIA attributes, focus order, keyboard-only usage
+
+### License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
+

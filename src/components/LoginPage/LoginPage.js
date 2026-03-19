@@ -66,7 +66,7 @@ export default function LoginPage({ onSwitchToRegister }) {
           Welcome Back
         </Typography>
         <Typography variant="body2" className="login-subtitle">
-          Sign in to Smart Filter Hub
+          Sign in to QueryForge
         </Typography>
 
         {error && (
