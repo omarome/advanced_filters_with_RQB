@@ -77,8 +77,11 @@
     transition: opacity 0.2s ease;
 
     @media (max-width: 639px) {
-      font-size: 16px !important;
-      display: none; // Hide on small mobile to make room for profile and toggle
+      font-size: 15px !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
     }
 
     &:hover {
@@ -225,7 +228,7 @@
 
   &.full-width {
     justify-content: center;
-    
+
     .page-content-area {
       max-width: 1000px;
       margin: 0 auto;
@@ -234,7 +237,7 @@
 
   .sidebar-overlay {
     display: none;
-    
+
     &.is-open {
       @media (max-width: 1023px) {
         display: block;
