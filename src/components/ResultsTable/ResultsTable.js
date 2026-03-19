@@ -162,6 +162,7 @@ const ResultsTable = ({
                         key={column.key}
                         className="results-table__td"
                         data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
+                        data-label={column.label || column.key}
                       >
                         {displayValue}
                       </td>

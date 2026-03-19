@@ -117,3 +117,45 @@
   outline-offset: 2px;
   border-color: @primary-color;
 }
+
+/* Mobile Responsiveness for Query Builder */
+@media (max-width: 767px) {
+  .query-builder-controller__content .rule {
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .query-builder-controller__content .rule .rule-field,
+  .query-builder-controller__content .rule .rule-operator,
+  .query-builder-controller__content .rule .rule-value {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .query-builder-controller__content select,
+  .query-builder-controller__content input {
+    width: 100%;
+  }
+
+  /* Make remove button span full width on small screens */
+  .query-builder-controller__content .rule-remove {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px; // slightly taller for finger tap
+  }
+
+  .query-builder-controller__content .ruleGroup-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .query-builder-controller__content .ruleGroup-addRule,
+  .query-builder-controller__content .ruleGroup-addGroup {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+  }
+}

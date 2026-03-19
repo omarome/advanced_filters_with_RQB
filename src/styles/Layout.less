@@ -9,6 +9,13 @@
 
   &.dark-mode {
     background-color: #0f172a; // Deep slate for dark mode
+
+    .sidebar.is-open {
+      @media (max-width: 1023px) {
+        background-color: #0f172a;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
   }
 }
 
@@ -40,6 +47,10 @@
   align-items: center;
   gap: 32px;
 
+  @media (max-width: 639px) {
+    gap: 12px;
+  }
+
   .logo-box {
     background: var(--primary-gradient);
     padding: 6px;
@@ -64,6 +75,11 @@
     letter-spacing: -0.025em;
     cursor: pointer;
     transition: opacity 0.2s ease;
+
+    @media (max-width: 639px) {
+      font-size: 16px !important;
+      display: none; // Hide on small mobile to make room for profile and toggle
+    }
 
     &:hover {
       opacity: 0.8;
@@ -110,6 +126,10 @@
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 639px) {
+    gap: 8px;
+  }
 
   .header-action {
     color: var(--text-muted);
@@ -212,6 +232,25 @@
     }
   }
 
+  .sidebar-overlay {
+    display: none;
+    
+    &.is-open {
+      @media (max-width: 1023px) {
+        display: block;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        backdrop-filter: blur(2px);
+        animation: fadeIn 0.3s ease-out;
+      }
+    }
+  }
+
   .sidebar {
     display: none; // Hidden by default
     flex-shrink: 0;
@@ -220,6 +259,7 @@
 
     &.is-open {
       display: flex;
+      opacity: 1; // Fix invisible sidebar bug caused by conflicting opacity classes
 
       @media (max-width: 1023px) {
         position: fixed;
@@ -227,7 +267,7 @@
         top: 64px;
         bottom: 0;
         width: 280px;
-        z-index: 100;
+        z-index: 1000;
         background: var(--background-page);
         padding: 16px;
         border-right: 1px solid var(--border-color);

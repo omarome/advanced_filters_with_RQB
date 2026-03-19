@@ -178,9 +178,15 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
         <div className={`content-layout-grid ${!isHub ? 'full-width' : ''}`}>
           {/* Sidebar - Only on Hub */}
           {isHub && (
-            <aside className={`sidebar animate-slide-up delay-100 ${sidebarOpen ? 'is-open' : ''}`}>
-              {sidebarContent}
-            </aside>
+            <>
+              <div 
+                className={`sidebar-overlay ${sidebarOpen ? 'is-open' : ''}`} 
+                onClick={() => setSidebarOpen(false)} 
+              />
+              <aside className={`sidebar animate-slide-up delay-100 ${sidebarOpen ? 'is-open' : ''}`}>
+                {sidebarContent}
+              </aside>
+            </>
           )}
 
           {/* Page Content */}
