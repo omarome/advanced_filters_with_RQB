@@ -15,7 +15,12 @@ const CollapseButton = ({
 
   return (
     <button
-      className={`collapse-button premium-btn ${isExpanded ? 'collapse-button--expanded' : ''} ${className}`.trim()}
+      className={[
+        'collapse-button',
+        'premium-btn',
+        isExpanded && 'collapse-button--expanded',
+        className
+      ].filter(Boolean).join(' ')}
       onClick={onToggle}
       aria-expanded={isExpanded}
       type="button"

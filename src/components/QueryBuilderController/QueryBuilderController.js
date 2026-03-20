@@ -44,7 +44,7 @@ const QueryBuilderController = ({
         rules: [{ field: fields[0].name, operator: '=', value: '' }]
       });
     }
-    
+
     if (!nextExpanded) {
       initialRuleAddedRef.current = false;
     }
@@ -65,7 +65,12 @@ const QueryBuilderController = ({
   const rulesCount = useMemo(() => countRules(query), [query]);
 
   const expandedLabel = `Hide ${label}`;
-  const collapsedLabel = `${label} [${rulesCount} selected]`;
+  const collapsedLabel = (
+    <span className="collapse-button__label-wrapper">
+      <span className="collapse-button__label-text">{label}</span>
+      <span className="collapse-button__label-count">[{rulesCount} selected]</span>
+    </span>
+  );
 
   // Callback to handle suggestion state changes using Set to track editor IDs
   const handleSuggestionsChange = useCallback((hasSuggestions, editorId) => {
@@ -82,6 +87,17 @@ const QueryBuilderController = ({
   // We keep the component stable (AutocompleteValueEditor) for all potential
   // autocomplete fields, even if data hasn't loaded yet.
   const customControls = useMemo(() => ({
+    removeRuleAction: (props) => (
+      <button
+        type="button"
+        className={props.className}
+        title={props.title}
+        onClick={(e) => props.handleOnClick(e)}
+        data-testid="remove-rule"
+      >
+        <span className="remove-rule-text">Remove Rule</span>
+      </button>
+    ),
     valueEditor: (props) => {
       const { fieldData, type, operator } = props;
 
@@ -104,7 +120,7 @@ const QueryBuilderController = ({
       // Use autocomplete for text inputs. We no longer check for values.length here
       // to keep the component from unmounting/remounting when data arrives.
       const isTextField = type === 'text' || !type;
-      
+
       if (isTextField) {
         return <AutocompleteValueEditor {...props} onSuggestionsChange={handleSuggestionsChange} />;
       }
@@ -171,7 +187,7 @@ const QueryBuilderController = ({
       />
 
       {isExpanded && (
-        <div 
+        <div
           className={`query-builder-controller__content ${hasSuggestionsOpen ? 'query-builder-controller__content--has-suggestions' : ''}`}
           data-testid="query-builder-content"
         >

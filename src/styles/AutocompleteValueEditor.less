@@ -10,7 +10,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    border: 1px solid @border-color;
+    border: 1px solid @border-color !important;
     border-radius: @border-radius;
     background-color: @background;
     transition: border-color @transition-duration-fast ease,
@@ -45,7 +45,6 @@
     outline: none;
     padding: 8px @spacing;
     font-size: @font-size-base;
-    line-height: @line-height-base;
     color: @text-muted;
     background: transparent;
     width: 100%;
@@ -127,6 +126,7 @@
 
   &__input-wrapper--has-validation:not(&__input-wrapper--has-clear) &__input {
     padding-right: 36px;
+    border: 1px solid @error-color;
   }
 
   &__icon {
@@ -150,7 +150,6 @@
     color: @error-color;
     line-height: 1.4;
     z-index: 999;
-    background-color: @background;
     pointer-events: none;
   }
 
@@ -218,3 +217,13 @@
   }
 }
 
+/* Mobile Responsiveness for Autocomplete Editor */
+@media (max-width: 767px) {
+  .autocomplete-value-editor {
+    margin-bottom: 25px; // Add space below the input on mobile
+  }
+
+  .autocomplete-value-editor__error-message {
+    margin-top: 0; // Remove margin-top on mobile
+  }
+}
