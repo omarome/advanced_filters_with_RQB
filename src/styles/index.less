@@ -25,21 +25,38 @@ body.dark-mode {
   background-color: transparent; // Let the .app gradient show
   color: #fff;
 
-  .ruleGroup, .rule, table, thead, tbody, tr, th, td {
+  .ruleGroup,
+  .rule,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
     background-color: rgba(255, 255, 255, 0.03) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     color: #fff !important;
   }
 
-  h3, h1, h2, span, label, p {
+  h3,
+  h1,
+  h2,
+  span,
+  label,
+  p {
     color: #fff !important;
   }
 }
 
 // Animations
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -47,6 +64,7 @@ body.dark-mode {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -63,7 +81,18 @@ body.dark-mode {
 }
 
 // Delays for staggered entry
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Mail, Trash2 } from 'lucide-react';
 import PropTypes from 'prop-types';
 import '../../styles/ResultsTable.less';
 
@@ -109,6 +110,7 @@ const ResultsTable = ({
                   {column.label || column.key}
                 </th>
               ))}
+              <th className="results-table__th actions-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="results-table__tbody">
@@ -168,6 +170,30 @@ const ResultsTable = ({
                       </td>
                     );
                   })}
+                  <td className="results-table__td actions-cell">
+                    <div className="row-actions">
+                      <button 
+                        className="action-icon-btn email-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onBulkEmail && onBulkEmail([rowId]);
+                        }}
+                        title="Send Email"
+                      >
+                        <Mail size={16} />
+                      </button>
+                      <button 
+                        className="action-icon-btn delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onBulkDelete && onBulkDelete([rowId]);
+                        }}
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             })}

@@ -72,16 +72,17 @@ const CollapsibleList = ({
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, currentPage]);
 
-  // Derive table columns from variables (uses label from the backend / mock)
   const tableColumns = useMemo(() => {
     if (users.length === 0) return [];
 
     const labelMap = new Map(variables.map((v) => [v.name, v.label]));
 
-    return Object.keys(users[0]).map((key) => ({
-      key,
-      label: labelMap.get(key) || key,
-    }));
+    return Object.keys(users[0])
+      .filter((key) => key !== 'id')
+      .map((key) => ({
+        key,
+        label: labelMap.get(key) || key,
+      }));
   }, [users, variables]);
 
   // Export to CSV handler
