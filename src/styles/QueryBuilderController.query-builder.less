@@ -69,18 +69,17 @@
   border: 1px solid @border-color-light;
   border-radius: @border-radius;
   font-size: @font-size-base;
-  background-color: @background-muted; // Theme-aware background
-  color: inherit; // Use parent text color
+  background-color: @background-muted;
+  color: inherit;
   transition: all 0.2s ease;
 }
 
-// Validation Error State: apply to standard inputs when the rule is flagged invalid
 .query-builder-controller__content .rule.queryBuilder-invalid .rule-value select,
 .query-builder-controller__content .rule.queryBuilder-invalid .rule-value input,
 .query-builder-controller__content .rule[data-invalid="true"] .rule-value select,
 .query-builder-controller__content .rule[data-invalid="true"] .rule-value input {
   border-color: @error-color !important;
-  
+
   &:focus {
     outline-color: @error-focus-rgba;
   }
@@ -151,11 +150,10 @@
     width: 100%;
   }
 
-  /* Make remove button span full width on small screens */
   .query-builder-controller__content .rule-remove {
     width: 100%;
     margin-top: 4px;
-    padding: 8px; // slightly taller for finger tap
+    padding: 8px;
   }
 
   .query-builder-controller__content .ruleGroup-header {
