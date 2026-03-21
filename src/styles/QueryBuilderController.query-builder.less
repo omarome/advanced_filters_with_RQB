@@ -74,6 +74,18 @@
   transition: all 0.2s ease;
 }
 
+// Validation Error State: apply to standard inputs when the rule is flagged invalid
+.query-builder-controller__content .rule.queryBuilder-invalid .rule-value select,
+.query-builder-controller__content .rule.queryBuilder-invalid .rule-value input,
+.query-builder-controller__content .rule[data-invalid="true"] .rule-value select,
+.query-builder-controller__content .rule[data-invalid="true"] .rule-value input {
+  border-color: @error-color !important;
+  
+  &:focus {
+    outline-color: @error-focus-rgba;
+  }
+}
+
 .query-builder-controller__content select option {
   background-color: var(--dropdown-bg);
   color: var(--text-color);
