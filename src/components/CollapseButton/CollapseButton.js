@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Settings2, ChevronUp, ChevronDown } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, ChevronUp, ChevronDown } from 'lucide-react';
 import '../../styles/CollapseButton.less';
 
 const CollapseButton = ({
@@ -26,7 +26,11 @@ const CollapseButton = ({
       type="button"
       {...buttonProps}
     >
-      <Settings2 size={16} className="collapse-button__icon-left" />
+      {isExpanded ? (
+        <PanelLeftClose size={16} className="collapse-button__icon-left" />
+      ) : (
+        <PanelLeftOpen size={16} className="collapse-button__icon-left" />
+      )}
       <span className="collapse-button__text">{buttonText}</span>
       {isExpanded ? (
         <ChevronUp size={16} className="collapse-button__icon" aria-hidden="true" />

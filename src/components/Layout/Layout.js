@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Typography, IconButton, Badge, Tooltip, Menu, MenuItem, ListItemIcon, Divider } from '@mui/material';
-import { LucideLayers, LucideSearch, LucideBell, LucideMoon, LucideSun, LucideMenu, LucideX, LucideLogOut, LucideUser } from 'lucide-react';
+import { LucideLayers, LucideSearch, LucideBell, LucideMoon, LucideSun, PanelLeftOpen, PanelLeftClose, LucideX, LucideLogOut, LucideUser } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
 import { useThemeControl } from '../../context/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -60,7 +60,7 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 sx={{ mr: 1, color: 'var(--text-color)', display: isHub ? 'inline-flex' : 'none' }}
               >
-                {sidebarOpen ? <LucideX size={24} /> : <LucideMenu size={24} />}
+                {sidebarOpen ? <PanelLeftClose size={24} /> : <PanelLeftOpen size={24} />}
               </IconButton>
             </Tooltip>
             <div className="logo-box" onClick={() => navigate('/')}>
