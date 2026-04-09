@@ -7,13 +7,22 @@
 }
 
 body {
-  font-family: @font-family;
+  font-family: var(--font-family, @font-family);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1; // kern pairs, ligatures, contextual alternates
   -webkit-font-smoothing: antialiased;
-  -moz-osx-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background-color: @background-page;
   color: @text-color;
   padding: 0;
+  line-height: 1.5;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Apply mono font to all code/pre elements globally
+code, pre, kbd, samp {
+  font-family: var(--font-family-mono, @font-family-mono);
+  font-size: 0.9em;
 }
 
 #root {
@@ -118,6 +127,39 @@ body.dark-mode {
     border-color: var(--border-color);
     color: var(--text-muted);
   }
+}
+
+// ── Custom Scrollbar — thin, themed, unobtrusive ─────────────────────────────
+.custom-scrollbar,
+.sidebar-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, rgba(0,0,0,0.2)) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, rgba(0,0,0,0.18));
+    border-radius: 99px;
+    &:hover { background: var(--scrollbar-thumb-hover, rgba(0,0,0,0.3)); }
+  }
+}
+
+// ── Focus visible — keyboard nav ring using brand color ──────────────────────
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+// ── Selection highlight ───────────────────────────────────────────────────────
+::selection {
+  background: rgba(124, 105, 239, 0.2);
+  color: inherit;
 }
 
 // Responsive Action Toggles

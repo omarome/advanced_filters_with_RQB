@@ -1,41 +1,81 @@
-/**
- * Utility for exporting data to CSV
- */
+export const exportToCSV = (data, filename) => {
+  if (!data || !data.length) return;
 
-/**
- * Converts an array of objects to a CSV string
- * @param {Array<Object>} data - The data to export
- * @param {Array<Object>} columns - The columns to include ({key, label})
- * @returns {string} - CSV formatted string
- */
-export const convertToCSV = (data, columns) => {
-  if (!data || data.length === 0) return '';
+  const getNestedValue = (obj, path) => {
+    return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : '', obj);
+  };
 
-  const header = columns.map(col => `"${col.label || col.key}"`).join(',');
-  const rows = data.map(row => {
-    return columns.map(col => {
-      const cellValue = row[col.key];
-      const formattedValue = cellValue !== undefined && cellValue !== null 
-        ? String(cellValue).replace(/"/g, '""') 
-        : '';
-      return `"${formattedValue}"`;
-    }).join(',');
-  });
+  // Get headers from first object
+  const headers = Object.keys(data[0]);
 
-  return [header, ...rows].join('\n');
+  const csvRows = [];
+  // Header row
+  csvRows.push(headers.join(','));
+
+  // Data rows
+  for (const row of data) {
+    const values = headers.map(header => {
+      let val = row[header];
+      if (val === null || val === undefined) {
+        val = '';
+      } else if (typeof val === 'object') {
+        val = JSON.stringify(val);
+      } else {
+        val = String(val);
+      }
+      // Escape quotes and wrap in quotes if there's a comma, newline, or quote
+      if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+        val = `"${val.replace(/"/g, '""')}"`;
+      }
+      return val;
+    });
+    csvRows.push(values.join(','));
+  }
+
+  const csvString = csvRows.join('\n');
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
-/**
- * Triggers a download of the CSV data
- * @param {string} csvContent - The CSV string
- * @param {string} fileName - The name of the file
- */
-export const downloadCSV = (csvContent, fileName = 'export.csv') => {
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+export const convertToCSV = (data, columns) => {
+  if (!data || !data.length) return '';
+  const headers = columns ? columns.map(c => c.label || c.key) : Object.keys(data[0]);
+  const keys = columns ? columns.map(c => c.key) : Object.keys(data[0]);
+  
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+  
+  for (const row of data) {
+    const values = keys.map(key => {
+      let val = row[key];
+      if (val === null || val === undefined) val = '';
+      else if (typeof val === 'object') val = JSON.stringify(val);
+      else val = String(val);
+      
+      if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+        val = `"${val.replace(/"/g, '""')}"`;
+      }
+      return val;
+    });
+    csvRows.push(values.join(','));
+  }
+  return csvRows.join('\n');
+};
+
+export const downloadCSV = (csvString, filename) => {
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', fileName);
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();

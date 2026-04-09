@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Typography, IconButton, Badge, Tooltip, Menu, MenuItem, ListItemIcon, Divider } from '@mui/material';
-import { LucideLayers, LucideSearch, LucideBell, LucideMoon, LucideSun, PanelLeftOpen, PanelLeftClose, LucideX, LucideLogOut, LucideUser } from 'lucide-react';
-import { useAuth } from '../../context/AuthProvider';
+import { IconButton, Badge, Tooltip } from '@mui/material';
+import { LucideZap, LucideBell, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import { useThemeControl } from '../../context/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
 import NotificationMenu from '../NotificationMenu/NotificationMenu';
+import GlobalSearch from '../GlobalSearch/GlobalSearch';
 import '../../styles/Layout.less';
 
 const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, modalsContent }) => {
-  const { user, logout } = useAuth();
-  const { mode, toggleTheme } = useThemeControl();
+  const { mode } = useThemeControl();
   const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
-  const isHub = location.pathname === '/';
+  const isHub = location.pathname === '/directory' || location.pathname.startsWith('/sales') || location.pathname.startsWith('/team') || location.pathname.startsWith('/automations') || location.pathname.startsWith('/segments');
 
   // Use a single state for sidebar visibility across all screen sizes
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -23,16 +22,6 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
   const [notifAnchorEl, setNotifAnchorEl] = useState(null);
   const handleNotifOpen = (event) => setNotifAnchorEl(event.currentTarget);
   const handleNotifClose = () => setNotifAnchorEl(null);
-
-  // Profile Menu State
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-  const handleLogout = () => {
-    handleMenuClose();
-    logout();
-  };
 
   // Update layout when window resizes to handle responsive behavior
   React.useEffect(() => {
@@ -63,21 +52,17 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
                 {sidebarOpen ? <PanelLeftClose size={24} /> : <PanelLeftOpen size={24} />}
               </IconButton>
             </Tooltip>
-            <div className="logo-box" onClick={() => navigate('/')}>
-              <LucideLayers size={24} />
+            <div className="logo-box" onClick={() => navigate('/team')}>
+              <LucideZap size={24} />
             </div>
-            <Typography variant="h1" className="site-title" onClick={() => navigate('/')}>Dynamic User Queries</Typography>
-            {/* <div className="search-bar">
-              <LucideSearch className="search-icon" size={18} />
-              <input type="text" placeholder="Search across all records..." />
-            </div> */}
+            <GlobalSearch />
           </div>
 
           <div className="header-right">
             <IconButton className="header-action" onClick={handleNotifOpen}>
-              <Badge 
-                color="error" 
-                badgeContent={unreadCount} 
+              <Badge
+                color="error"
+                badgeContent={unreadCount}
                 variant={unreadCount > 0 ? "standard" : "dot"}
                 invisible={unreadCount === 0}
               >
@@ -85,80 +70,6 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
               </Badge>
             </IconButton>
             <NotificationMenu anchorEl={notifAnchorEl} onClose={handleNotifClose} />
-            <IconButton className="header-action" onClick={toggleTheme}>
-              {mode === 'light' ? <LucideMoon size={20} /> : <LucideSun size={20} />}
-            </IconButton>
-            <div className="header-divider" />
-
-            <Tooltip title="Account settings">
-              <div
-                className="user-profile"
-                onClick={handleMenuOpen}
-              >
-                <div className="user-info">
-                  <span className="user-name">{user?.displayName || 'Admin User'}</span>
-                  <span className="user-role">Super Admin</span>
-                </div>
-                <img
-                  src={user?.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`}
-                  alt="Profile"
-                  className="profile-img"
-                />
-              </div>
-            </Tooltip>
-
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleMenuClose}
-              onClick={handleMenuClose}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  overflow: 'visible',
-                  filter: mode === 'dark'
-                    ? 'drop-shadow(0px 4px 12px rgba(124, 105, 239, 0.4))' // Soft primary color glow
-                    : 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
-                  mt: 1.5,
-                  backgroundColor: mode === 'dark' ? '#1e293b' : 'var(--background)',
-                  color: 'var(--text-color)',
-                  '& .MuiAvatar-root': {
-                    width: 32,
-                    height: 32,
-                    ml: -0.5,
-                    mr: 1,
-                  },
-                  '&::before': {
-                    content: '""',
-                    display: 'block',
-                    position: 'absolute',
-                    top: 0,
-                    right: 14,
-                    width: 10,
-                    height: 10,
-                    backgroundColor: mode === 'dark' ? '#1e293b' : 'var(--background)',
-                    transform: 'translateY(-50%) rotate(45deg)',
-                    zIndex: 0,
-                  },
-                },
-              }}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            >
-              <MenuItem onClick={() => { handleMenuClose(); navigate('/settings/account'); }}>
-                <ListItemIcon>
-                  <LucideUser size={18} color="var(--text-muted)" />
-                </ListItemIcon>
-                Profile settings
-              </MenuItem>
-              <Divider sx={{ borderColor: 'var(--border-color-light)' }} />
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <LucideLogOut size={18} color="var(--error-color)" />
-                </ListItemIcon>
-                <Typography color="var(--error-color)" variant="inherit">Sign out</Typography>
-              </MenuItem>
-            </Menu>
           </div>
         </div>
       </header>

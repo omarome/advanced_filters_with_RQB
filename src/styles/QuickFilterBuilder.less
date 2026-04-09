@@ -5,6 +5,14 @@
   flex-direction: column;
   gap: 24px;
 
+  // Desktop: hide only the Quick Filter Builder card — inline filter bar handles it.
+  // Keep the Saved Filters card visible in the sidebar.
+  @media (min-width: 1024px) {
+    .sidebar-card:not(.saved-filters-section) {
+      display: none;
+    }
+  }
+
   .sidebar-card {
     background-color: var(--background);
     border-radius: var(--border-radius-custom);
@@ -192,19 +200,23 @@
 
   .sidebar-collapse-container {
     .sidebar-collapse-btn {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
       width: 100%;
       padding: 12px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 8px;
       background-color: var(--background-btn);
       border: 1px dashed var(--border-color);
-      color: var(--text-muted);
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {

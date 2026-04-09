@@ -25,7 +25,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
  * LoginPage – email/password login with optional social sign-in.
  */
 export default function LoginPage({ onSwitchToRegister }) {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const { mode, toggleTheme } = useThemeControl();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,8 +45,16 @@ export default function LoginPage({ onSwitchToRegister }) {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE}/auth/oauth2/google`;
+  const handleGoogleLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      setError(err.message || 'Google Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,7 +74,7 @@ export default function LoginPage({ onSwitchToRegister }) {
           Welcome Back
         </Typography>
         <Typography variant="body2" className="login-subtitle">
-          Sign in to Dynamic User Queries
+          Sign in to HumintFlow
         </Typography>
 
         {error && (
@@ -138,6 +146,21 @@ export default function LoginPage({ onSwitchToRegister }) {
           </Link>
         </Typography>
       </Paper>
+
+      <Box className="auth-page-footer">
+        <Typography variant="caption" className="auth-page-footer-copy">
+          © {new Date().getFullYear()} HumintFlow. All rights reserved.
+        </Typography>
+        <Box className="auth-page-footer-links">
+          <Link href="#" underline="hover" variant="caption" className="auth-page-footer-link">
+            Privacy Policy
+          </Link>
+          <span className="auth-page-footer-sep">·</span>
+          <Link href="#" underline="hover" variant="caption" className="auth-page-footer-link">
+            Terms of Service
+          </Link>
+        </Box>
+      </Box>
     </Box>
   );
 }

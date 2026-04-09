@@ -22,23 +22,27 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: var(--z-sticky, 50);
   width: 100%;
   border-bottom: 1px solid var(--border-color);
-  background-color: var(--glass-bg-dark);
+  // Uses --header-bg which is rgba(255,255,255,0.88) in light mode and
+  // rgba(15,23,42,0.82) in dark mode — correct glass effect for both themes.
+  background-color: var(--header-bg);
   backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   height: 64px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-xs);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
   .header-container {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 20px;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
   }
 }
 
@@ -68,21 +72,21 @@
   }
 
   .site-title {
-    font-size: 20px !important;
-    font-weight: 700 !important;
+    font-size: 18px !important;
+    font-weight: 800 !important; // Extra-bold — takes advantage of Plus Jakarta Sans 800 weight
     color: var(--text-color);
     margin: 0;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.04em; // Tighter tracking for the heavier weight
     cursor: pointer;
     transition: opacity 0.2s ease;
+    white-space: nowrap;
 
     @media (max-width: 639px) {
-      font-size: 13px !important;
-      white-space: nowrap;
+      font-size: 14px !important;
     }
 
     &:hover {
-      opacity: 0.8;
+      opacity: 0.75;
     }
   }
 
@@ -255,10 +259,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
+        background-color: rgba(0, 0, 0, 0.45);
+        z-index: calc(var(--z-sidebar-mobile, 200) - 1);
         backdrop-filter: blur(2px);
-        animation: fadeIn 0.3s ease-out;
+        -webkit-backdrop-filter: blur(2px);
+        animation: fadeIn 0.25s ease-out;
       }
     }
   }
@@ -277,11 +282,11 @@
       top: 64px;
       bottom: 0;
       width: 280px;
-      z-index: 1000;
+      z-index: var(--z-sidebar-mobile, 200);
       background: var(--background-page);
       padding: 16px;
       border-right: 1px solid var(--border-color);
-      box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-lg);
       overflow-y: auto;
     }
 

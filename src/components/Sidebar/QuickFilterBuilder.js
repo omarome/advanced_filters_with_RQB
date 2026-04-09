@@ -10,18 +10,23 @@ import {
   LucideArrowRight,
   LucideTrash2,
   LucideX,
-  PanelLeftClose as LucidePanelLeftClose
+  LucideChevronUp,
+  LucideChevronDown,
 } from 'lucide-react';
 import { buildFieldsFromVariables } from '../../config/queryConfig';
 import { enhanceFieldWithValues } from '../../utils/fieldUtils';
+import { fetchFieldsForEntity } from '../../services/crmQueryApi';
 import QueryBuilderController from '../QueryBuilderController/QueryBuilderController';
 import '../../styles/QuickFilterBuilder.less';
 
-const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, users, savedViews = [], onSaveView, onDeleteView, onToggleSidebar, isSidebarOpen }) => {
+const QuickFilterBuilder = ({ entityType, query, onQueryChange, onResetQuery, variables, users, savedViews = [], onSaveView, onDeleteView, onToggleSidebar, isSidebarOpen }) => {
   // ── Local State for Sidebar ────────────────────────────
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [entityFields, setEntityFields] = useState([]);
+  const [fieldsLoading, setFieldsLoading] = useState(false);
   const [localSelectedStatuses, setLocalSelectedStatuses] = useState([]);
-  const [localAgeRange, setLocalAgeRange] = useState({ min: '', max: '' });
-  const [localUserType, setLocalUserType] = useState('');
+
+  const [localDepartment, setLocalDepartment] = useState('');
 
   // Helper to determine if a saved view is "active" based on current query
   const isSavedViewActive = (savedQueryJson) => {
@@ -43,25 +48,29 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
     const statuses = statusRule?.value ? String(statusRule.value).split(',').map(v => v.trim()) : [];
     setLocalSelectedStatuses(statuses);
 
-    // Extract age range
-    const ageRule = query.rules.find(r => r.field === 'age' && r.operator === 'between');
-    if (ageRule?.value) {
-      const [min, max] = String(ageRule.value).split(',');
-      setLocalAgeRange({ min: min || '', max: max || '' });
-    } else {
-      setLocalAgeRange({ min: '', max: '' });
-    }
-
     // Extract user type
-    const userTypeRule = query.rules.find(r => r.field === 'userType' && r.operator === '=');
-    setLocalUserType(userTypeRule?.value || '');
+    const departmentRule = query.rules.find(r => r.field === 'department' && r.operator === '=');
+    setLocalDepartment(departmentRule?.value || '');
   }, [query]);
 
+  // ── Fetch Entity Specific Fields ───────────────────────
+  useEffect(() => {
+    if (!entityType) return;
+    
+    // For TEAM_MEMBER, we can fallback to variables prop if needed, 
+    // but the query/fields endpoint is more robust for RQB.
+    setFieldsLoading(true);
+    fetchFieldsForEntity(entityType)
+      .then(setEntityFields)
+      .catch(err => console.error(`Failed to load fields for ${entityType}`, err))
+      .finally(() => setFieldsLoading(false));
+  }, [entityType]);
+
   // ── Reactive Update Helper ─────────────────────────────
-  const updateGlobalQuery = useCallback((statuses, age, type) => {
+  const updateGlobalQuery = useCallback((statuses, department) => {
     // Preserve rules that AREN'T handled by the Quick Filter sidebar
     const otherRules = query.rules.filter(r =>
-      r.field !== 'status' && r.field !== 'age' && r.field !== 'userType'
+      r.field !== 'status' && r.field !== 'department'
     );
     const newRules = [...otherRules];
 
@@ -69,11 +78,9 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
     if (statuses.length > 0) {
       newRules.push({ field: 'status', operator: 'in', value: statuses.join(',') });
     }
-    if (age.min !== '' || age.max !== '') {
-      newRules.push({ field: 'age', operator: 'between', value: `${age.min},${age.max}` });
-    }
-    if (type !== '') {
-      newRules.push({ field: 'userType', operator: '=', value: type });
+
+    if (department !== '') {
+      newRules.push({ field: 'department', operator: '=', value: department });
     }
 
     onQueryChange({ ...query, rules: newRules });
@@ -87,19 +94,15 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
       : [...localSelectedStatuses, status];
 
     setLocalSelectedStatuses(nextStatuses);
-    updateGlobalQuery(nextStatuses, localAgeRange, localUserType);
-  }, [localSelectedStatuses, localAgeRange, localUserType, updateGlobalQuery]);
+    updateGlobalQuery(nextStatuses, localDepartment);
+  }, [localSelectedStatuses, localDepartment, updateGlobalQuery]);
 
-  const handleAgeChange = useCallback((type, value) => {
-    const nextAgeRange = { ...localAgeRange, [type]: value };
-    setLocalAgeRange(nextAgeRange);
-    updateGlobalQuery(localSelectedStatuses, nextAgeRange, localUserType);
-  }, [localSelectedStatuses, localAgeRange, localUserType, updateGlobalQuery]);
 
-  const handleUserTypeChange = useCallback((value) => {
-    setLocalUserType(value);
-    updateGlobalQuery(localSelectedStatuses, localAgeRange, value);
-  }, [localSelectedStatuses, localAgeRange, updateGlobalQuery]);
+
+  const handleDepartmentChange = useCallback((value) => {
+    setLocalDepartment(value);
+    updateGlobalQuery(localSelectedStatuses, value);
+  }, [localSelectedStatuses, updateGlobalQuery]);
 
   const handleApplySavedView = useCallback((savedQueryJson) => {
     try {
@@ -120,22 +123,47 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
 
   // ── QueryBuilder Fields Array ──────────────────────────
   const fields = useMemo(() => {
-    if (!variables || !users) return [];
-    const baseFields = buildFieldsFromVariables(variables);
-    return baseFields.map((field) => enhanceFieldWithValues(users, field));
-  }, [variables, users]);
+    if (!entityFields.length) return [];
+    const baseFields = buildFieldsFromVariables(entityFields);
+    return baseFields.map((field) => enhanceFieldWithValues(users || [], field));
+  }, [entityFields, users]);
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter saved views based on search query
+  // Filter saved views based on search query AND entityType
   const filteredSavedViews = useMemo(() => {
-    return savedViews.filter(view =>
-      view.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [savedViews, searchQuery]);
+    return savedViews.filter(view => {
+      const matchesSearch = view.name.toLowerCase().includes(searchQuery.toLowerCase());
+      try {
+        const saved = JSON.parse(view.queryJson);
+        // Only show views for this entity
+        const matchesEntity = String(saved.entityType).toUpperCase() === String(entityType).toUpperCase() || 
+                             (entityType === 'TEAM_MEMBER' && !saved.entityType); // legacy views
+        return matchesSearch && matchesEntity;
+      } catch {
+        return matchesSearch; // fallback
+      }
+    });
+  }, [savedViews, searchQuery, entityType]);
 
   return (
+
     <aside className="quick-filter-sidebar">
+      {/* Filter Panel Collapse Toggle */}
+      <div className="sidebar-collapse-container">
+        <button
+          onClick={() => setFiltersCollapsed(p => !p)}
+          className="sidebar-collapse-btn"
+          title={filtersCollapsed ? 'Expand filters' : 'Collapse filters'}
+        >
+          {filtersCollapsed
+            ? <><LucideChevronDown size={16} /> Show Filters</>
+            : <><LucideChevronUp size={16} /> Hide Filters</>
+          }
+        </button>
+      </div>
+
+      {!filtersCollapsed && <>
       {/* Quick Filter Builder Card */}
       <div className="sidebar-card">
         <div className="card-header">
@@ -143,84 +171,71 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
           <LucideZap size={16} className="title-icon zap-icon" />
         </div>
         <div className="card-body">
-          <div className="filter-field">
-            <label className="field-label">User Status</label>
-            <div className="checkbox-group">
-              <label className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={isStatusChecked('Active')}
-                  onChange={() => handleStatusToggle('Active')}
-                />
-                <span className="badge badge-active">Active</span>
-              </label>
-              <label className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={isStatusChecked('Inactive')}
-                  onChange={() => handleStatusToggle('Inactive')}
-                />
-                <span className="badge badge-inactive">Inactive</span>
-              </label>
-              <label className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={isStatusChecked('Pending')}
-                  onChange={() => handleStatusToggle('Pending')}
-                />
-                <span className="badge badge-pending">Pending</span>
-              </label>
-            </div>
-          </div>
+          {entityType === 'TEAM_MEMBER' && (
+            <>
+              <div className="filter-field">
+                <label className="field-label">Account Status</label>
+                <div className="checkbox-group">
+                  <label className="checkbox-item">
+                    <input
+                      type="checkbox"
+                      checked={isStatusChecked('Active')}
+                      onChange={() => handleStatusToggle('Active')}
+                    />
+                    <span className="badge badge-active">Active</span>
+                  </label>
+                  <label className="checkbox-item">
+                    <input
+                      type="checkbox"
+                      checked={isStatusChecked('Inactive')}
+                      onChange={() => handleStatusToggle('Inactive')}
+                    />
+                    <span className="badge badge-inactive">Inactive</span>
+                  </label>
+                  <label className="checkbox-item">
+                    <input
+                      type="checkbox"
+                      checked={isStatusChecked('Pending')}
+                      onChange={() => handleStatusToggle('Pending')}
+                    />
+                    <span className="badge badge-pending">Pending</span>
+                  </label>
+                </div>
+              </div>
 
-          <div className="filter-field">
-            <label className="field-label">Age Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                className="filter-input"
-                value={localAgeRange.min}
-                onChange={(e) => handleAgeChange('min', e.target.value)}
-              />
-              <span className="range-separator">-</span>
-              <input
-                type="number"
-                placeholder="Max"
-                className="filter-input"
-                value={localAgeRange.max}
-                onChange={(e) => handleAgeChange('max', e.target.value)}
-              />
-            </div>
-          </div>
-
-
-          <div className="filter-field">
-            <label className="field-label">User Type</label>
-            <select
-              className="filter-select"
-              value={localUserType}
-              onChange={(e) => handleUserTypeChange(e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="student">Student</option>
-              <option value="employee">Employee</option>
-              <option value="unemployed">Unemployed</option>
-              <option value="retired">Retired</option>
-            </select>
-          </div>
+              <div className="filter-field">
+                <label className="field-label">Department</label>
+                <select
+                  className="filter-select"
+                  value={localDepartment}
+                  onChange={(e) => handleDepartmentChange(e.target.value)}
+                >
+                  <option value="">All Departments</option>
+                  <option value="Global Sales">Global Sales</option>
+                  <option value="Inbound">Inbound</option>
+                  <option value="Mid-Market">Mid-Market</option>
+                </select>
+              </div>
+            </>
+          )}
 
           {/* Build Custom Filter */}
-          <div className="filter-field" style={{ marginTop: '24px' }}>
-            <QueryBuilderController
-              fields={fields}
-              query={query}
-              label="Build Custom Filter"
-              onQueryChange={onQueryChange}
-            />
+          <div className="filter-field" style={{ marginTop: entityType === 'TEAM_MEMBER' ? '24px' : '0' }}>
+            {fieldsLoading ? (
+               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                 <div className="spinner-small" /> Loading fields...
+               </div>
+            ) : (
+              <QueryBuilderController
+                fields={fields}
+                query={query}
+                label="Build Custom Filter"
+                onQueryChange={onQueryChange}
+              />
+            )}
           </div>
 
-          <button 
+          <button
             className="clear-filters-btn"
             onClick={onResetQuery}
             disabled={!query || query.rules.length === 0}
@@ -231,20 +246,6 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
           </button>
         </div>
       </div>
-
-      {/* Sidebar Collapse Toggle */}
-      {onToggleSidebar && (
-        <div className="sidebar-collapse-container" style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
-          <button 
-            onClick={onToggleSidebar}
-            className="sidebar-collapse-btn"
-            title="Collapse Sidebar"
-          >
-            <LucidePanelLeftClose size={20} />
-            Collapse Sidebar
-          </button>
-        </div>
-      )}
 
       {/* Saved Filters Card */}
       <div className="sidebar-card saved-filters-section">
@@ -308,6 +309,7 @@ const QuickFilterBuilder = ({ query, onQueryChange, onResetQuery, variables, use
           )}
         </nav>
       </div>
+      </>}
     </aside>
   );
 };

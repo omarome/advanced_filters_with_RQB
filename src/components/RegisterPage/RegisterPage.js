@@ -71,7 +71,7 @@ export default function RegisterPage({ onSwitchToLogin }) {
           Create Account
         </Typography>
         <Typography variant="body2" className="register-subtitle">
-          Join Dynamic User Queries
+          Join HumintFlow
         </Typography>
 
         {error && (
@@ -151,6 +151,21 @@ export default function RegisterPage({ onSwitchToLogin }) {
           </Link>
         </Typography>
       </Paper>
+
+      <Box className="auth-page-footer">
+        <Typography variant="caption" className="auth-page-footer-copy">
+          © {new Date().getFullYear()} HumintFlow. All rights reserved.
+        </Typography>
+        <Box className="auth-page-footer-links">
+          <Link href="#" underline="hover" variant="caption" className="auth-page-footer-link">
+            Privacy Policy
+          </Link>
+          <span className="auth-page-footer-sep">·</span>
+          <Link href="#" underline="hover" variant="caption" className="auth-page-footer-link">
+            Terms of Service
+          </Link>
+        </Box>
+      </Box>
     </Box>
   );
 }

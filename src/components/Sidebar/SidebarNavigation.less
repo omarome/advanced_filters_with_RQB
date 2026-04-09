@@ -1,0 +1,189 @@
+.sidebar-navigation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 16px;
+    background: var(--background-soft);
+    border-bottom: 1px solid var(--border-color);
+
+    .brand-icon {
+      color: var(--primary-color);
+      filter: drop-shadow(0 0 8px var(--primary-color-light));
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+      background: linear-gradient(135deg, var(--primary-color), #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: var(--primary-color);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-left: auto;
+    }
+  }
+
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+    
+    .nav-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--surface-hover);
+      }
+
+      &.active {
+        background: color-mix(in srgb, var(--nav-icon-color, var(--primary-color)) 12%, transparent);
+        color: var(--nav-icon-color, var(--primary-color));
+        font-weight: 600;
+
+        svg {
+          color: var(--nav-icon-color, var(--primary-color));
+        }
+      }
+
+      svg {
+        color: var(--nav-icon-color, var(--text-muted));
+        transition: color 0.2s ease;
+      }
+    }
+  }
+
+  .sidebar-content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // ── Sidebar Footer ─────────────────────────────────────
+  .sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+  }
+
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--border-color);
+  }
+
+  .sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .sidebar-user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  .sidebar-user-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .sidebar-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--text-color);
+    }
+
+    &.sidebar-logout-btn:hover {
+      background: rgba(220, 53, 69, 0.08);
+      color: var(--error-color);
+    }
+  }
+}

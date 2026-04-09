@@ -1,5 +1,5 @@
 /**
- * API client for the Dynamic User Queries backend.
+ * API client for the HumintFlow CRM backend.
  *
  * All requests carry a JWT Bearer token obtained from AuthProvider.
  * The base URL is configured via the VITE_API_BASE_URL environment variable.

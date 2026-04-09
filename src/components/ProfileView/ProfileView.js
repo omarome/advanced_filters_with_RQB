@@ -45,7 +45,7 @@ export default function ProfileView() {
         <section className="profile-settings__section">
           <div className="profile-settings__avatar-section">
             <img
-              src={user?.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`}
+              src={user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`}
               alt="Profile"
               className="profile-view-img"
             />

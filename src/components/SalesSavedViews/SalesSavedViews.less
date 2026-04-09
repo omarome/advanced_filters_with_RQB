@@ -1,0 +1,183 @@
+.sales-saved-views {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+  min-height: 36px;
+
+  .ssv-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted, #94a3b8);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ssv-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ssv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    background: transparent;
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: var(--primary-color, #7c69ef);
+      color: var(--text-color, #e2e8f0);
+      background: rgba(124, 105, 239, 0.06);
+    }
+
+    &.is-active {
+      border-color: var(--primary-color, #7c69ef);
+      background: rgba(124, 105, 239, 0.12);
+      color: var(--primary-color, #7c69ef);
+    }
+
+    .ssv-chip-check {
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+
+    .ssv-chip-name {
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ssv-chip-delete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-left: 2px;
+      color: var(--text-muted, #94a3b8);
+      opacity: 0.6;
+      transition: opacity 0.12s, background 0.12s;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+      }
+    }
+  }
+
+  // ── Save button ────────────────────────────────────────────────────────────
+  .ssv-save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px dashed var(--border-color, rgba(255,255,255,0.12));
+    background: transparent;
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      border-color: var(--primary-color, #7c69ef);
+      color: var(--primary-color, #7c69ef);
+      background: rgba(124, 105, 239, 0.06);
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  // ── Inline name input ──────────────────────────────────────────────────────
+  .ssv-name-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .ssv-name-input {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--primary-color, #7c69ef);
+      background: var(--surface, rgba(255,255,255,0.04));
+      color: var(--text-color, #e2e8f0);
+      font-size: 0.8rem;
+      outline: none;
+      width: 160px;
+      transition: box-shadow 0.15s;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(124, 105, 239, 0.2);
+      }
+
+      &::placeholder {
+        color: var(--text-muted, #64748b);
+      }
+    }
+
+    .ssv-save-confirm-btn,
+    .ssv-cancel-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s ease;
+    }
+
+    .ssv-save-confirm-btn {
+      color: var(--primary-color, #7c69ef);
+      border-color: var(--primary-color, #7c69ef);
+
+      &:hover:not(:disabled) {
+        background: rgba(124, 105, 239, 0.15);
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+    }
+
+    .ssv-cancel-btn {
+      color: var(--text-muted, #94a3b8);
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+        color: #ef4444;
+      }
+    }
+  }
+}
