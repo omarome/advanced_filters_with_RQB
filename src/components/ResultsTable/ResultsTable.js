@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Trash2, X as LucideX, Save as LucideSave, Download as LucideDownload, ArrowUp, ArrowDown, ArrowUpDown, Loader2 } from 'lucide-react';
+import { Mail, Trash2, X as LucideX, Save as LucideSave, Download as LucideDownload, ArrowUp, ArrowDown, ArrowUpDown, Loader2, ChevronRight, ChevronDown } from 'lucide-react';
 import PropTypes from 'prop-types';
 import '../../styles/ResultsTable.less';
 
@@ -22,7 +22,10 @@ const ResultsTable = ({
   onExport,
   sortField,
   sortDirection,
-  onSortChange
+  onSortChange,
+  onRowClick,
+  renderExpandedRow,
+  expandedRowId
 }) => {
   const [selectedIds, setSelectedIds] = React.useState([]);
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
@@ -72,29 +75,35 @@ const ResultsTable = ({
   return (
     <div className="results-table insight-table" data-testid={testIdPrefix}>
       <div className="results-table__header section-header">
-        <button 
-          className="clear-filters-btn"
-          onClick={onResetQuery}
-          disabled={!query || query.rules.length === 0}
-          title="Clear all filters"
-        >
-          <LucideX size={16} /> Clear Filters
-        </button>
-        <div className="header-actions-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {onResetQuery && (
+          <button 
+            className="clear-filters-btn"
+            onClick={onResetQuery}
+            disabled={!query || !query.rules || query.rules.length === 0}
+            title="Clear all filters"
+          >
+            <LucideX size={16} /> Clear Filters
+          </button>
+        )}
+        <div className="header-actions-right" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: onResetQuery ? '0' : 'auto' }}>
           <div className="secondary-actions desktop-only-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button 
-              className="desktop-header-btn"
-              onClick={onSaveView}
-            >
-              <LucideSave size={14} /> Save View
-            </button>
-            <button 
-              className="desktop-header-btn"
-              onClick={onExport}
-              title="Export current view to CSV"
-            >
-              <LucideDownload size={14} /> Export
-            </button>
+            {onSaveView && (
+              <button 
+                className="desktop-header-btn"
+                onClick={onSaveView}
+              >
+                <LucideSave size={14} /> Save View
+              </button>
+            )}
+            {onExport && (
+              <button 
+                className="desktop-header-btn"
+                onClick={onExport}
+                title="Export current view to CSV"
+              >
+                <LucideDownload size={14} /> Export
+              </button>
+            )}
           </div>
           <div className={`bulk-actions ${selectedIds.length > 0 ? 'active' : ''}`}>
           <button 
@@ -135,6 +144,7 @@ const ResultsTable = ({
                   checked={isAllSelected}
                 />
               </th>
+              {renderExpandedRow && <th className="results-table__th expand-cell" style={{ width: '40px' }}></th>}
               {columns.map((column) => {
                 const isSorted = sortField === column.key;
                 const handleSort = () => {
@@ -175,101 +185,117 @@ const ResultsTable = ({
               const rowId = row.id ?? index;
               const isSelected = selectedIds.includes(rowId);
               return (
-                <tr
-                  key={rowId}
-                  className={`results-table__tr ${isSelected ? 'selected' : ''}`}
-                  data-testid={`${testIdPrefix}-row-${rowId}`}
-                >
-                  <td className="results-table__td checkbox-cell">
-                    <input 
-                      type="checkbox" 
-                      checked={isSelected}
-                      onChange={() => handleToggleRow(rowId)}
-                    />
-                  </td>
-                  {columns.map((column) => {
-                    const cellValue = row[column.key];
-                    let displayValue = typeof cellValue === 'boolean'
-                      ? (cellValue ? 'Yes' : 'No')
-                      : cellValue;
-
-                    // Specialized rendering for InsightHub look
-                    if (column.key === 'fullName') {
-                       // Failsafe string construction in case the backend hasn't been recompiled yet
-                       const actualValue = cellValue || `${row.firstName || ''} ${row.lastName || ''}`.trim() || 'Unknown User';
-                       
-                       displayValue = (
-                         <div className="user-cell">
-                           <img 
-                             className="user-avatar" 
-                             src={`https://ui-avatars.com/api/?name=${encodeURIComponent(actualValue)}&background=7c69ef&color=fff`} 
-                             alt="Avatar" 
-                           />
-                           <div className="user-details">
-                             <div className="user-name">{actualValue}</div>
-                             <div className="user-subtext">{row.email || 'user@example.com'}</div>
-                           </div>
-                         </div>
-                       );
-                    }
-
-                    if (column.key === 'isOnline') {
-                      const isOnline = Boolean(cellValue);
-                      displayValue = (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ 
-                            width: '8px', 
-                            height: '8px', 
-                            borderRadius: '50%', 
-                            backgroundColor: isOnline ? '#10b981' : '#ef4444' 
-                          }}></span>
-                          <span style={{ fontWeight: 500 }}>{isOnline ? 'Online' : 'Offline'}</span>
-                        </div>
-                      );
-                    }
-
-                    if (column.key === 'status') {
-                      const statusClass = cellValue?.toLowerCase() === 'active' ? 'status-active' : 
-                                         cellValue?.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';
-                      displayValue = <span className={`status-badge ${statusClass}`}>{cellValue}</span>;
-                    }
-
-                    return (
-                      <td
-                        key={column.key}
-                        className="results-table__td"
-                        data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
-                        data-label={column.label || column.key}
-                      >
-                        {displayValue}
+                <React.Fragment key={`row-group-${rowId}`}>
+                  <tr
+                    className={`results-table__tr ${isSelected ? 'selected' : ''} ${onRowClick ? 'clickable-row' : ''}`}
+                    data-testid={`${testIdPrefix}-row-${rowId}`}
+                    onClick={() => onRowClick && onRowClick(row)}
+                    style={onRowClick ? { cursor: 'pointer' } : {}}
+                  >
+                    <td className="results-table__td checkbox-cell" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={() => handleToggleRow(rowId)}
+                      />
+                    </td>
+                    {renderExpandedRow && (
+                      <td className="results-table__td expand-cell" style={{ width: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        {expandedRowId === rowId ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                       </td>
-                    );
-                  })}
-                  <td className="results-table__td actions-cell">
-                    <div className="row-actions">
-                      <button 
-                        className="action-icon-btn email-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onBulkEmail && onBulkEmail([rowId]);
-                        }}
-                        title="Send Email"
-                      >
-                        <Mail size={16} />
-                      </button>
-                      <button 
-                        className="action-icon-btn delete-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onBulkDelete && onBulkDelete([rowId]);
-                        }}
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    )}
+                    {columns.map((column) => {
+                      const cellValue = row[column.key];
+                      let displayValue = typeof cellValue === 'boolean'
+                        ? (cellValue ? 'Yes' : 'No')
+                        : cellValue;
+
+                      // Specialized rendering for InsightHub look
+                      if (column.key === 'fullName') {
+                         // Failsafe string construction in case the backend hasn't been recompiled yet
+                         const actualValue = cellValue || `${row.firstName || ''} ${row.lastName || ''}`.trim() || 'Unknown User';
+                         
+                         displayValue = (
+                           <div className="user-cell">
+                             <img 
+                               className="user-avatar" 
+                               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(actualValue)}&background=7c69ef&color=fff`} 
+                               alt="Avatar" 
+                             />
+                             <div className="user-details">
+                               <div className="user-name">{actualValue}</div>
+                               <div className="user-subtext">{row.email || 'user@example.com'}</div>
+                             </div>
+                           </div>
+                         );
+                      }
+
+                      if (column.key === 'isOnline') {
+                        const isOnline = Boolean(cellValue);
+                        displayValue = (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ 
+                              width: '8px', 
+                              height: '8px', 
+                              borderRadius: '50%', 
+                              backgroundColor: isOnline ? '#10b981' : '#ef4444' 
+                            }}></span>
+                            <span style={{ fontWeight: 500 }}>{isOnline ? 'Online' : 'Offline'}</span>
+                          </div>
+                        );
+                      }
+
+                      if (column.key === 'status') {
+                        const statusClass = cellValue?.toLowerCase() === 'active' ? 'status-active' : 
+                                           cellValue?.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';
+                        displayValue = <span className={`status-badge ${statusClass}`}>{cellValue}</span>;
+                      }
+
+                      return (
+                        <td
+                          key={column.key}
+                          className="results-table__td"
+                          data-testid={`${testIdPrefix}-cell-${rowId}-${column.key}`}
+                          data-label={column.label || column.key}
+                        >
+                          {displayValue}
+                        </td>
+                      );
+                    })}
+                    <td className="results-table__td actions-cell">
+                      <div className="row-actions">
+                        <button 
+                          className="action-icon-btn email-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onBulkEmail && onBulkEmail([rowId]);
+                          }}
+                          title="Send Email"
+                        >
+                          <Mail size={16} />
+                        </button>
+                        <button 
+                          className="action-icon-btn delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onBulkDelete && onBulkDelete([rowId]);
+                          }}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  {expandedRowId === rowId && renderExpandedRow && (
+                    <tr className="results-table__tr-expanded">
+                      <td colSpan={columns.length + 2} className="results-table__td-expanded">
+                        {renderExpandedRow(row)}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>
@@ -341,6 +367,9 @@ ResultsTable.propTypes = {
   sortDirection: PropTypes.string,
   onSortChange: PropTypes.func,
   isSortLoading: PropTypes.bool,
+  onRowClick: PropTypes.func,
+  renderExpandedRow: PropTypes.func,
+  expandedRowId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default ResultsTable;

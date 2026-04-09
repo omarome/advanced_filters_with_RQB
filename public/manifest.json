@@ -1,0 +1,21 @@
+{
+  "name": "HumintFlow CRM",
+  "short_name": "HumintFlow",
+  "description": "All-in-one CRM workspace for modern sales teams",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#7c69ef",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "productivity"],
+  "lang": "en"
+}

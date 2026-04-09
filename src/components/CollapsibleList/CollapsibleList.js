@@ -3,6 +3,7 @@ import 'react-querybuilder/dist/query-builder.css';
 import { LucideSave, LucideDownload, LucideX } from 'lucide-react';
 
 import ResultsTable from '../ResultsTable/ResultsTable';
+import InlineFilterBar from '../InlineFilterBar/InlineFilterBar';
 import { filterData } from '../../utils/queryFilter';
 import { fetchUsers, fetchVariables } from '../../services/userApi';
 import { enhanceFieldWithValues } from '../../utils/fieldUtils';
@@ -111,6 +112,9 @@ const CollapsibleList = ({
 
   return (
     <div className="collapsible-list insight-hub-wrapper" data-testid="collapsible-list">
+      <div style={{ padding: '0 24px', paddingTop: '24px' }}>
+        <h1 className="page-title-gradient" style={{ margin: '0' }}>Employee Directory</h1>
+      </div>
       <div className="main-actions-row mobile-only-actions animate-slide-up delay-300">
         <div className="secondary-actions" style={{ marginLeft: 'auto', marginBottom: '16px' }}>
            <button 
@@ -130,6 +134,13 @@ const CollapsibleList = ({
            </button>
         </div>
       </div>
+      <InlineFilterBar
+        variant="directory"
+        query={query}
+        onQueryChange={handleQueryChange}
+        onResetQuery={onResetQuery}
+        fields={fields}
+      />
       <div className="results-container animate-fade delay-400">
         <ResultsTable
           data={paginatedData}

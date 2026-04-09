@@ -53,7 +53,7 @@ const AnalyticsCard = ({
 
     if (chartType === 'line') {
       return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={60}>
           <LineChart data={chartData}>
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent', stroke: 'var(--border-color)', strokeWidth: 1, strokeDasharray: '3 3' }} />
             <Line 
@@ -71,7 +71,7 @@ const AnalyticsCard = ({
 
     if (chartType === 'bar') {
       return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={60}>
           <BarChart data={chartData}>
             <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--primary-focus-rgba)' }} />
@@ -97,7 +97,7 @@ const AnalyticsCard = ({
       return (
         <div className="pie-chart-wrapper">
           <div className="pie-container">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={60}>
               <PieChart>
                 <Tooltip content={<CustomTooltip />} />
                 <Pie

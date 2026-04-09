@@ -1,5 +1,5 @@
 {
-  "name": "smart-filter-hub",
+  "name": "humintflow-crm",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -21,6 +21,8 @@
     "@floating-ui/react": "^0.26.0",
     "@mui/icons-material": "^5.15.0",
     "@mui/material": "^5.15.0",
+    "@stomp/stompjs": "^7.0.0",
+    "firebase": "^12.11.0",
     "lucide-react": "^0.577.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
@@ -28,7 +30,8 @@
     "react-hot-toast": "^2.6.0",
     "react-querybuilder": "^7.2.0",
     "react-router-dom": "^7.13.1",
-    "recharts": "^3.8.0"
+    "recharts": "^3.8.0",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

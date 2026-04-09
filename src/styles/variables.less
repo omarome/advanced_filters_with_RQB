@@ -14,9 +14,9 @@
   --error-hover: #c82333;
   --error-focus-rgba: rgba(220, 53, 69, 0.25);
 
-  --success-color: #10b981; // Green-500 from Tailwind
+  --success-color: #10b981;
   --success-focus-rgba: rgba(16, 185, 129, 0.25);
-  --warning-color: #f59e0b; // Amber-500 from Tailwind
+  --warning-color: #f59e0b;
 
   --border-color: #e5e7eb;
   --border-color-light: #f3f4f6;
@@ -27,9 +27,17 @@
   --background-disabled: #f3f4f6;
   --background-active: #f3f6f4;
   --background-btn: #f3f6f4;
+  --background-soft: #f5f3ff;             // ← was undefined; used in ActivityTimeline
   --status-active-background: #d7ffe4;
   --status-inactive-background: #f9fafb;
   --status-pending-background: #fef3c7;
+
+  // Surface tokens — card/panel backgrounds and interactive surface hovers
+  --surface-color: #f9fafb;              // ← was undefined; used in SalesDetailView, ResultsTable
+  --surface-hover: #f3f4f6;             // ← was undefined; hover state on surface elements
+
+  // Primary tint — icon badge backgrounds, entity icon wrappers
+  --primary-color-light: rgba(124, 105, 239, 0.1); // ← was undefined; used in SalesDetailView
 
   --text-color: #111827;
   --text-muted: #6b7280;
@@ -39,12 +47,19 @@
   --text-pending-color: #92400e;
   --text-inactive-color: #6b7280;
   --text-color-black: #000000;
+  // Aliases used in EmailModal — map to canonical tokens
+  --text-primary: var(--text-color);    // ← was undefined; alias of --text-color
+  --text-secondary: var(--text-muted);  // ← was undefined; alias of --text-muted
+  --bg-hover: var(--background-active); // ← was undefined; alias of --background-active
 
   // Premium Backgrounds (Gradients)
   --background-gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   --background-gradient-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   --primary-gradient: linear-gradient(135deg, #7c69ef 0%, #5b4bc4 100%);
   --soft-gradient: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+
+  // Header background — correct glass effect for light vs dark (fixes near-invisible light header)
+  --header-bg: rgba(255, 255, 255, 0.88);
 
   // Border Radius
   --border-radius-custom: 12px;
@@ -53,22 +68,47 @@
 
   // Glassmorphism Tokens
   --glass-bg-dark: rgba(255, 255, 255, 0.06);
-  --glass-bg-light: rgba(255, 255, 255, 0.8);
+  --glass-bg-light: rgba(255, 255, 255, 0.88);
   --glass-border-dark: rgba(255, 255, 255, 0.1);
   --glass-border-light: rgba(255, 255, 255, 0.2);
   --glass-blur: blur(12px);
 
-  // Shadows
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  // Shadow scale
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.08);
+  --card-shadow: var(--shadow-sm);
 
   // Dropdowns Context
   --dropdown-bg: var(--background);
-  --dropdown-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  --dropdown-shadow: var(--shadow-md);
+
+  // Z-index scale (use these everywhere — no more magic numbers)
+  --z-base: 1;
+  --z-sticky: 50;          // sticky headers, toolbars
+  --z-sidebar: 100;        // sidebar on desktop
+  --z-sidebar-mobile: 200; // sidebar overlay on mobile
+  --z-dropdown: 400;       // dropdowns, tooltips
+  --z-modal-overlay: 550;  // modal backdrop
+  --z-modal: 600;          // modals, dialogs
+  --z-toast: 800;          // toasts, notifications
+  --z-max: 900;            // emergency top layer
+
+  // Typography tokens
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  // Transitions
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark-mode {
   --primary-color: #7d91f1;
-  --primary-hover: #5d75e8; // Darkened for better contrast
+  --primary-hover: #5d75e8;
   --error-message-color: #fee7e7;
   --border-color: #31314a;
   --border-color-light: #252538;
@@ -79,9 +119,14 @@
   --background-disabled: rgba(255, 255, 255, 0.05);
   --background-active: rgba(255, 255, 255, 0.1);
   --background-btn: rgba(255, 255, 255, 0.1);
+  --background-soft: rgba(124, 105, 239, 0.08); // dark-mode surface tint
   --status-active-background: #44955f;
   --status-inactive-background: #868686;
   --status-pending-background: #e27800;
+
+  --surface-color: rgba(255, 255, 255, 0.04);  // dark surface
+  --surface-hover: rgba(255, 255, 255, 0.08);  // dark surface hover
+  --primary-color-light: rgba(125, 145, 241, 0.15); // dark primary tint
 
   --text-color: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.7);
@@ -90,9 +135,21 @@
   --text-active-color: #ffffff;
   --text-inactive-color: rgba(255, 255, 255, 0.6);
   --text-pending-color: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+
+  --header-bg: rgba(15, 23, 42, 0.82);
 
   --dropdown-bg: #1e293b;
-  --dropdown-shadow: 0px 4px 12px rgba(124, 105, 239, 0.4);
+  --dropdown-shadow: 0px 4px 24px rgba(0, 0, 0, 0.5), 0px 2px 8px rgba(124, 105, 239, 0.2);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --card-shadow: var(--shadow-sm);
 
   --scrollbar-track: rgba(0, 0, 0, 0.2);
   --scrollbar-thumb: rgba(255, 255, 255, 0.1);
@@ -148,9 +205,10 @@
 @border-radius-custom: var(--border-radius-custom);
 @card-shadow: var(--card-shadow);
 
-@font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
+// Typography — Plus Jakarta Sans: geometric grotesque with distinctive ink traps,
+// excellent weight range (300–800), far more characterful than Inter/Roboto.
+@font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+@font-family-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 
 @font-size-sm: 12px;
 @font-size-base: 14px;

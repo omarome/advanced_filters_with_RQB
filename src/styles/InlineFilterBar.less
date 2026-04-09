@@ -1,0 +1,388 @@
+@import './variables.less';
+
+// ── Inline Filter Bar ─────────────────────────────────────────
+// A Linear/Notion-style horizontal filter strip that sits above
+// the results table. Pill toggles for status, chip dropdown for
+// department, and a delegated QueryBuilderController CTA.
+
+.inline-filter-bar {
+  display: flex;
+  align-items: center;
+
+  // Mobile: QuickFilterBuilder in the sidebar handles filtering
+  @media (max-width: 1023px) {
+    display: none;
+  }
+  gap: 0;
+  flex-wrap: nowrap;
+  padding: 0 4px;
+  height: 48px;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-custom);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &.has-active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-focus-rgba), var(--shadow-xs);
+  }
+}
+
+// ── Left label ────────────────────────────────────────────────
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 14px 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  svg { opacity: 0.6; }
+}
+
+// ── Vertical divider ─────────────────────────────────────────
+.filter-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border-color);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.filter-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+// ── Generic filter group (label + control) ────────────────────
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  flex-shrink: 0;
+
+  .group-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+}
+
+// ── Status pill toggles ───────────────────────────────────────
+.pill-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid transparent;
+  background: var(--surface-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  line-height: 1;
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-color);
+    transform: translateY(-1px);
+  }
+
+  .pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+
+  // Active state — each status gets its own color identity
+  &.status-active.is-active {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #059669;
+
+    .dark-mode & {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+    }
+  }
+
+  &.status-inactive.is-active {
+    background: rgba(107, 114, 128, 0.12);
+    border-color: rgba(107, 114, 128, 0.4);
+    color: #4b5563;
+
+    .dark-mode & {
+      background: rgba(156, 163, 175, 0.18);
+      color: #9ca3af;
+    }
+  }
+
+  &.status-pending.is-active {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #b45309;
+
+    .dark-mode & {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+    }
+  }
+}
+
+// ── Department dropdown chip ──────────────────────────────────
+.dept-group { position: relative; }
+
+.dept-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--primary-color);
+    color: var(--text-color);
+    background: var(--surface-hover);
+  }
+
+  &.has-value {
+    border-color: var(--primary-color);
+    background: var(--primary-color-light);
+    color: var(--primary-color);
+  }
+
+  .chevron {
+    transition: transform 0.15s ease;
+    opacity: 0.7;
+    &.open { transform: rotate(180deg); }
+  }
+}
+
+.dept-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dropdown);
+  background: transparent;
+}
+
+.dept-menu {
+  z-index: calc(var(--z-dropdown) + 1);
+  background: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--dropdown-shadow);
+  min-width: 160px;
+  overflow: hidden;
+  animation: menuIn 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+.dept-option {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &.is-selected {
+    color: var(--primary-color);
+    font-weight: 700;
+    background: var(--primary-color-light);
+  }
+}
+
+// ── Bucket pills (employee count / deal value) ────────────────
+// Reuse .status-pill shell but no dot, active = primary color
+.bucket-pill {
+  &.is-active {
+    background: var(--primary-color-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+}
+
+// ── Stage pills (pipeline / lifecycle) ───────────────────────
+// Active color driven by --stage-color CSS variable set inline
+.stage-pill {
+  &.is-active {
+    background: color-mix(in srgb, var(--stage-color, var(--primary-color)) 15%, transparent);
+    border-color: color-mix(in srgb, var(--stage-color, var(--primary-color)) 50%, transparent);
+    color: var(--stage-color, var(--primary-color));
+
+    // Fallback for browsers without color-mix
+    @supports not (color: color-mix(in srgb, red 50%, blue)) {
+      background: var(--primary-color-light);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+  }
+}
+
+// ── Custom filter group (QueryBuilderController CTA) ──────────
+// Override the CollapseButton inside to look like a filter-bar button
+.custom-group {
+  .query-builder-controller { margin: 0; }
+
+  .collapse-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    height: auto;
+    min-height: 0;
+
+    &:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background: var(--primary-color-light);
+    }
+
+    // When the modal is open (expanded state), keep it highlighted
+    &[aria-expanded="true"],
+    &.is-expanded {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background: var(--primary-color-light);
+    }
+  }
+
+  // The "[N selected]" count badge from QueryBuilderController
+  .collapse-button__label-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--primary-color);
+    color: #fff;
+    margin-left: 4px;
+    line-height: 1.4;
+  }
+}
+
+// ── Active summary (count + clear) ────────────────────────────
+// sticky-right so it's always visible even when the bar scrolls horizontally
+.active-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 12px;
+  flex-shrink: 0;
+  position: sticky;
+  right: 0;
+  // Match the bar background so it overlays scrolled content cleanly
+  background: var(--background);
+  // Fade-in from the left to avoid a hard cut edge
+  box-shadow: -8px 0 12px 4px var(--background);
+  animation: summaryIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // When the bar has active filters the border turns primary — match that bg
+  .has-active & {
+    box-shadow: -8px 0 12px 4px var(--background);
+  }
+}
+
+@keyframes summaryIn {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.active-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--primary-color);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: #fca5a5;
+    color: #ef4444;
+    background: #fef2f2;
+
+    .dark-mode & {
+      border-color: rgba(255, 107, 107, 0.5);
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+    }
+  }
+}

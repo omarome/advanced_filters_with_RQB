@@ -190,11 +190,16 @@ const NotificationMenu = ({ anchorEl, onClose }) => {
                       </div>
                     }
                     secondary={
-                      <div className="notif-secondary">
-                        <span className="notif-message">{notif.message}</span>
-                        <span className="notif-time">{formatTimeAgo(notif.timestamp)}</span>
-                      </div>
+                      <Box component="span" className="notif-secondary" sx={{ display: 'block' }}>
+                        <Typography component="span" variant="body2" className="notif-message" sx={{ display: 'block', color: 'inherit' }}>
+                          {notif.message}
+                        </Typography>
+                        <Typography component="span" variant="caption" className="notif-time" sx={{ display: 'block', mt: 0.5, opacity: 0.7 }}>
+                          {formatTimeAgo(notif.timestamp)}
+                        </Typography>
+                      </Box>
                     }
+                    secondaryTypographyProps={{ component: 'div' }}
                   />
                 </ListItem>
               ))}

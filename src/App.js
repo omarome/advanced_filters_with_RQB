@@ -1,8 +1,8 @@
 // App.js
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
-import { LucideUsers, LucideActivity, LucidePieChart, LucideRadio } from 'lucide-react';
+import { LucideZap, LucideSearch, LucideBell, LucideMoon, LucideSun, PanelLeftOpen, PanelLeftClose, LucideX, LucideLogOut, LucideUser } from 'lucide-react';
 
 import CollapsibleList from './components/CollapsibleList/CollapsibleList';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
@@ -10,9 +10,21 @@ import LoginPage from './components/LoginPage/LoginPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
 import ProfileView from './components/ProfileView/ProfileView';
 import Layout from './components/Layout/Layout';
-import AnalyticsCard from './components/Layout/AnalyticsCard';
+import SidebarNavigation from './components/Sidebar/SidebarNavigation';
+
 import QuickFilterBuilder from './components/Sidebar/QuickFilterBuilder';
+import SalesSidebarSavedViews from './components/Sidebar/SalesSidebarSavedViews';
+import OrganizationsList from './pages/Sales/OrganizationsList';
+import ContactsList from './pages/Sales/ContactsList';
+import OpportunitiesList from './pages/Sales/OpportunitiesList';
+import PipelinePage from './pages/Sales/PipelinePage';
+import SalesDashboard from './pages/Sales/SalesDashboard';
+import CrmQueryPage from './pages/Segments/CrmQueryPage';
+import AutomationsPage from './components/Automations/AutomationsPage';
+import TeamPage from './pages/Team/TeamPage';
+import UserGuidePage from './pages/Help/UserGuidePage';
 import DataSourceBanner from './components/DataSourceBanner/DataSourceBanner';
+
 import { mockUsers } from './data/mockData';
 import { mockVariables } from './data/mockVariables';
 import { AuthProvider, useAuth } from './context/AuthProvider';
@@ -23,6 +35,7 @@ import EmailModal from './components/EmailModal/EmailModal';
 import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal';
 import SavedViewModal from './components/SavedViewModal/SavedViewModal';
 import { fetchUsers, fetchVariables, saveView, fetchSavedViews, deleteSavedView } from './services/userApi';
+import { useFcmToken } from './hooks/useFcmToken';
 import './styles/App.less';
 
 /**
@@ -31,7 +44,11 @@ import './styles/App.less';
 function AppContent() {
   const { user, isAuthenticated, isLoading, handleOAuthSuccess } = useAuth();
   const { mode } = useThemeControl();
+
+  // Initialize FCM push notifications once authenticated
+  useFcmToken(isAuthenticated);
   const [authView, setAuthView] = useState('login'); // 'login' | 'register'
+  const location = useLocation();
 
   // ── Handle OAuth Success Redirect ──────────────────────
   useEffect(() => {
@@ -243,64 +260,7 @@ function AppContent() {
     return <LoginPage onSwitchToRegister={() => setAuthView('register')} />;
   }
 
-  // ── Authenticated → Compute Analytics ────────────────────
-  const totalUsers = users.length;
-  const activeUsers = users.filter(u => u.status === 'Active').length;
-  const activePercentage = totalUsers ? Math.round((activeUsers / totalUsers) * 100) : 0;
-
-  // Calculate age distribution brackets
-  const ageDistribution = [
-    { name: '18-24', count: users.filter(u => u.age >= 18 && u.age <= 24).length },
-    { name: '25-34', count: users.filter(u => u.age >= 25 && u.age <= 34).length },
-    { name: '35-44', count: users.filter(u => u.age >= 35 && u.age <= 44).length },
-    { name: '45-54', count: users.filter(u => u.age >= 45 && u.age <= 54).length },
-    { name: '55+', count: users.filter(u => u.age >= 55).length }
-  ];
-
-  // Calculate status distribution
-  const statusDistribution = [
-    { name: 'Act', count: users.filter(u => u.status === 'Active').length },
-    { name: 'Ina', count: users.filter(u => u.status === 'Inactive').length },
-    { name: 'Pen', count: users.filter(u => u.status === 'Pending').length },
-    { name: 'Arch', count: users.filter(u => u.status === 'Archived').length }
-  ];
-
-  // Calculate online avatars
-  const onlineUsers = users.filter(u => u.isOnline === true);
-  const onlineAvatars = onlineUsers.map(u =>
-    u.avatar || `https://ui-avatars.com/api/?name=${u.firstName}+${u.lastName}&background=7c69ef&color=fff`
-  );
-
-  const analytics = (
-    <>
-      <AnalyticsCard title="Total Users" value={totalUsers.toLocaleString()} icon={LucideUsers} trend trendValue="12%" />
-      <AnalyticsCard
-        title="Users by Status"
-        value=""
-        icon={LucideActivity}
-        color="primary"
-        chartData={statusDistribution}
-        chartType="bar"
-        dataKey="count"
-      />
-      <AnalyticsCard
-        title="Age Range"
-        value=""
-        icon={LucidePieChart}
-        color="warning"
-        chartData={ageDistribution}
-        chartType="pie"
-        dataKey="count"
-      />
-      <AnalyticsCard
-        title="Currently Online"
-        value={onlineUsers.length}
-        icon={LucideRadio}
-        color="success"
-        avatars={onlineAvatars}
-      />
-    </>
-  );
+  const analytics = null;
 
   const banner = isLive !== null ? (
     <DataSourceBanner
@@ -338,23 +298,40 @@ function AppContent() {
     <Layout
       analyticsContent={analytics}
       sidebarContent={
-        <QuickFilterBuilder
-          query={query}
-          onQueryChange={handleQueryChange}
-          onResetQuery={handleResetQuery}
-          variables={variables}
-          users={users}
-          savedViews={savedViews}
-          onSaveView={() => setIsSaveViewModalOpen(true)}
-          onDeleteView={handleDeleteSavedView}
-        />
+        <SidebarNavigation>
+          {(() => {
+            const path = location.pathname;
+            let entityType = null;
+            if (path === '/directory') entityType = 'TEAM_MEMBER';
+            else if (path === '/sales/organizations') entityType = 'ORGANIZATION';
+            else if (path === '/sales/contacts') entityType = 'CONTACT';
+            else if (path === '/sales/pipeline') entityType = 'OPPORTUNITY';
+
+            if (entityType) {
+              return (
+                <QuickFilterBuilder
+                  entityType={entityType}
+                  query={query}
+                  onQueryChange={handleQueryChange}
+                  onResetQuery={handleResetQuery}
+                  variables={variables}
+                  users={users}
+                  savedViews={savedViews}
+                  onSaveView={() => setIsSaveViewModalOpen(true)}
+                  onDeleteView={handleDeleteSavedView}
+                />
+              );
+            }
+            return null;
+          })()}
+        </SidebarNavigation>
       }
       bannerContent={banner}
       modalsContent={modals}
     >
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={
+          <Route path="/directory" element={
             <CollapsibleList
               users={users}
               variables={variables}
@@ -370,8 +347,17 @@ function AppContent() {
               onSortChange={handleSortChange}
             />
           } />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/sales/organizations" element={<OrganizationsList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
+          <Route path="/sales/contacts" element={<ContactsList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
+          <Route path="/sales/opportunities" element={<OpportunitiesList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
+          <Route path="/sales/pipeline" element={<PipelinePage query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
+          <Route path="/sales/dashboard" element={<SalesDashboard />} />
+          <Route path="/automations" element={<AutomationsPage />} />
+          <Route path="/segments" element={<CrmQueryPage />} />
           <Route path="/settings/account" element={<ProfileView />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/help" element={<UserGuidePage />} />
+          <Route path="*" element={<Navigate to="/team" replace />} />
         </Routes>
       </ErrorBoundary>
     </Layout>

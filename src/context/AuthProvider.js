@@ -1,169 +1,111 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { loginApi, registerApi, refreshApi, logoutApi, getMeApi, updateProfileApi, deleteAccountApi } from '../services/authApi';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { auth, googleProvider } from '../config/firebase';
+import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, signOut, onIdTokenChanged, getIdToken, updateProfile as firebaseUpdateProfile } from 'firebase/auth';
 
 const AuthContext = createContext(null);
 
-// Module-level accessor so userApi.js can read the token without React
 let _accessToken = localStorage.getItem('accessToken') || null;
 
 export function getAccessToken() {
   return _accessToken;
 }
 
-/**
- * AuthProvider
- *
- * Wraps the app and provides authentication state + actions:
- *   user, isAuthenticated, isLoading, login(), register(), logout()
- *
- * Tokens are stored in localStorage and auto-refreshed before expiry.
- */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const refreshTimerRef = useRef(null);
 
-  // ── helpers ──────────────────────────────────────────────
-
-  const saveTokens = useCallback((accessToken, refreshToken, expiresIn) => {
-    _accessToken = accessToken;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('tokenExpiresIn', String(expiresIn));
-
-    // Schedule silent refresh at 80% of expiry
-    clearTimeout(refreshTimerRef.current);
-    const refreshMs = (expiresIn * 1000) * 0.8;
-    refreshTimerRef.current = setTimeout(() => silentRefresh(), refreshMs);
-  }, []);
-
-  const clearTokens = useCallback(() => {
-    _accessToken = null;
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenExpiresIn');
-    clearTimeout(refreshTimerRef.current);
-  }, []);
-
-  const silentRefresh = useCallback(async () => {
-    const rt = localStorage.getItem('refreshToken');
-    if (!rt) return;
+  // Expose backend auth context (e.g., getting claims or creating user data in backend via API)
+  const syncWithBackend = async (token) => {
     try {
-      const data = await refreshApi(rt);
-      saveTokens(data.accessToken, data.refreshToken, data.expiresIn);
-      setUser(data.user);
-    } catch {
-      // Refresh failed — force logout
-      clearTokens();
-      setUser(null);
+      // If we had a specific backend sync logic, we can call it here.
+      // E.g. getMeApi or something. But FirebaseTokenFilter creates it.
+      // We assume user is good.
+    } catch (e) {
+      console.error(e);
     }
-  }, [saveTokens, clearTokens]);
-
-  // ── init: check stored token on mount ────────────────────
+  };
 
   useEffect(() => {
-    const init = async () => {
-      const storedToken = localStorage.getItem('accessToken');
-      if (!storedToken) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        const userData = await getMeApi(storedToken);
-        setUser(userData);
-        // Schedule refresh
-        const expiresIn = Number(localStorage.getItem('tokenExpiresIn') || 900);
-        const refreshMs = (expiresIn * 1000) * 0.8;
-        refreshTimerRef.current = setTimeout(() => silentRefresh(), refreshMs);
-      } catch {
-        // Token invalid — try refresh
-        await silentRefresh();
+    // onIdTokenChanged provides the user + automatically refreshes ID tokens!
+    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Force refresh to ensure latest claims? Not necessarily needed on every state change unless we specifically want it.
+        const token = await firebaseUser.getIdToken();
+        _accessToken = token;
+        localStorage.setItem('accessToken', token);
+        setUser(firebaseUser); // Store firebase user 
+      } else {
+        _accessToken = null;
+        localStorage.removeItem('accessToken');
+        setUser(null);
       }
       setIsLoading(false);
-    };
-    init();
+    });
 
-    return () => clearTimeout(refreshTimerRef.current);
-  }, [silentRefresh]);
-
-  // ── public actions ───────────────────────────────────────
+    return () => unsubscribe();
+  }, []);
 
   const login = useCallback(async (email, password) => {
-    const data = await loginApi(email, password);
-    saveTokens(data.accessToken, data.refreshToken, data.expiresIn);
-    setUser(data.user);
-    return data;
-  }, [saveTokens]);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  }, []);
 
   const register = useCallback(async (email, password, displayName) => {
-    const data = await registerApi(email, password, displayName);
-    saveTokens(data.accessToken, data.refreshToken, data.expiresIn);
-    setUser(data.user);
-    return data;
-  }, [saveTokens]);
-
-  const logout = useCallback(async () => {
-    const rt = localStorage.getItem('refreshToken');
-    if (rt) {
-      try { await logoutApi(rt); } catch { /* best effort */ }
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (displayName) {
+        await firebaseUpdateProfile(userCredential.user, { displayName });
     }
-    clearTokens();
+    return userCredential.user;
+  }, []);
+
+  const loginWithGoogle = useCallback(async () => {
+    const userCredential = await signInWithPopup(auth, googleProvider);
+    return userCredential.user;
+  }, []);
+
+  const performLogout = useCallback(async () => {
+    await signOut(auth);
+    _accessToken = null;
+    localStorage.removeItem('accessToken');
     setUser(null);
-  }, [clearTokens]);
+  }, []);
 
   const updateProfile = useCallback(async (displayName) => {
-    if (!_accessToken) return;
-    try {
-      const updatedUser = await updateProfileApi(_accessToken, displayName);
-      setUser(updatedUser);
-      return updatedUser;
-    } catch (err) {
-      console.error('Failed to update profile:', err);
-      throw err; // Propagate error so UI can handle it
-    }
+     // Optional: Call your backend to update it
   }, []);
 
   const deleteAccount = useCallback(async () => {
-    if (!_accessToken) return;
-    try {
-      await deleteAccountApi(_accessToken);
-    } catch (err) {
-      console.error('Failed to delete account:', err);
-    }
-    clearTokens();
-    setUser(null);
-  }, [clearTokens]);
+     // Keep empty or call backend then auth.currentUser.delete()
+  }, []);
 
-  const handleOAuthSuccess = useCallback(async (accessToken, refreshToken) => {
-    // We assume default expiry for now, it'll be refreshed anyway
-    saveTokens(accessToken, refreshToken, 900);
-    try {
-      const userData = await getMeApi(accessToken);
-      setUser(userData);
-    } catch {
-      clearTokens();
-    }
-  }, [saveTokens, clearTokens]);
+  const handleOAuthSuccess = useCallback(async () => {}, []);
+
+  const forceTokenRefresh = useCallback(async () => {
+      if (auth.currentUser) {
+          const token = await getIdToken(auth.currentUser, true);
+          _accessToken = token;
+          localStorage.setItem('accessToken', token);
+      }
+  }, []);
 
   const value = {
     user,
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginWithGoogle,
     register,
-    logout,
+    logout: performLogout,
     updateProfile,
     deleteAccount,
     handleOAuthSuccess,
-    setUser // Useful for manual updates
+    forceTokenRefresh,
+    setUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * Hook to access auth state and actions.
- */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within an AuthProvider');

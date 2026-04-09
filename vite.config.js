@@ -28,7 +28,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173, // Fix the port to avoid redirect issues
+    port: 5174, // Fix the port to avoid redirect issues
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

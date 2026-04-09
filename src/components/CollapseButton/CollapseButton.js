@@ -44,8 +44,8 @@ const CollapseButton = ({
 CollapseButton.propTypes = {
   isExpanded: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
-  expandedLabel: PropTypes.string,
-  collapsedLabel: PropTypes.string,
+  expandedLabel: PropTypes.node,
+  collapsedLabel: PropTypes.node,
   className: PropTypes.string,
 };
 
