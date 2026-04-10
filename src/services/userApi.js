@@ -85,16 +85,16 @@ export const saveView = async (viewData) => {
 };
 
 /**
- * Fetches all saved filter views.
+ * Fetches saved filter views, optionally filtered by entity type.
+ * @param {string} [entityType] - e.g. 'TEAM_MEMBER', 'ORGANIZATION', 'CONTACT', 'OPPORTUNITY'
  */
-export const fetchSavedViews = async () => {
-  const response = await fetch(`${API_BASE}/saved-views`, {
-    headers: getAuthHeader()
-  });
+export const fetchSavedViews = async (entityType) => {
+  const url = entityType
+    ? `${API_BASE}/saved-views?entityType=${encodeURIComponent(entityType)}`
+    : `${API_BASE}/saved-views`;
+  const response = await fetch(url, { headers: getAuthHeader() });
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
+    if (response.status === 401) throw new Error('Authentication required');
     throw new Error(`Failed to fetch saved views: ${response.status}`);
   }
   return response.json();

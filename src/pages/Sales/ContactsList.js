@@ -13,7 +13,7 @@ import { exportToCSV } from '../../utils/exportUtils';
 import { buildFieldsFromVariables } from '../../config/queryConfig';
 import { enhanceFieldWithValues } from '../../utils/fieldUtils';
 
-const ContactsList = ({ query, onQueryChange, onResetQuery, variables, users }) => {
+const ContactsList = ({ query, onQueryChange, onResetQuery, variables, users, onSaveView }) => {
   // ── Server-side data ─────────────────────────────────────────────────────
   const [data, setData]                 = useState([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -46,8 +46,8 @@ const ContactsList = ({ query, onQueryChange, onResetQuery, variables, users }) 
   const fields = useMemo(() => {
     if (!entityFields.length) return [];
     const baseFields = buildFieldsFromVariables(entityFields);
-    return baseFields.map((field) => enhanceFieldWithValues(users || [], field));
-  }, [entityFields, users]);
+    return baseFields.map((field) => enhanceFieldWithValues(data, field));
+  }, [entityFields, data]);
 
   useEffect(() => {
     fetchFieldsForEntity('CONTACT')
@@ -140,6 +140,7 @@ const ContactsList = ({ query, onQueryChange, onResetQuery, variables, users }) 
         query={query}
         onQueryChange={onQueryChange}
         onResetQuery={onResetQuery}
+        quickFilters={['status', 'lifecycleStage', 'jobTitle', 'pipelineStage']}
       />
 
       <div style={{ flex: 1, minHeight: 0 }}>
@@ -157,7 +158,7 @@ const ContactsList = ({ query, onQueryChange, onResetQuery, variables, users }) 
           sortDirection={sortDirection}
           onSortChange={(field, dir) => { setSortField(field); setSortDirection(dir); }}
           onExport={() => exportToCSV(data, 'contacts_export')}
-          onSaveView={() => window.dispatchEvent(new CustomEvent('salesOpenSaveView'))}
+          onSaveView={onSaveView}
           onResetQuery={onResetQuery}
           onBulkDelete={handleBulkDeleteRequested}
           onBulkEmail={handleBulkEmailRequested}

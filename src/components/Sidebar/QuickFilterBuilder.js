@@ -134,15 +134,10 @@ const QuickFilterBuilder = ({ entityType, query, onQueryChange, onResetQuery, va
   const filteredSavedViews = useMemo(() => {
     return savedViews.filter(view => {
       const matchesSearch = view.name.toLowerCase().includes(searchQuery.toLowerCase());
-      try {
-        const saved = JSON.parse(view.queryJson);
-        // Only show views for this entity
-        const matchesEntity = String(saved.entityType).toUpperCase() === String(entityType).toUpperCase() || 
-                             (entityType === 'TEAM_MEMBER' && !saved.entityType); // legacy views
-        return matchesSearch && matchesEntity;
-      } catch {
-        return matchesSearch; // fallback
-      }
+      // entityType is a top-level field on the view, not inside queryJson
+      const matchesEntity = view.entityType?.toUpperCase() === entityType?.toUpperCase() ||
+                            (entityType === 'TEAM_MEMBER' && !view.entityType); // legacy views
+      return matchesSearch && matchesEntity;
     });
   }, [savedViews, searchQuery, entityType]);
 

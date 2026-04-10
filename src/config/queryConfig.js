@@ -88,6 +88,30 @@ const fieldEditorOverrides = {
     ],
     operators: selectOperators,
   },
+  isOnline: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Statuses',
+    values: [
+      { name: 'true', label: 'Online', dot: '#10b981' },
+      { name: 'false', label: 'Offline', dot: '#ef4444' },
+    ],
+    operators: selectOperators,
+  },
+  probability: {
+    chipType: 'probability-heat',
+    chipPlaceholder: 'Any Probability',
+  },
+  lifecycleStage: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Stages',
+    operators: selectOperators,
+    values: [
+      { name: 'Lead', label: 'Lead' },
+      { name: 'Prospect', label: 'Prospect' },
+      { name: 'Customer', label: 'Customer' },
+      { name: 'Churned', label: 'Churned' },
+    ],
+  },
 };
 
 
@@ -117,16 +141,16 @@ export const buildFieldsFromVariables = (variables) => {
       ...overrides,
     };
 
-    // Boolean fields → radio buttons with True / False
+    // Boolean fields → radio buttons with True / False (overrides win if present)
     if (type === 'boolean') {
       return toFullOption({
-        ...baseField,
         valueEditorType: 'radio',
         values: [
           { name: 'true', label: 'True' },
           { name: 'false', label: 'False' },
         ],
         defaultValue: 'true',
+        ...baseField,
       });
     }
 

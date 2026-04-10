@@ -15,7 +15,7 @@ const VIEWS = [
   { key: 'dashboard', label: 'Dashboard', icon: LucideBarChart2 },
 ];
 
-export default function PipelinePage({ query, onQueryChange, onResetQuery, variables, users }) {
+export default function PipelinePage({ query, onQueryChange, onResetQuery, variables, users, onSaveView }) {
   const [view, setView] = useState('table');
 
   return (
@@ -71,7 +71,7 @@ export default function PipelinePage({ query, onQueryChange, onResetQuery, varia
 
       {/* Each view owns its own filter bar and data fetching */}
       <Box>
-        {view === 'table'     && <OpportunitiesList query={query} onQueryChange={onQueryChange} onResetQuery={onResetQuery} variables={variables} users={users} />}
+        {view === 'table'     && <OpportunitiesList query={query} onQueryChange={onQueryChange} onResetQuery={onResetQuery} variables={variables} users={users} onSaveView={onSaveView} />}
         {view === 'board'     && <KanbanBoard query={query} />}
         {view === 'calendar'  && <CalendarView />}
         {view === 'dashboard' && <SalesDashboard />}

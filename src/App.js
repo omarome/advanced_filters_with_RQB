@@ -93,21 +93,20 @@ function AppContent() {
     }
   }, [sortConfig, isLive, isAuthenticated]);
 
-  // ── Handle Global Filtering State ───────────────────────
-  const [query, setQuery] = useState({
-    combinator: 'and',
-    rules: [],
-  });
+  // ── Per-tab independent filter state ────────────────────
+  const emptyQuery = { combinator: 'and', rules: [] };
+  const [queries, setQueries] = useState({});
 
-  const handleQueryChange = useCallback((newQuery) => {
-    setQuery(newQuery);
+  const getQuery = useCallback((path) => {
+    return queries[path] || emptyQuery;
+  }, [queries]);
+
+  const handleQueryChange = useCallback((path, newQuery) => {
+    setQueries(prev => ({ ...prev, [path]: newQuery }));
   }, []);
 
-  const handleResetQuery = useCallback(() => {
-    setQuery({
-      combinator: 'and',
-      rules: [],
-    });
+  const handleResetQuery = useCallback((path) => {
+    setQueries(prev => ({ ...prev, [path]: emptyQuery }));
   }, []);
 
   // ── Modal State & Handlers ──────────────────────────────
@@ -116,7 +115,19 @@ function AppContent() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemsToDelete, setItemsToDelete] = useState([]);
   const [isSaveViewModalOpen, setIsSaveViewModalOpen] = useState(false);
-  const [savedViews, setSavedViews] = useState([]);
+  // Saved views keyed by entity type
+  const [savedViewsMap, setSavedViewsMap] = useState({});
+
+  const ROUTE_ENTITY = {
+    '/directory':           'TEAM_MEMBER',
+    '/sales/organizations': 'ORGANIZATION',
+    '/sales/contacts':      'CONTACT',
+    '/sales/opportunities': 'OPPORTUNITY',
+    '/sales/pipeline':      'OPPORTUNITY',
+  };
+
+  const currentEntityType = ROUTE_ENTITY[location.pathname] || null;
+  const savedViews = savedViewsMap[currentEntityType] || [];
 
   const handleBulkDeleteRequested = useCallback((ids) => {
     setItemsToDelete(ids);
@@ -168,10 +179,12 @@ function AppContent() {
   }, [emailRecipients, mode]);
 
   const handleSaveView = useCallback(async (name, savedQuery) => {
+    const entityType = currentEntityType;
     try {
       await saveView({
         name,
-        queryJson: JSON.stringify(savedQuery)
+        queryJson: JSON.stringify(savedQuery),
+        entityType,
       });
       toast.success(`View "${name}" saved successfully!`, {
         icon: '💾',
@@ -181,19 +194,22 @@ function AppContent() {
           border: mode === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0'
         }
       });
-      // Refresh saved views after a successful save
-      const updatedViews = await fetchSavedViews();
-      setSavedViews(updatedViews);
+      const updatedViews = await fetchSavedViews(entityType);
+      setSavedViewsMap(prev => ({ ...prev, [entityType]: updatedViews }));
     } catch (error) {
       toast.error(error.message || 'Failed to save view');
-      throw error; // Let the modal handle it if needed
+      throw error;
     }
-  }, [mode]);
+  }, [mode, currentEntityType]);
 
   const handleDeleteSavedView = useCallback(async (id) => {
+    const entityType = currentEntityType;
     try {
       await deleteSavedView(id);
-      setSavedViews(prev => prev.filter(view => view.id !== id));
+      setSavedViewsMap(prev => ({
+        ...prev,
+        [entityType]: (prev[entityType] || []).filter(v => v.id !== id),
+      }));
       toast.success('Saved view deleted.', {
         icon: '🗑️',
         style: {
@@ -205,18 +221,33 @@ function AppContent() {
     } catch (error) {
       toast.error(error.message || 'Failed to delete saved view');
     }
-  }, [mode]);
+  }, [mode, currentEntityType]);
+
+  // Re-fetch saved views for the current entity type when navigating between tabs
+  useEffect(() => {
+    if (!isAuthenticated || !currentEntityType || isLive === null) return;
+    fetchSavedViews(currentEntityType)
+      .then(views => setSavedViewsMap(prev => ({ ...prev, [currentEntityType]: views })))
+      .catch(() => {});
+  }, [currentEntityType, isAuthenticated, isLive]);
 
   useEffect(() => {
     if (!isAuthenticated || dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
     setIsDataLoading(true);
-    Promise.all([fetchUsers(), fetchVariables(), fetchSavedViews()])
-      .then(([usersData, variablesData, savedViewsData]) => {
+    const ENTITY_TYPES = ['TEAM_MEMBER', 'ORGANIZATION', 'CONTACT', 'OPPORTUNITY'];
+    Promise.all([
+      fetchUsers(),
+      fetchVariables(),
+      ...ENTITY_TYPES.map(et => fetchSavedViews(et).catch(() => [])),
+    ])
+      .then(([usersData, variablesData, ...viewsPerType]) => {
         setUsers(usersData);
         setVariables(variablesData);
-        setSavedViews(savedViewsData);
+        const viewsMap = {};
+        ENTITY_TYPES.forEach((et, i) => { viewsMap[et] = viewsPerType[i]; });
+        setSavedViewsMap(viewsMap);
         setIsLive(true);
       })
       .catch(() => {
@@ -280,10 +311,10 @@ function AppContent() {
         message={`Are you sure you want to delete ${itemsToDelete.length} ${itemsToDelete.length === 1 ? 'item' : 'items'}? This action cannot be undone.`}
         confirmText="Confirm Delete"
       />
-      <SavedViewModal 
+      <SavedViewModal
         isOpen={isSaveViewModalOpen}
         onClose={() => setIsSaveViewModalOpen(false)}
-        query={query}
+        query={getQuery(location.pathname)}
         onSave={handleSaveView}
       />
     </>
@@ -306,9 +337,9 @@ function AppContent() {
               return (
                 <QuickFilterBuilder
                   entityType={entityType}
-                  query={query}
-                  onQueryChange={handleQueryChange}
-                  onResetQuery={handleResetQuery}
+                  query={getQuery(path)}
+                  onQueryChange={(q) => handleQueryChange(path, q)}
+                  onResetQuery={() => handleResetQuery(path)}
                   variables={variables}
                   users={users}
                   savedViews={savedViews}
@@ -332,9 +363,9 @@ function AppContent() {
               variables={variables}
               isDataLoading={isDataLoading}
               isSortLoading={isSortLoading}
-              query={query}
-              onQueryChange={handleQueryChange}
-              onResetQuery={handleResetQuery}
+              query={getQuery('/directory')}
+              onQueryChange={(q) => handleQueryChange('/directory', q)}
+              onResetQuery={() => handleResetQuery('/directory')}
               onBulkDelete={handleBulkDeleteRequested}
               onBulkEmail={handleBulkEmailRequested}
               onSaveView={() => setIsSaveViewModalOpen(true)}
@@ -343,10 +374,10 @@ function AppContent() {
             />
           } />
           <Route path="/team" element={<TeamPage />} />
-          <Route path="/sales/organizations" element={<OrganizationsList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
-          <Route path="/sales/contacts" element={<ContactsList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
-          <Route path="/sales/opportunities" element={<OpportunitiesList query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
-          <Route path="/sales/pipeline" element={<PipelinePage query={query} onQueryChange={handleQueryChange} onResetQuery={handleResetQuery} variables={variables} users={users} />} />
+          <Route path="/sales/organizations" element={<OrganizationsList query={getQuery('/sales/organizations')} onQueryChange={(q) => handleQueryChange('/sales/organizations', q)} onResetQuery={() => handleResetQuery('/sales/organizations')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+          <Route path="/sales/contacts" element={<ContactsList query={getQuery('/sales/contacts')} onQueryChange={(q) => handleQueryChange('/sales/contacts', q)} onResetQuery={() => handleResetQuery('/sales/contacts')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+          <Route path="/sales/opportunities" element={<OpportunitiesList query={getQuery('/sales/opportunities')} onQueryChange={(q) => handleQueryChange('/sales/opportunities', q)} onResetQuery={() => handleResetQuery('/sales/opportunities')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+          <Route path="/sales/pipeline" element={<PipelinePage query={getQuery('/sales/pipeline')} onQueryChange={(q) => handleQueryChange('/sales/pipeline', q)} onResetQuery={() => handleResetQuery('/sales/pipeline')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
           <Route path="/sales/dashboard" element={<SalesDashboard />} />
           <Route path="/automations" element={<AutomationsPage />} />
           <Route path="/segments" element={<CrmQueryPage />} />

@@ -13,7 +13,7 @@ import { exportToCSV } from '../../utils/exportUtils';
 import { buildFieldsFromVariables } from '../../config/queryConfig';
 import { enhanceFieldWithValues } from '../../utils/fieldUtils';
 
-const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, users }) => {
+const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, users, onSaveView }) => {
   // ── Server-side data ─────────────────────────────────────────────────────
   const [data, setData]                 = useState([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -46,8 +46,8 @@ const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, user
   const fields = useMemo(() => {
     if (!entityFields.length) return [];
     const baseFields = buildFieldsFromVariables(entityFields);
-    return baseFields.map((field) => enhanceFieldWithValues(users || [], field));
-  }, [entityFields, users]);
+    return baseFields.map((field) => enhanceFieldWithValues(data, field));
+  }, [entityFields, data]);
 
   useEffect(() => {
     fetchFieldsForEntity('OPPORTUNITY')
@@ -158,6 +158,7 @@ const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, user
         query={query}
         onQueryChange={onQueryChange}
         onResetQuery={onResetQuery}
+        quickFilters={['stage', 'probability']}
       />
 
       <div style={{ flex: 1, minHeight: 0 }}>
@@ -175,7 +176,7 @@ const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, user
           sortDirection={sortDirection}
           onSortChange={(field, dir) => { setSortField(field); setSortDirection(dir); }}
           onExport={() => exportToCSV(data, 'opportunities_export')}
-          onSaveView={() => window.dispatchEvent(new CustomEvent('salesOpenSaveView'))}
+          onSaveView={onSaveView}
           onResetQuery={onResetQuery}
           onBulkDelete={handleBulkDeleteRequested}
           onBulkEmail={handleBulkEmailRequested}

@@ -22,16 +22,78 @@
   border-radius: var(--border-radius-custom);
   box-shadow: var(--shadow-xs);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar { display: none; }
+  overflow: visible;
 
   &.has-active {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px var(--primary-focus-rgba), var(--shadow-xs);
   }
+}
+
+// ── Scroll region wrapper (positions the fade overlays) ──────
+.filter-scroll-region {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+// ── Scrollable chips area (only this region scrolls) ─────────
+.filter-scroll-area {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+// ── Edge fade + arrow indicator ───────────────────────────────
+.scroll-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+
+  &--left {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 4px;
+    background: linear-gradient(to right, var(--scroll-fade-bg) 30%, transparent);
+  }
+
+  &--right {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 4px;
+    background: linear-gradient(to left, var(--scroll-fade-bg) 30%, transparent);
+  }
+}
+
+.scroll-arrow {
+  color: var(--primary-color);
+  opacity: 0.8;
+  animation: arrowPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50%       { opacity: 0.9; transform: translateX(2px); }
+}
+
+.scroll-fade--left .scroll-arrow {
+  animation-name: arrowPulseLeft;
+}
+
+@keyframes arrowPulseLeft {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50%       { opacity: 0.9; transform: translateX(-2px); }
 }
 
 // ── Left label ────────────────────────────────────────────────
@@ -60,9 +122,13 @@
   margin: 0 2px;
 }
 
-.filter-spacer {
-  flex: 1;
-  min-width: 8px;
+
+// ── Filter content wrapper ────────────────────────────────────
+.filter-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: max-content;
 }
 
 // ── Generic filter group (label + control) ────────────────────
@@ -216,7 +282,9 @@
 }
 
 .dept-option {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   padding: 8px 14px;
   font-size: 13px;
@@ -236,6 +304,82 @@
     color: var(--primary-color);
     font-weight: 700;
     background: var(--primary-color-light);
+  }
+}
+
+.option-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ── Probability heat-zone strip ───────────────────────────────
+.prob-heat-strip {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--border-color);
+  border-radius: 7px;
+  overflow: hidden;
+  height: 26px;
+}
+
+.prob-zone {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  background: var(--zone-bg, transparent);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  position: relative;
+
+  &:last-child { border-right: none; }
+
+  &:hover {
+    background: color-mix(in srgb, var(--zone-color) 10%, transparent);
+  }
+
+  &.is-active {
+    background: var(--zone-bg);
+    border-right-color: var(--zone-border);
+  }
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--zone-color);
+    flex-shrink: 0;
+    opacity: 0.85;
+
+    .is-active & { opacity: 1; }
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--zone-color);
+    letter-spacing: 0.02em;
+  }
+
+  &__range {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    opacity: 0.75;
+
+    .is-active & { opacity: 1; color: var(--zone-color); }
   }
 }
 
@@ -321,25 +465,14 @@
 }
 
 // ── Active summary (count + clear) ────────────────────────────
-// sticky-right so it's always visible even when the bar scrolls horizontally
+// Sits outside the scroll area — always visible, never overlaps chips
 .active-summary {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 10px 0 12px;
+  padding: 0 10px 0 4px;
   flex-shrink: 0;
-  position: sticky;
-  right: 0;
-  // Match the bar background so it overlays scrolled content cleanly
-  background: var(--background);
-  // Fade-in from the left to avoid a hard cut edge
-  box-shadow: -8px 0 12px 4px var(--background);
   animation: summaryIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-  // When the bar has active filters the border turns primary — match that bg
-  .has-active & {
-    box-shadow: -8px 0 12px 4px var(--background);
-  }
 }
 
 @keyframes summaryIn {
