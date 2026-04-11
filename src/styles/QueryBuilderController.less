@@ -1,5 +1,196 @@
 @import './variables.less';
 
+// ── PortalSelect — custom dropdown that replaces native <select> in QueryBuilder ──
+//
+// Matches the Industry / Department sidebar dropdown style exactly.
+// Menu is rendered via ReactDOM.createPortal at document.body, so it always
+// positions correctly on mobile regardless of scroll or stacking context.
+//
+// z-index ladder:
+//   modal overlay   → var(--z-modal-overlay, 550)
+//   portal backdrop → 99998   (above modal)
+//   portal menu     → 99999   (topmost)
+
+.qb-portal-select {
+  position: relative;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+
+  &.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.qb-portal-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+  padding: 7px 10px;
+  background: var(--background-muted);
+  border: 1px solid var(--border-color-light);
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  text-align: left;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background);
+  }
+
+  &.is-open {
+    border-color: var(--primary-color);
+    background: var(--background);
+    box-shadow: 0 0 0 2px var(--primary-focus-rgba);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  // Mobile: 16px font + 44px min-height (prevents iOS auto-zoom)
+  @media (max-width: 767px) {
+    font-size: 16px;
+    padding: 11px 12px;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+}
+
+.qb-portal-select-value {
+  font-size: 13px;
+  color: var(--text-color);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+
+  @media (max-width: 767px) {
+    font-size: 16px;
+  }
+}
+
+.qb-portal-select-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+
+  .qb-portal-select-btn.is-open & {
+    transform: rotate(180deg);
+  }
+}
+
+// Menu — rendered at document.body via createPortal
+.qb-portal-select-menu {
+  background: var(--dropdown-bg, var(--background));
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--dropdown-shadow, 0 8px 32px rgba(0,0,0,0.18));
+  overflow-y: auto;
+  max-height: 280px;
+  animation: qbMenuIn 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Custom scrollbar
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+}
+
+@keyframes qbMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.qb-portal-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s ease;
+  box-sizing: border-box;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &.is-selected {
+    color: var(--primary-color);
+    font-weight: 600;
+    background: var(--primary-color-light, rgba(124, 105, 239, 0.08));
+  }
+
+  &.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    &:hover { background: none; }
+  }
+
+  .qb-option-check {
+    color: var(--primary-color);
+    flex-shrink: 0;
+  }
+
+  // Touch targets on mobile
+  @media (max-width: 767px) {
+    padding: 13px 16px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+}
+
+.qb-portal-select-group {
+  &:not(:first-child) {
+    border-top: 1px solid var(--border-color-light);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+}
+
+.qb-portal-select-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 6px 14px 2px;
+  margin: 0;
+}
+
+// ── Override: replace the now-unused native select/input styles that were
+//   used for field/operator selectors. Keep input styles for number/text value editors.
+.query-builder-controller__content {
+  // Field selector and operator selector cells now use .qb-portal-select — full width
+  .rule-field,
+  .rule-operator {
+    .qb-portal-select {
+      width: 100%;
+    }
+  }
+
+  // Value editor cell: portal select for select-type fields
+  .rule-value {
+    .qb-portal-select {
+      width: 100%;
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
 .query-builder-controller {
   width: 100%;
   font-family: @font-family;
@@ -7,16 +198,19 @@
 
 .query-builder-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(15, 23, 42, 0.6); // Darker overlay for focus
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: var(--z-modal-overlay, 550);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  // Mobile: bottom sheet layout
+  @media (max-width: 767px) {
+    align-items: flex-end;
+  }
 }
 
 .query-builder-modal-content {
@@ -27,15 +221,53 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-color);
-  animation: slideUpModal 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  animation: slideUpModal 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  // overflow:clip instead of overflow:hidden — same visual clipping for border-radius
+  // but does NOT create a scroll container, so native <select> dropdowns
+  // position relative to the viewport (not this element) on Android Chrome.
+  overflow: clip;
+
+  // Mobile: full-width bottom sheet
+  @media (max-width: 767px) {
+    width: 100%;
+    max-width: 100%;
+    max-height: 88vh;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    animation: slideUpSheet 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 
 @keyframes slideUpModal {
-  from { opacity: 0; transform: translateY(20px); scale: 0.98; }
-  to { opacity: 1; transform: translateY(0); scale: 1; }
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+// Mobile drag handle — purely decorative, signals the sheet is swipeable
+.query-builder-modal-handle {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 4px;
+    background: var(--background);
+
+    &::after {
+      content: '';
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border-color);
+    }
+  }
 }
 
 .query-builder-modal-header {
@@ -45,21 +277,22 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--background-page);
+  flex-shrink: 0;
 
-  h2 { 
-    margin: 0; 
-    font-size: 16px; 
+  h2 {
+    margin: 0;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--text-color); 
+    color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  
+
   .close-modal-btn {
-    background: none; 
-    border: none; 
-    cursor: pointer; 
+    background: none;
+    border: none;
+    cursor: pointer;
     color: var(--text-muted);
     display: flex;
     align-items: center;
@@ -67,11 +300,25 @@
     padding: 6px;
     border-radius: 50%;
     transition: all 0.2s;
+    // Minimum 44px touch target on mobile
+    min-width: 36px;
+    min-height: 36px;
 
-    &:hover { 
-      color: var(--error-color); 
+    @media (max-width: 767px) {
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    &:hover {
+      color: var(--error-color);
       background-color: var(--error-focus-rgba);
     }
+  }
+
+  @media (max-width: 767px) {
+    padding: 12px 16px;
+
+    h2 { font-size: 15px; }
   }
 }
 
@@ -79,11 +326,16 @@
   padding: 24px;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; // smooth momentum scrolling on iOS
   position: relative;
   flex: 1;
 
   &.query-builder-controller__content--has-suggestions {
     overflow: visible;
+  }
+
+  @media (max-width: 767px) {
+    padding: 16px;
   }
 }
 
@@ -94,6 +346,14 @@
   justify-content: flex-end;
   gap: 12px;
   background-color: var(--background-page);
+  flex-shrink: 0;
+
+  // On mobile: full-width stacked buttons, Cancel first, Apply second
+  @media (max-width: 767px) {
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom)); // home bar safe area
+    gap: 10px;
+  }
 
   button {
     padding: 8px 16px;
@@ -103,13 +363,21 @@
     font-size: 13px;
     transition: all 0.2s;
 
+    // Mobile: full width, larger touch target
+    @media (max-width: 767px) {
+      flex: 1;
+      padding: 13px 16px;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+
     &.cancel-btn {
       background: none;
       border: 1px solid var(--border-color);
       color: var(--text-muted);
-      
-      &:hover { 
-        background: var(--background-btn); 
+
+      &:hover {
+        background: var(--background-btn);
         color: var(--text-color);
       }
     }
@@ -121,10 +389,11 @@
       box-shadow: 0 4px 12px rgba(124, 105, 239, 0.2);
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      
-      &:hover { 
-        background: var(--primary-hover); 
+
+      &:hover {
+        background: var(--primary-hover);
         box-shadow: 0 6px 16px rgba(124, 105, 239, 0.4);
       }
     }

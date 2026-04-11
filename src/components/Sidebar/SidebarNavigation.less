@@ -38,28 +38,88 @@
     }
   }
 
+  // ── Shared: collapsible section button ─────────────────────
+  // Used in both .nav-menu (Sales Workspace, Tools) and
+  // .sidebar-content-wrapper (Quick Filters) so they look identical.
+  .nav-section-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 5px 4px 3px;
+    margin-top: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+
+    span {
+      display: flex;
+      align-items: center;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+
+    .nav-section-chevron {
+      color: var(--text-muted);
+      opacity: 0.6;
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    &.is-open .nav-section-chevron {
+      transform: rotate(180deg);
+    }
+
+    &:hover {
+      background: var(--surface-hover);
+
+      span, .nav-section-chevron {
+        color: var(--text-color);
+        opacity: 1;
+      }
+    }
+  }
+
+  // ── Shared: collapsible items container ─────────────────────
+  .nav-section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.18s ease;
+
+    &.is-open {
+      max-height: 1200px;  // generous enough for filter cards
+      opacity: 1;
+      visibility: visible;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.2s ease 0.04s,
+                  visibility 0s;
+    }
+  }
+
   .nav-menu {
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    gap: 8px;
+    padding: 12px 16px;
+    gap: 2px;
     border-bottom: 1px solid var(--border-color);
-    
-    .nav-section-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-top: 8px;
-      margin-bottom: 4px;
-      letter-spacing: 0.05em;
-    }
 
     .nav-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 12px;
+      padding: 9px 12px;
       border-radius: 8px;
       color: var(--text-color);
       text-decoration: none;
@@ -89,9 +149,13 @@
 
   .sidebar-content-wrapper {
     flex: 1;
-    overflow-y: auto;
+    // No overflow-y:auto here — let the sidebar itself scroll as one unit.
+    // overflow-y:auto on a nested container creates bad nested-scroll UX on mobile.
     display: flex;
     flex-direction: column;
+    // Match nav-menu's horizontal padding so the Quick Filters section button
+    // aligns with "Sales Workspace" / "Tools" section buttons above it.
+    padding: 0 16px;
   }
 
   // ── Sidebar Footer ─────────────────────────────────────

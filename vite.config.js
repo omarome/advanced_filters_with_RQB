@@ -19,6 +19,43 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core — changes rarely, long cache lifetime
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+
+          // MUI + Emotion — very large, split from app code
+          'vendor-mui': [
+            '@mui/material',
+            '@mui/icons-material',
+            '@emotion/react',
+            '@emotion/styled',
+          ],
+
+          // Firebase SDK — large and stable
+          'vendor-firebase': ['firebase'],
+
+          // Charting — heavy, only used on dashboard
+          'vendor-charts': ['recharts'],
+
+          // Query builder — moderately large, isolated feature
+          'vendor-querybuilder': ['react-querybuilder'],
+
+          // Icon library — tree-shaken but still benefits from its own chunk
+          'vendor-icons': ['lucide-react'],
+
+          // Remaining small utilities
+          'vendor-misc': [
+            'react-hot-toast',
+            '@floating-ui/react',
+            '@stomp/stompjs',
+            'sockjs-client',
+            'prop-types',
+          ],
+        },
+      },
+    },
   },
   css: {
     preprocessorOptions: {

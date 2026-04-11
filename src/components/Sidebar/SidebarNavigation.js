@@ -1,18 +1,30 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LucideBuilding, LucideUsers, LucideUser,
   LucideZap, LucideLayoutDashboard, LucideKanban, LucideFilter, LucideTable,
-  LucideMoon, LucideSun, LucideLogOut, LucideSettings, LucideLifeBuoy
+  LucideMoon, LucideSun, LucideLogOut, LucideSettings, LucideLifeBuoy,
+  LucideChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
 import { useThemeControl } from '../../context/ThemeContext';
 import './SidebarNavigation.less';
 
+const SALES_ROUTES = ['/sales/organizations', '/sales/contacts', '/sales/pipeline', '/sales/dashboard'];
+const TOOLS_ROUTES = ['/automations', '/segments'];
+
 const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useThemeControl();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isInSales = SALES_ROUTES.some(r => location.pathname.startsWith(r));
+  const isInTools = TOOLS_ROUTES.some(r => location.pathname.startsWith(r));
+
+  // Auto-expand the section containing the active route; collapse the other
+  const [salesOpen, setSalesOpen] = useState(isInSales || !isInTools);
+  const [toolsOpen, setToolsOpen] = useState(isInTools);
 
   const avatarUrl = user?.photoURL || user?.avatarUrl
     || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'Admin User')}&background=7c69ef&color=fff`;
@@ -34,32 +46,54 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
           <LucideUsers size={18} />
           <span>Team Management</span>
         </NavLink>
-        <div className="nav-section-title">Sales Workspace</div>
-        <NavLink to="/sales/organizations" style={{ '--nav-icon-color': '#10b981' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideBuilding size={18} />
-          <span>Organizations</span>
-        </NavLink>
-        <NavLink to="/sales/contacts" style={{ '--nav-icon-color': '#f59e0b' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideUser size={18} />
-          <span>Contacts</span>
-        </NavLink>
-        <NavLink to="/sales/pipeline" style={{ '--nav-icon-color': '#8b5cf6' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideKanban size={18} />
-          <span>Pipeline</span>
-        </NavLink>
-        <NavLink to="/sales/dashboard" style={{ '--nav-icon-color': '#0ea5e9' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideLayoutDashboard size={18} />
-          <span>Dashboard</span>
-        </NavLink>
-        <div className="nav-section-title">Tools</div>
-        <NavLink to="/automations" style={{ '--nav-icon-color': '#f97316' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideZap size={18} />
-          <span>Automations</span>
-        </NavLink>
-        <NavLink to="/segments" style={{ '--nav-icon-color': '#ec4899' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <LucideFilter size={18} />
-          <span>Segments</span>
-        </NavLink>
+
+        {/* ── Sales Workspace (collapsible) ─────────────────── */}
+        <button
+          className={`nav-section-btn ${salesOpen ? 'is-open' : ''}`}
+          onClick={() => setSalesOpen(v => !v)}
+          aria-expanded={salesOpen}
+        >
+          <span>Sales Workspace</span>
+          <LucideChevronDown size={13} className="nav-section-chevron" />
+        </button>
+        <div className={`nav-section-items ${salesOpen ? 'is-open' : ''}`} aria-hidden={!salesOpen}>
+          <NavLink to="/sales/organizations" style={{ '--nav-icon-color': '#10b981' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideBuilding size={18} />
+            <span>Organizations</span>
+          </NavLink>
+          <NavLink to="/sales/contacts" style={{ '--nav-icon-color': '#f59e0b' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideUser size={18} />
+            <span>Contacts</span>
+          </NavLink>
+          <NavLink to="/sales/pipeline" style={{ '--nav-icon-color': '#8b5cf6' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideKanban size={18} />
+            <span>Pipeline</span>
+          </NavLink>
+          <NavLink to="/sales/dashboard" style={{ '--nav-icon-color': '#0ea5e9' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideLayoutDashboard size={18} />
+            <span>Dashboard</span>
+          </NavLink>
+        </div>
+
+        {/* ── Tools (collapsible) ───────────────────────────── */}
+        <button
+          className={`nav-section-btn ${toolsOpen ? 'is-open' : ''}`}
+          onClick={() => setToolsOpen(v => !v)}
+          aria-expanded={toolsOpen}
+        >
+          <span>Tools</span>
+          <LucideChevronDown size={13} className="nav-section-chevron" />
+        </button>
+        <div className={`nav-section-items ${toolsOpen ? 'is-open' : ''}`} aria-hidden={!toolsOpen}>
+          <NavLink to="/automations" style={{ '--nav-icon-color': '#f97316' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideZap size={18} />
+            <span>Automations</span>
+          </NavLink>
+          <NavLink to="/segments" style={{ '--nav-icon-color': '#ec4899' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+            <LucideFilter size={18} />
+            <span>Segments</span>
+          </NavLink>
+        </div>
       </nav>
 
       {children && (
@@ -88,11 +122,7 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
         </button>
 
         <div className="sidebar-footer-actions">
-          <button
-            className="sidebar-icon-btn"
-            onClick={() => navigate('/help')}
-            title="User guide"
-          >
+          <button className="sidebar-icon-btn" onClick={() => navigate('/help')} title="User guide">
             <LucideLifeBuoy size={16} />
           </button>
           <button
@@ -102,18 +132,10 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
           >
             {mode === 'light' ? <LucideMoon size={16} /> : <LucideSun size={16} />}
           </button>
-          <button
-            className="sidebar-icon-btn"
-            onClick={() => navigate('/settings/account')}
-            title="Settings"
-          >
+          <button className="sidebar-icon-btn" onClick={() => navigate('/settings/account')} title="Settings">
             <LucideSettings size={16} />
           </button>
-          <button
-            className="sidebar-icon-btn sidebar-logout-btn"
-            onClick={logout}
-            title="Sign out"
-          >
+          <button className="sidebar-icon-btn sidebar-logout-btn" onClick={logout} title="Sign out">
             <LucideLogOut size={16} />
           </button>
         </div>

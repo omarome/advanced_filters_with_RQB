@@ -9,9 +9,18 @@ const CollapseButton = ({
   expandedLabel = 'Hide',
   collapsedLabel = 'Show',
   className = '',
+  // Optional icon overrides — callers can pass any React node.
+  // Falls back to the PanelLeft icons when not provided.
+  icon = null,
+  iconExpanded = null,
   ...buttonProps
 }) => {
   const buttonText = isExpanded ? expandedLabel : collapsedLabel;
+  // className on the default SVGs is intentionally omitted — the wrapping
+  // span already carries collapse-button__icon-left.
+  const leftIcon = isExpanded
+    ? (iconExpanded ?? <PanelLeftClose size={16} />)
+    : (icon        ?? <PanelLeftOpen  size={16} />);
 
   return (
     <button
@@ -26,11 +35,7 @@ const CollapseButton = ({
       type="button"
       {...buttonProps}
     >
-      {isExpanded ? (
-        <PanelLeftClose size={16} className="collapse-button__icon-left" />
-      ) : (
-        <PanelLeftOpen size={16} className="collapse-button__icon-left" />
-      )}
+      <span className="collapse-button__icon-left" aria-hidden="true">{leftIcon}</span>
       <span className="collapse-button__text">{buttonText}</span>
       {isExpanded ? (
         <ChevronUp size={16} className="collapse-button__icon" aria-hidden="true" />
@@ -47,6 +52,8 @@ CollapseButton.propTypes = {
   expandedLabel: PropTypes.node,
   collapsedLabel: PropTypes.node,
   className: PropTypes.string,
+  icon: PropTypes.node,
+  iconExpanded: PropTypes.node,
 };
 
 export default CollapseButton;

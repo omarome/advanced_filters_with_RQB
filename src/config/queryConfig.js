@@ -48,6 +48,8 @@ const variableTypeMap = {
   DINT: 'number',
   REAL: 'number',
   LREAL: 'number',
+  NUMBER: 'number',
+  DATE: 'date',
 };
 
 /** Signed PLC types — negative values are valid for these. */
@@ -110,6 +112,58 @@ const fieldEditorOverrides = {
       { name: 'Prospect', label: 'Prospect' },
       { name: 'Customer', label: 'Customer' },
       { name: 'Churned', label: 'Churned' },
+    ],
+  },
+  department: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Departments',
+    operators: selectOperators,
+    values: [
+      { name: 'Global Sales', label: 'Global Sales' },
+      { name: 'Inbound', label: 'Inbound' },
+      { name: 'Mid-Market', label: 'Mid-Market' },
+    ],
+  },
+  stage: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Stages',
+    operators: selectOperators,
+    values: [
+      { name: 'Prospecting', label: 'Prospecting' },
+      { name: 'Qualification', label: 'Qualification' },
+      { name: 'Proposal', label: 'Proposal' },
+      { name: 'Negotiation', label: 'Negotiation' },
+      { name: 'Closed Won', label: 'Closed Won' },
+      { name: 'Closed Lost', label: 'Closed Lost' },
+    ],
+  },
+  pipelineStage: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Stages',
+    operators: selectOperators,
+    values: [
+      { name: 'Lead', label: 'Lead' },
+      { name: 'Opportunity', label: 'Opportunity' },
+      { name: 'Proposal', label: 'Proposal' },
+      { name: 'Negotiation', label: 'Negotiation' },
+      { name: 'Closed', label: 'Closed' },
+    ],
+  },
+  industry: {
+    valueEditorType: 'select',
+    chipPlaceholder: 'All Industries',
+    operators: selectOperators,
+    values: [
+      { name: 'Technology', label: 'Technology' },
+      { name: 'Healthcare', label: 'Healthcare' },
+      { name: 'Finance', label: 'Finance' },
+      { name: 'Manufacturing', label: 'Manufacturing' },
+      { name: 'Retail', label: 'Retail' },
+      { name: 'Real Estate', label: 'Real Estate' },
+      { name: 'Education', label: 'Education' },
+      { name: 'Consulting', label: 'Consulting' },
+      { name: 'Media', label: 'Media' },
+      { name: 'Other', label: 'Other' },
     ],
   },
 };

@@ -1,433 +1,598 @@
 @import './variables.less';
 
+// ── Quick Filter Sidebar ───────────────────────────────────────────────────────
+// Sits inside sidebar-content-wrapper (padding: 0 16px).
+// The .nav-section-btn and .nav-section-items classes come from SidebarNavigation.less
+// so the toggle button and collapse animation are visually identical to
+// "Sales Workspace" and "Tools" above it in the nav.
+
 .quick-filter-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 
-  // Desktop: hide only the Quick Filter Builder card — inline filter bar handles it.
-  // Keep the Saved Filters card visible in the sidebar.
+  // On desktop the inline filter bar handles Quick Filters.
+  // Show only the Saved Filters card on desktop.
   @media (min-width: 1024px) {
-    .sidebar-card:not(.saved-filters-section) {
+    .qf-card:not(.saved-filters-section) {
       display: none;
     }
   }
+}
 
-  .sidebar-card {
-    background-color: var(--background);
-    border-radius: var(--border-radius-custom);
-    border: 1px solid var(--border-color-light);
-    box-shadow: var(--card-shadow);
-    padding: 16px;
+// ── Active dot on the section label when filters are applied ──────────────────
+.qf-active-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  margin-left: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
+// ── Filter cards ──────────────────────────────────────────────────────────────
+// nav-section-items already sets max-height / opacity / visibility transition.
+// We only need to style what's inside — the cards themselves.
 
-      .card-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-color);
-        text-transform: uppercase;
-        letter-spacing: -0.01em;
-        margin: 0;
-      }
+.qf-content {
+  // Extra breathing room inside the collapsible area
+  gap: 10px !important;
+  padding-bottom: 8px !important;
+}
 
-      .title-icon {
-        color: var(--text-muted);
+.qf-card {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
-        &.zap-icon {
-          color: #f59e0b; // Amber-500 for the zap/flash icon
-        }
-      }
+  // Saved Filters card can grow and scroll its list
+  &.saved-filters-section {
+    max-height: 260px;
+  }
+}
 
-      .add-filter-btn {
-        background: none;
-        border: none;
-        padding: 4px;
-        color: var(--primary-color);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: color 0.2s;
+.qf-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-        &:hover {
-          color: var(--primary-600);
-        }
-      }
-    }
+// ── Custom Filter card header: label + active badge ───────────────────────────
+// The badge mirrors the desktop InlineFilterBar's ".active-badge" so the visual
+// language is consistent across breakpoints.
+.qf-custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.qf-active-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--primary-color);
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  animation: qfBadgeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes qfBadgeIn {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+// Micro-label above each filter group
+.qf-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+// ── Filter group spacing (subsequent fields inside the same card) ─────────────
+.qf-filter-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+// ── Status / option pills ──────────────────────────────────────────────────────
+.qf-pill-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.qf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+
+  &:hover {
+    border-color: var(--primary-color);
+    color: var(--text-color);
   }
 
-  .filter-field {
-    margin-bottom: 16px;
-
-    .field-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-
-        input[type="checkbox"] {
-          width: 16px;
-          height: 16px;
-          border-radius: 4px;
-          border: 1px solid var(--border-color-light);
-          accent-color: var(--primary-color);
-        }
-
-        .badge {
-          font-size: 10px;
-          font-weight: 700;
-          padding: 2px 8px;
-          border-radius: 999px;
-          text-transform: uppercase;
-          border: 1px solid transparent;
-
-          &.badge-active {
-            background-color: var(--status-active-background);
-            color: var(--status-active-button);
-            border-color: var(--border-color-light);
-          }
-
-          &.badge-inactive {
-            background-color: var(--status-inactive-background);
-            color: var(--text-inactive-color);
-            border-color: var(--border-color-light);
-          }
-
-          &.badge-pending {
-            background-color: var(--status-pending-background);
-            color: var(--text-pending-color);
-            border-color: var(--border-color-light);
-          }
-        }
-      }
-    }
-
-    .range-inputs {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .range-separator {
-        color: var(--text-muted);
-      }
-    }
-
-    .filter-input,
-    .filter-select {
-      width: 100%;
-      padding: 8px 12px;
-      font-size: 14px;
-      background-color: var(--background-muted); // Replaced undefined --background-soft
-      border: 1px solid var(--border-color-light);
-      border-radius: var(--border-radius-custom);
-      color: var(--text-placeholder);
-      transition: all 0.2s;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        background-color: var(--background);
-        box-shadow: 0 0 0 2px var(--primary-50);
-      }
-    }
-
-    .filter-select option {
-      background-color: var(--dropdown-bg);
-      color: var(--text-color);
-    }
+  // Inline color dot (used by isOnline field)
+  .qf-pill-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
-  .apply-btn {
-    width: 100%;
-    padding: 10px;
-    background: var(--primary-gradient);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius-custom);
-    font-size: 12px;
+  // Active state: generic purple tint (overridden by specific modifiers below)
+  &.is-active {
+    background: rgba(124, 105, 239, 0.1);
+    border-color: rgba(124, 105, 239, 0.4);
+    color: var(--primary-color);
+  }
+
+  // Semantic modifiers for well-known field values
+  &--active.is-active {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #059669;
+    .dark-mode & { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+  }
+
+  &--inactive.is-active {
+    background: rgba(107, 114, 128, 0.12);
+    border-color: rgba(107, 114, 128, 0.4);
+    color: #4b5563;
+    .dark-mode & { background: rgba(156, 163, 175, 0.18); color: #9ca3af; }
+  }
+
+  &--pending.is-active {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #b45309;
+    .dark-mode & { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+  }
+
+  &--true.is-active {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #059669;
+    .dark-mode & { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+  }
+
+  &--false.is-active {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #dc2626;
+    .dark-mode & { background: rgba(239, 68, 68, 0.18); color: #f87171; }
+  }
+}
+
+// ── Probability heat strip ────────────────────────────────────────────────────
+.qf-prob-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.qf-prob-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--zone-color);
+    background: color-mix(in srgb, var(--zone-color) 8%, transparent);
+  }
+
+  &.is-active {
+    border-color: var(--zone-color);
+    background: color-mix(in srgb, var(--zone-color) 14%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--zone-color) 30%, transparent);
+  }
+
+  .qf-prob-zone-label {
+    font-size: 10px;
     font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(124, 105, 239, 0.2);
+    color: var(--zone-color);
+    line-height: 1;
+  }
+
+  .qf-prob-zone-range {
+    font-size: 9px;
+    color: var(--text-muted);
+    line-height: 1;
+  }
+}
+
+// ── "Build Filter" button — CollapseButton inside a qf-card ──────────────────
+// The global CollapseButton uses a gradient CTA style appropriate for primary
+// actions. Inside the sidebar's compact qf-card, that's too heavy. We scope
+// these overrides so the global style is untouched everywhere else.
+
+.qf-card .collapse-button {
+  // Replace gradient with an outlined/ghost style that matches the sidebar tone
+  background: none !important;
+  color: var(--primary-color) !important;
+  border: 1.5px solid var(--primary-color) !important;
+  box-shadow: none !important;
+  height: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  gap: 6px;
+  letter-spacing: 0.01em;
+
+  // Keep icon and text in a single row on all screen sizes
+  .collapse-button__label-wrapper {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+
+  .collapse-button__icon-left,
+  .collapse-button__icon {
+    opacity: 0.85;
+  }
+
+  &:hover {
+    background: var(--primary-color-light) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+
+    .collapse-button__icon-left,
+    .collapse-button__icon {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: none !important;
+  }
+
+  // Expanded (modal open) — filled tint to signal active state
+  &.collapse-button--expanded {
+    background: var(--primary-color-light) !important;
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-focus-rgba) !important;
 
     &:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    &.pending {
-      background: linear-gradient(135deg, #7c69ef 0%, #a78bfa 100%); // Brighter gradient
-      animation: pulse-primary 2s infinite;
-      box-shadow: 0 4px 12px rgba(124, 105, 239, 0.4);
+      background: var(--primary-color-light) !important;
+      opacity: 1 !important;
     }
   }
 
-  @keyframes pulse-primary {
-    0% {
-      box-shadow: 0 0 0 0 rgba(124, 105, 239, 0.4);
-    }
+  // Mobile: match 44px min-height WCAG touch target
+  @media (max-width: 767px) {
+    min-height: 44px;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+  }
+}
 
-    70% {
-      box-shadow: 0 0 0 10px rgba(124, 105, 239, 0);
-    }
+// ── Loading state ─────────────────────────────────────────────────────────────
+.qf-loading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
 
-    100% {
-      box-shadow: 0 0 0 0 rgba(124, 105, 239, 0);
+// ── Clear button ──────────────────────────────────────────────────────────────
+.qf-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  justify-content: center;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+
+  &:hover {
+    border-color: #fca5a5;
+    color: #ef4444;
+    background: #fef2f2;
+    .dark-mode & {
+      border-color: rgba(255, 107, 107, 0.4);
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.08);
+    }
+  }
+}
+
+// ── Saved Filters section ─────────────────────────────────────────────────────
+.add-filter-btn {
+  background: none;
+  border: none;
+  padding: 3px;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--primary-color-light);
+  }
+}
+
+.saved-filters-search {
+  position: relative;
+
+  .filter-input {
+    width: 100%;
+    padding: 6px 10px 6px 30px;
+    font-size: 12px;
+    background: var(--background-muted);
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    color: var(--text-color);
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+
+    &::placeholder { color: var(--text-placeholder); }
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px var(--primary-focus-rgba);
     }
   }
 
-  .sidebar-collapse-container {
-    .sidebar-collapse-btn {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-top: 8px;
-      margin-bottom: 4px;
-      letter-spacing: 0.05em;
-      width: 100%;
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
-      background-color: var(--background-btn);
-      border: 1px dashed var(--border-color);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  &::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 13px;
+    height: 13px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+}
 
-      &:hover {
-        background-color: #5b4bc4;
-        color: white;
-        border-color: #5b4bc4;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(93, 117, 232, 0.25);
-      }
+.saved-filters-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
 
-      &:active {
-        transform: translateY(0);
-      }
-    }
+  &.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+  &.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
   }
 
-  .saved-filters-section {
+  .no-filters-msg {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 10px 0;
+    font-style: italic;
+  }
+
+  .nav-item-wrapper {
     display: flex;
-    flex-direction: column;
-    max-height: 380px;
-  }
-
-  .saved-filters-search {
-    margin-bottom: 12px;
-    position: relative;
-
-    .filter-input {
-      width: 100%;
-      padding: 10px 12px;
-      padding-left: 36px;
-      font-size: 13px;
-      background-color: var(--background-muted);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-custom);
-      color: var(--text-color);
-      transition: all 0.2s ease;
-
-      &::placeholder {
-        color: var(--text-placeholder);
-      }
-
-      &:focus {
-        border-color: var(--primary-color);
-        background-color: var(--background);
-        box-shadow: 0 0 0 2px var(--primary-100), 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-
-      &:hover:not(:focus) {
-        border-color: var(--border-color-light);
-        background-color: var(--background);
-      }
-    }
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 14px;
-      height: 14px;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
-      background-size: contain;
-      background-repeat: no-repeat;
-      pointer-events: none;
-    }
-  }
-
-  .saved-filters-nav {
-    display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
     gap: 4px;
-    overflow-y: auto;
-    padding-right: 4px;
-    /* Space for scrollbar */
-    margin-right: -4px;
-    /* Offset padding */
-    flex: 1;
+    padding: 5px 7px;
+    border-radius: 7px;
+    transition: background 0.15s ease;
 
-    &.custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
+    &:hover { background: var(--surface-hover); }
+
+    &.active {
+      background: var(--primary-gradient);
+      box-shadow: 0 2px 8px rgba(124, 105, 239, 0.25);
+
+      .nav-item-btn { color: white; }
+      .nav-label-group svg { color: white; }
+      .delete-view-btn { color: rgba(255,255,255,0.65); }
+      .delete-view-btn:hover { color: white; background: rgba(255,255,255,0.18); }
+      .applied-pill { background: rgba(255,255,255,0.2); color: white !important; }
     }
 
-    &.custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: var(--border-color);
-      border-radius: 4px;
-    }
-
-    .no-filters-msg {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 16px 0;
-      font-style: italic;
-    }
-
-    .nav-item-wrapper {
+    .nav-item-btn {
+      flex: 1;
+      min-width: 0;
+      background: none;
+      border: none;
+      padding: 2px 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: var(--border-radius-custom);
-      transition: all 0.2s;
+      color: var(--text-color);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
 
-      &:hover {
-        background-color: var(--background-soft);
-      }
-
-      &.active {
-        background: var(--primary-gradient);
-        box-shadow: 0 4px 12px rgba(124, 105, 239, 0.3);
-
-        .nav-item-btn {
-          color: white;
-
-          .nav-label-group svg {
-            color: white;
-          }
-        }
-
-        .delete-view-btn {
-          color: rgba(255, 255, 255, 0.7);
-
-          &:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.2);
-          }
-        }
-
-        .applied-pill {
-          background-color: rgba(255, 255, 255, 0.2);
-          color: white !important;
-        }
-
-        &:hover {
-          opacity: 0.95;
-          box-shadow: 0 6px 16px rgba(124, 105, 239, 0.4);
-        }
-      }
-
-      .nav-item-btn {
-        flex: 1;
-        min-width: 0;
-        background: none;
-        border: none;
-        padding: 4px 0;
-        display: flex;
-        align-items: center;
-        color: var(--text-color-light);
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        text-align: left;
-        transition: color 0.2s;
-
-        .nav-label-group {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          min-width: 0;
-          /* Enable flex child truncation */
-          width: 100%;
-
-          svg {
-            color: var(--text-muted);
-            flex-shrink: 0;
-          }
-
-          .truncate-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-          }
-        }
-      }
-
-      .nav-item-actions {
+      .nav-label-group {
         display: flex;
         align-items: center;
         gap: 8px;
-        flex-shrink: 0;
+        min-width: 0;
+        width: 100%;
 
-        .applied-pill {
-          font-size: 10px;
-          background-color: var(--primary-100);
-          color: var(--primary-color) !important;
-          padding: 2px 8px;
-          border-radius: 999px;
-          font-weight: 700;
-        }
+        svg { color: var(--text-muted); flex-shrink: 0; }
 
-        .delete-view-btn {
-          background: none;
-          border: none;
-          color: var(--text-placeholder);
-          padding: 4px;
-          border-radius: 4px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-
-          &:hover {
-            color: white;
-            background-color: var(--error-hover);
-          }
+        .truncate-text {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: block;
+          font-size: 12px;
         }
       }
     }
+
+    .nav-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+
+      .applied-pill {
+        font-size: 10px;
+        background: var(--primary-100);
+        color: var(--primary-color) !important;
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .delete-view-btn {
+        background: none;
+        border: none;
+        color: var(--text-placeholder);
+        padding: 3px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.15s ease;
+
+        &:hover { color: white; background: var(--error-hover); }
+      }
+    }
   }
+}
+
+// ── Portal dropdown — rendered at document.body, escapes sidebar stacking context ──
+.sidebar-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--background-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  gap: 6px;
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background);
+  }
+
+  &.is-open {
+    border-color: var(--primary-color);
+    background: var(--background);
+    box-shadow: 0 0 0 2px var(--primary-focus-rgba);
+  }
+
+  .sidebar-dropdown-value {
+    font-size: 12px;
+    color: var(--text-color);
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.is-placeholder { color: var(--text-placeholder); }
+  }
+
+  .sidebar-dropdown-chevron {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.18s ease;
+  }
+
+  &.is-open .sidebar-dropdown-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+// Menu — rendered via ReactDOM.createPortal at document.body
+.sidebar-dropdown-menu {
+  background: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--dropdown-shadow);
+  overflow: hidden;
+  animation: sdMenuIn 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sdMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sidebar-dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s ease;
+
+  &:hover { background: var(--surface-hover); }
+
+  &.is-selected {
+    color: var(--primary-color);
+    font-weight: 700;
+    background: var(--primary-color-light);
+  }
+
+  .option-check { color: var(--primary-color); flex-shrink: 0; }
 }

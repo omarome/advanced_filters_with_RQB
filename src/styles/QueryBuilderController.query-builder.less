@@ -130,12 +130,15 @@
   border-color: @primary-color;
 }
 
-/* Mobile Responsiveness for Query Builder */
+/* ── Mobile: bottom-sheet query builder ────────────────────────────────────── */
 @media (max-width: 767px) {
+
+  // Each rule wraps vertically — field / operator / value each full width
   .query-builder-controller__content .rule {
     flex-wrap: wrap;
     align-items: stretch;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px;
   }
 
   .query-builder-controller__content .rule .rule-field,
@@ -145,28 +148,78 @@
     min-width: 100%;
   }
 
-  .query-builder-controller__content select,
+  // Number / text value inputs — 16px prevents iOS zoom on focus.
+  // (Field and operator selectors are now PortalSelect — their mobile styles
+  //  live in QueryBuilderController.less under .qb-portal-select-btn)
   .query-builder-controller__content input {
     width: 100%;
+    font-size: 16px !important;
+    padding: 11px 12px;
+    min-height: 44px;
+    border-radius: 8px;
+    box-sizing: border-box;
   }
 
-  .query-builder-controller__content .rule-remove {
+  // Any residual native <select> (e.g. future library controls we haven't
+  // overridden yet) also gets the same treatment for safety.
+  .query-builder-controller__content select {
+    width: 100%;
+    font-size: 16px !important;
+    padding: 11px 12px;
+    min-height: 44px;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  // Remove rule button — full width, large touch area
+  .query-builder-controller__content .rule-remove,
+  .query-builder-controller__content .remove-rule-text {
     width: 100%;
     margin-top: 4px;
-    padding: 8px;
+    padding: 10px;
+    font-size: 14px;
+    min-height: 44px;
   }
 
+  // Rule group header buttons — equal width, large touch area
   .query-builder-controller__content .ruleGroup-header {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .query-builder-controller__content .ruleGroup-addRule,
   .query-builder-controller__content .ruleGroup-addGroup {
     flex: 1;
     text-align: center;
-    padding: 8px;
+    padding: 10px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  // NOT toggle checkbox row
+  .query-builder-controller__content .ruleGroup-notToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    padding: 6px 0;
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      accent-color: var(--primary-color);
+    }
+  }
+
+  // Radio labels (boolean True/False)
+  .query-builder-controller__content .rule .rule-value label {
+    font-size: 15px;
+    gap: 8px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 }
