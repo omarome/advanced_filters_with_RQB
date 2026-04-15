@@ -10,9 +10,7 @@ import {
   LucideTrendingUp, LucideTarget, LucideDollarSign,
   LucidePercent, LucideClock, LucideAward
 } from 'lucide-react';
-import { getAccessToken } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson } from '../../services/apiClient';
 
 const STAGE_COLORS = {
   PROSPECTING:   '#6366f1',
@@ -76,11 +74,7 @@ export default function SalesDashboard() {
   useEffect(() => {
     async function load() {
       try {
-        const token = getAccessToken();
-        const res = await fetch(`${API_BASE}/sales/opportunities?size=500`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        const json = await res.json();
+        const json = await apiJson('/sales/opportunities?size=500');
         setDeals(json.content || []);
       } catch {
         setDeals([]);

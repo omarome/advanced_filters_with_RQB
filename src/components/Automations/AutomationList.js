@@ -22,6 +22,7 @@ import {
 import * as automationApi from '../../services/automationApi';
 import { useNotifications } from '../../context/NotificationContext';
 import { useThemeControl } from '../../context/ThemeContext';
+import { useRole } from '../../hooks/useRole';
 import './Automations.css';
 
 const AutomationList = ({ onNewRule }) => {
@@ -29,6 +30,8 @@ const AutomationList = ({ onNewRule }) => {
   const [loading, setLoading] = useState(true);
   const { addNotification } = useNotifications();
   const { mode } = useThemeControl();
+  const { can } = useRole();
+  const canWrite = can('automations.write');
 
   useEffect(() => {
     fetchRules();
@@ -98,29 +101,35 @@ const AutomationList = ({ onNewRule }) => {
             <Typography variant="body2" color="text.secondary">Put your CRM on autopilot with no-code workflows.</Typography>
           </Box>
         </Box>
-        <button className="btn-primary" onClick={onNewRule}>
-          <LucidePlus size={15} />
-          New Rule
-        </button>
+        {canWrite && (
+          <button className="btn-primary" onClick={onNewRule}>
+            <LucidePlus size={15} />
+            New Rule
+          </button>
+        )}
       </Box>
 
       {rules.length === 0 ? (
-        <Paper elevation={0} sx={{ 
-          p: 8, 
-          textAlign: 'center', 
-          borderRadius: '24px', 
+        <Paper elevation={0} sx={{
+          p: 8,
+          textAlign: 'center',
+          borderRadius: '24px',
           bgcolor: 'rgba(255, 255, 255, 0.02)',
           border: '1px dashed rgba(255, 255, 255, 0.1)'
         }}>
           <LucideBot size={64} style={{ color: 'var(--text-muted)', marginBottom: '16px' }} />
           <Typography variant="h6" fontWeight="600">No Automations Yet</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-            Create your first rule to automate repetitive tasks and save time.
+            {canWrite
+              ? 'Create your first rule to automate repetitive tasks and save time.'
+              : 'No automations have been set up yet. Contact your Manager or Admin to create one.'}
           </Typography>
-          <button className="btn-primary" onClick={onNewRule}>
-            <LucidePlus size={15} />
-            Create First Automation
-          </button>
+          {canWrite && (
+            <button className="btn-primary" onClick={onNewRule}>
+              <LucidePlus size={15} />
+              Create First Automation
+            </button>
+          )}
         </Paper>
       ) : (
         <Grid container spacing={3}>
@@ -144,15 +153,19 @@ const AutomationList = ({ onNewRule }) => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Typography variant="h6" fontWeight="600" sx={{ mt: 0.5 }}>{rule.name}</Typography>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <Switch 
-                        checked={rule.isActive} 
-                        onChange={() => toggleRule(rule)}
-                        size="small"
-                        color="success"
-                      />
-                      <IconButton size="small" onClick={() => deleteRule(rule.id)} sx={{ color: 'var(--text-muted)', '&:hover': { color: '#ef4444' } }}>
-                        <LucideTrash2 size={16} />
-                      </IconButton>
+                      {canWrite && (
+                        <Switch
+                          checked={rule.isActive}
+                          onChange={() => toggleRule(rule)}
+                          size="small"
+                          color="success"
+                        />
+                      )}
+                      {canWrite && (
+                        <IconButton size="small" onClick={() => deleteRule(rule.id)} sx={{ color: 'var(--text-muted)', '&:hover': { color: '#ef4444' } }}>
+                          <LucideTrash2 size={16} />
+                        </IconButton>
+                      )}
                     </Box>
                   </Box>
                   

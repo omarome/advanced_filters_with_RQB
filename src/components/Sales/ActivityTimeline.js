@@ -12,6 +12,7 @@ import {
 import { fetchActivities, deleteActivity } from '../../services/activityApi';
 import ActivityForm from './ActivityForm';
 import { toast } from 'react-hot-toast';
+import { usePermission } from '../../hooks/usePermission';
 import '../../styles/ActivityTimeline.less';
 
 const ACTIVITY_ICONS = {
@@ -62,6 +63,9 @@ const ActivityTimeline = ({ entityType, entityId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const canCreateActivity = usePermission('ACTIVITIES_CREATE');
+  const canDeleteActivity = usePermission('ACTIVITIES_DELETE');
 
   const loadActivities = useCallback(async (pageNum = 0, append = false) => {
     try {
@@ -144,9 +148,11 @@ const ActivityTimeline = ({ entityType, entityId }) => {
     <div className="activity-timeline">
       <div className="timeline-header">
         <h4>Activity Feed</h4>
-        <button className="add-activity-btn" onClick={() => setIsFormOpen(true)}>
-          + Log Activity
-        </button>
+        {canCreateActivity && (
+          <button className="add-activity-btn" onClick={() => setIsFormOpen(true)}>
+            + Log Activity
+          </button>
+        )}
       </div>
 
       {isFormOpen && (
@@ -203,12 +209,14 @@ const ActivityTimeline = ({ entityType, entityId }) => {
                   {isExpanded && activity.body && (
                     <div className="timeline-body-expanded">
                       <p>{activity.body}</p>
-                      <button
-                        className="delete-activity-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(activity.id); }}
-                      >
-                        <LucideTrash2 size={14} /> Delete
-                      </button>
+                      {canDeleteActivity && (
+                        <button
+                          className="delete-activity-btn"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(activity.id); }}
+                        >
+                          <LucideTrash2 size={14} /> Delete
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

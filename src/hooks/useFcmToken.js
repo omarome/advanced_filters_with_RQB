@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { app } from '../config/firebase';
-import { getAccessToken } from '../context/AuthProvider';
 import toast from 'react-hot-toast';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson } from '../services/apiClient';
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
 /**
@@ -78,14 +76,9 @@ export function useFcmToken(enabled = true) {
 }
 
 async function registerTokenWithBackend(token) {
-  const accessToken = getAccessToken();
   try {
-    await fetch(`${API_BASE}/fcm/register`, {
+    await apiJson('/fcm/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      },
       body: JSON.stringify({ token }),
     });
   } catch (err) {

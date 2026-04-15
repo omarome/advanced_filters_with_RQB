@@ -1,30 +1,11 @@
-/**
- * API client for the HumintFlow CRM backend.
- *
- * All requests carry a JWT Bearer token obtained from AuthProvider.
- * The base URL is configured via the VITE_API_BASE_URL environment variable.
- */
-import { getAccessToken } from '../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-
-/**
- * Build Authorization header with the current JWT.
- */
-function getAuthHeader() {
-  const token = getAccessToken();
-  if (token) {
-    return { Authorization: `Bearer ${token}` };
-  }
-  return {};
-}
+import { apiJson } from './apiClient';
 
 /**
  * Fetches all users from the backend API.
  * @param {{ sortBy?: string, sortDir?: string }} [sortConfig] optional sort params
  */
 export const fetchUsers = async (sortConfig) => {
-  let url = `${API_BASE}/users`;
+  let url = '/users';
 
   if (sortConfig?.sortBy) {
     const params = new URLSearchParams();
@@ -33,16 +14,7 @@ export const fetchUsers = async (sortConfig) => {
     url += `?${params.toString()}`;
   }
 
-  const response = await fetch(url, {
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
-    throw new Error(`Failed to fetch users: ${response.status}`);
-  }
-  return response.json();
+  return apiJson(url);
 };
 
 /**
@@ -50,16 +22,7 @@ export const fetchUsers = async (sortConfig) => {
  * Each variable has: id, name, label, offset, type (UDINT, STRING, BOOL, etc.)
  */
 export const fetchVariables = async () => {
-  const response = await fetch(`${API_BASE}/variables`, {
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
-    throw new Error(`Failed to fetch variables: ${response.status}`);
-  }
-  return response.json();
+  return apiJson('/variables');
 };
 
 /**
@@ -67,21 +30,10 @@ export const fetchVariables = async () => {
  * @param {Object} viewData - { name: string, queryJson: string }
  */
 export const saveView = async (viewData) => {
-  const response = await fetch(`${API_BASE}/saved-views`, {
+  return apiJson('/saved-views', {
     method: 'POST',
-    headers: {
-      ...getAuthHeader(),
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(viewData),
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Failed to save view: ${response.status}`);
-  }
-
-  return response.json();
 };
 
 /**
@@ -90,14 +42,9 @@ export const saveView = async (viewData) => {
  */
 export const fetchSavedViews = async (entityType) => {
   const url = entityType
-    ? `${API_BASE}/saved-views?entityType=${encodeURIComponent(entityType)}`
-    : `${API_BASE}/saved-views`;
-  const response = await fetch(url, { headers: getAuthHeader() });
-  if (!response.ok) {
-    if (response.status === 401) throw new Error('Authentication required');
-    throw new Error(`Failed to fetch saved views: ${response.status}`);
-  }
-  return response.json();
+    ? `/saved-views?entityType=${encodeURIComponent(entityType)}`
+    : '/saved-views';
+  return apiJson(url);
 };
 
 /**
@@ -105,19 +52,7 @@ export const fetchSavedViews = async (entityType) => {
  * @param {number|string} id - The ID of the view to delete.
  */
 export const deleteSavedView = async (id) => {
-  const response = await fetch(`${API_BASE}/saved-views/${id}`, {
-    method: 'DELETE',
-    headers: getAuthHeader()
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
-    throw new Error(`Failed to delete saved view: ${response.status}`);
-  }
-  
-  // Return true on success
+  await apiJson(`/saved-views/${id}`, { method: 'DELETE' });
   return true;
 };
 
@@ -127,13 +62,7 @@ export const deleteSavedView = async (id) => {
  * Fetches all notifications from the backend, ordered newest first.
  */
 export const fetchNotifications = async () => {
-  const response = await fetch(`${API_BASE}/notifications`, {
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch notifications: ${response.status}`);
-  }
-  return response.json();
+  return apiJson('/notifications');
 };
 
 /**
@@ -141,26 +70,14 @@ export const fetchNotifications = async () => {
  * @param {number|string} id
  */
 export const markNotificationRead = async (id) => {
-  const response = await fetch(`${API_BASE}/notifications/${id}/read`, {
-    method: 'PUT',
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to mark notification as read: ${response.status}`);
-  }
+  await apiJson(`/notifications/${id}/read`, { method: 'PUT' });
 };
 
 /**
  * Marks all notifications as read.
  */
 export const markAllNotificationsRead = async () => {
-  const response = await fetch(`${API_BASE}/notifications/read-all`, {
-    method: 'PUT',
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to mark all notifications as read: ${response.status}`);
-  }
+  await apiJson('/notifications/read-all', { method: 'PUT' });
 };
 
 /**
@@ -168,13 +85,7 @@ export const markAllNotificationsRead = async () => {
  * @param {number|string} id
  */
 export const deleteNotification = async (id) => {
-  const response = await fetch(`${API_BASE}/notifications/${id}`, {
-    method: 'DELETE',
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to delete notification: ${response.status}`);
-  }
+  await apiJson(`/notifications/${id}`, { method: 'DELETE' });
   return true;
 };
 
@@ -182,12 +93,6 @@ export const deleteNotification = async (id) => {
  * Deletes all notifications.
  */
 export const deleteAllNotifications = async () => {
-  const response = await fetch(`${API_BASE}/notifications`, {
-    method: 'DELETE',
-    headers: getAuthHeader()
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to delete all notifications: ${response.status}`);
-  }
+  await apiJson('/notifications', { method: 'DELETE' });
   return true;
 };

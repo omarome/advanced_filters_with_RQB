@@ -1,27 +1,14 @@
-import { getAccessToken } from '../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-
-function authHeaders() {
-  const token = getAccessToken();
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { apiJson } from './apiClient';
 
 /**
  * Execute a CRM segment query.
  * @param {object} req - { entityType, combinator, rules, page, size }
  */
 export const executeCrmQuery = async (req) => {
-  const res = await fetch(`${API_BASE}/query`, {
+  return apiJson('/query', {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify(req),
   });
-  if (!res.ok) throw new Error(`Query failed: ${res.status}`);
-  return res.json();
 };
 
 /**
@@ -29,16 +16,12 @@ export const executeCrmQuery = async (req) => {
  * Returns: { CONTACT: [...], ORGANIZATION: [...], ... }
  */
 export const fetchAllFields = async () => {
-  const res = await fetch(`${API_BASE}/query/fields`, { headers: authHeaders() });
-  if (!res.ok) throw new Error(`Failed to load fields: ${res.status}`);
-  return res.json();
+  return apiJson('/query/fields');
 };
 
 /**
  * Fetch field metadata for a single entity type.
  */
 export const fetchFieldsForEntity = async (entityType) => {
-  const res = await fetch(`${API_BASE}/query/fields/${entityType}`, { headers: authHeaders() });
-  if (!res.ok) throw new Error(`Failed to load fields: ${res.status}`);
-  return res.json();
+  return apiJson(`/query/fields/${entityType}`);
 };

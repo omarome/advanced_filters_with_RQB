@@ -13,8 +13,11 @@ import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationMo
 import { exportToCSV } from '../../utils/exportUtils';
 import { buildFieldsFromVariables } from '../../config/queryConfig';
 import { enhanceFieldWithValues } from '../../utils/fieldUtils';
+import { usePermission } from '../../hooks/usePermission';
 
 const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, users, onSaveView }) => {
+  const canExport = usePermission('OPPORTUNITIES_DELETE');
+
   // ── Server-side data ─────────────────────────────────────────────────────
   const [data, setData]                 = useState([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -173,7 +176,7 @@ const OpportunitiesList = ({ query, onQueryChange, onResetQuery, variables, user
           sortField={sortField}
           sortDirection={sortDirection}
           onSortChange={(field, dir) => { setSortField(field); setSortDirection(dir); }}
-          onExport={() => exportToCSV(data, 'opportunities_export')}
+          onExport={canExport ? () => exportToCSV(data, 'opportunities_export') : undefined}
           onSaveView={onSaveView}
           onResetQuery={onResetQuery}
           onBulkDelete={handleBulkDeleteRequested}

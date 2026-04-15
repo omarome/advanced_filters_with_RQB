@@ -5,9 +5,7 @@ import {
 import {
   LucideChevronLeft, LucideChevronRight, LucideCalendar
 } from 'lucide-react';
-import { getAccessToken } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson } from '../../services/apiClient';
 
 const ACTIVITY_COLORS = {
   TASK:    { bg: '#6366f114', border: '#6366f1', label: '#6366f1' },
@@ -39,12 +37,7 @@ export default function CalendarView() {
   useEffect(() => {
     async function load() {
       try {
-        const token = getAccessToken();
-        const res = await fetch(`${API_BASE}/sales/activities?size=500`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (!res.ok) throw new Error();
-        const json = await res.json();
+        const json = await apiJson('/sales/activities?size=500');
         setActivities(json.content || json || []);
       } catch {
         setActivities([]);

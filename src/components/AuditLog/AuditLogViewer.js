@@ -5,9 +5,7 @@ import {
   IconButton, Collapse, Tooltip
 } from '@mui/material';
 import { LucideHistory, LucideChevronDown, LucideChevronRight, LucideCheck, LucidePencil, LucideTrash2 } from 'lucide-react';
-import { getAccessToken } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson } from '../../services/apiClient';
 
 const REV_TYPE_META = {
   ADD: { label: 'Created', color: '#10b981', icon: LucideCheck },
@@ -131,13 +129,9 @@ export default function AuditLogViewer({ entityType, entityId }) {
     setLoading(true);
     setError(null);
 
-    const token = getAccessToken();
-    fetch(`${API_BASE}/audit/${entityType}/${entityId}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    apiJson(`/audit/${entityType}/${entityId}`)
       .then(data => setRevisions([...data].reverse())) // newest first
-      .catch(e => setError(e.message === '403' ? 'Insufficient permissions to view audit log.' : 'Failed to load audit history.'))
+      .catch(e => setError(e.message?.includes('403') ? 'Insufficient permissions to view audit log.' : 'Failed to load audit history.'))
       .finally(() => setLoading(false));
   }, [entityType, entityId]);
 

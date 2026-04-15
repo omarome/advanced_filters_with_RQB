@@ -7,9 +7,7 @@ import {
   LucideSearch, LucideBuilding, LucideUser, LucideTarget, LucideX
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getAccessToken } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson } from '../../services/apiClient';
 
 const ENTITY_ICONS = {
   contacts:      { icon: LucideUser,     color: '#6366f1', label: 'Contact' },
@@ -42,12 +40,8 @@ export default function GlobalSearch() {
     if (!q || q.length < 2) { setResults(null); return; }
     setLoading(true);
     try {
-      const token = getAccessToken();
-      const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}&limit=5`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) throw new Error();
-      setResults(await res.json());
+      const data = await apiJson(`/search?q=${encodeURIComponent(q)}&limit=5`);
+      setResults(data);
     } catch {
       setResults(null);
     } finally {

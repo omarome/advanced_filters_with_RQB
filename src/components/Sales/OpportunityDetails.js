@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { getOpportunity, updateOpportunity } from '../../services/opportunityApi';
-import { LucideBuilding, LucideUsers } from 'lucide-react';
+import { LucideBuilding, LucideUsers, LucideShare2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import AssigneeSelector from './AssigneeSelector';
+import ShareRecordModal from './ShareRecordModal';
+import { useRole } from '../../hooks/useRole';
 
 const OpportunityDetails = ({ id, activeTab, onNavigate }) => {
   const [opp, setOpp] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const { hasMinRole } = useRole();
+  const canShare = hasMinRole('MANAGER');
 
   const loadData = async () => {
     setIsLoading(true);
@@ -66,7 +71,23 @@ const OpportunityDetails = ({ id, activeTab, onNavigate }) => {
       {activeTab === 'about' && (
         <>
           <div className="detail-section">
-            <h3 className="section-title">Deal Info</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="section-title">Deal Info</h3>
+              {canShare && (
+                <button
+                  onClick={() => setShowShare(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 12px', borderRadius: 6,
+                    background: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9',
+                    border: '1px solid rgba(14, 165, 233, 0.2)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600
+                  }}
+                >
+                  <LucideShare2 size={14} />
+                  Share Deal
+                </button>
+              )}
+            </div>
             <AssigneeSelector 
               currentAssignee={opp.assignedToId ? { id: opp.assignedToId, fullName: opp.assignedToName } : null} 
               onAssign={handleAssign}
@@ -135,6 +156,11 @@ const OpportunityDetails = ({ id, activeTab, onNavigate }) => {
             </div>
           </div>
         </>
+      )}
+      )}
+
+      {showShare && (
+        <ShareRecordModal opportunityId={id} onClose={() => setShowShare(false)} />
       )}
     </div>
   );

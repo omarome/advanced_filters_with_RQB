@@ -4,9 +4,8 @@ import {
   Button, Collapse, CircularProgress
 } from '@mui/material';
 import { LucideMessageSquare, LucideCornerDownRight, LucideTrash2 } from 'lucide-react';
-import { getAccessToken, useAuth } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { useAuth } from '../../context/AuthProvider';
+import { apiJson } from '../../services/apiClient';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -115,16 +114,14 @@ export default function CommentThread({ entityType, entityId }) {
   const [newBody, setNewBody] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const base = `${API_BASE}/comments/${entityType}/${entityId}`;
+  const base = `/comments/${entityType}/${entityId}`;
 
   const load = async () => {
     if (!entityType || !entityId) return;
     setLoading(true);
     try {
-      const token = getAccessToken();
-      const res = await fetch(base, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (!res.ok) throw new Error();
-      setComments(await res.json());
+      const data = await apiJson(base);
+      setComments(data);
     } catch {
       setComments([]);
     } finally {
@@ -135,16 +132,10 @@ export default function CommentThread({ entityType, entityId }) {
   useEffect(() => { load(); }, [entityType, entityId]);
 
   const post = async (body, parentId = null) => {
-    const token = getAccessToken();
-    const res = await fetch(base, {
+    await apiJson(base, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       body: JSON.stringify({ body, parentId }),
     });
-    if (!res.ok) throw new Error();
     await load();
   };
 
@@ -160,10 +151,8 @@ export default function CommentThread({ entityType, entityId }) {
   };
 
   const handleDelete = async (commentId) => {
-    const token = getAccessToken();
-    await fetch(`${API_BASE}/comments/${commentId}`, {
+    await apiJson(`/comments/${commentId}`, {
       method: 'DELETE',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     await load();
   };

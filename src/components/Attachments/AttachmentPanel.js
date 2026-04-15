@@ -4,9 +4,7 @@ import {
   LinearProgress, Chip, Tooltip
 } from '@mui/material';
 import { LucidePaperclip, LucideUpload, LucideDownload, LucideTrash2, LucideFile, LucideFileImage, LucideFileText } from 'lucide-react';
-import { getAccessToken } from '../../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiJson, apiFetch } from '../../services/apiClient';
 
 function formatBytes(bytes) {
   if (!bytes) return '—';
@@ -34,16 +32,14 @@ export default function AttachmentPanel({ entityType, entityId }) {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef(null);
 
-  const base = `${API_BASE}/attachments/${entityType}/${entityId}`;
+  const base = `/attachments/${entityType}/${entityId}`;
 
   const load = async () => {
     if (!entityType || !entityId) return;
     setLoading(true);
     try {
-      const token = getAccessToken();
-      const res = await fetch(base, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (!res.ok) throw new Error();
-      setAttachments(await res.json());
+      const data = await apiJson(base);
+      setAttachments(data);
     } catch {
       setAttachments([]);
     } finally {
@@ -54,7 +50,6 @@ export default function AttachmentPanel({ entityType, entityId }) {
   useEffect(() => { load(); }, [entityType, entityId]);
 
   const upload = async (file) => {
-    const token = getAccessToken();
     const formData = new FormData();
     formData.append('file', file);
 
@@ -65,9 +60,8 @@ export default function AttachmentPanel({ entityType, entityId }) {
     const interval = setInterval(() => setUploadProgress(p => Math.min(p + 15, 90)), 200);
 
     try {
-      const res = await fetch(base, {
+      const res = await apiFetch(base, {
         method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
       if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
@@ -92,10 +86,8 @@ export default function AttachmentPanel({ entityType, entityId }) {
   };
 
   const handleDelete = async (id) => {
-    const token = getAccessToken();
-    await fetch(`${API_BASE}/attachments/${id}`, {
+    await apiJson(`/attachments/${id}`, {
       method: 'DELETE',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     await load();
   };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Paper, Chip, CircularProgress, Avatar } from '@mui/material';
 import { LucideTarget, LucideDollarSign } from 'lucide-react';
-import { getAccessToken } from '../../context/AuthProvider';
+import { apiJson } from '../../services/apiClient';
 import { useNotifications } from '../../context/NotificationContext';
 import { executeCrmQuery } from '../../services/crmQueryApi';
 
@@ -14,7 +14,6 @@ const STAGES = [
   { key: 'CLOSED_LOST',   label: 'Closed Lost',    color: '#6b7280' },
 ];
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function formatCurrency(amount) {
   if (!amount) return '$0';
@@ -61,16 +60,10 @@ export default function KanbanBoard({ query }) {
     setDeals(prev => prev.map(d => d.id === dealId ? { ...d, stage: newStage } : d));
 
     try {
-      const token = getAccessToken();
-      const res = await fetch(`${API_BASE}/sales/opportunities/${dealId}`, {
+      await apiJson(`/sales/opportunities/${dealId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
         body: JSON.stringify({ stage: newStage }),
       });
-      if (!res.ok) throw new Error('Move failed');
     } catch {
       addNotification('Failed to move deal — reverting', 'error');
       fetchFromApi(); // Re-sync on failure

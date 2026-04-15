@@ -4,20 +4,37 @@ import {
   LucideBuilding, LucideUsers, LucideUser,
   LucideZap, LucideLayoutDashboard, LucideKanban, LucideFilter, LucideTable,
   LucideMoon, LucideSun, LucideLogOut, LucideSettings, LucideLifeBuoy,
-  LucideChevronDown,
+  LucideChevronDown, LucideLock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
+import { useRole } from '../../hooks/useRole';
 import { useThemeControl } from '../../context/ThemeContext';
+import WorkspaceSwitcher from './WorkspaceSwitcher';
 import './SidebarNavigation.less';
+
+const ROLE_DISPLAY = {
+  SUPER_ADMIN:     { label: 'Super Admin',     color: '#ef4444' },
+  WORKSPACE_OWNER: { label: 'Workspace Owner', color: '#f97316' },
+  ADMIN:           { label: 'Admin',           color: '#7c3aed' },
+  MANAGER:         { label: 'Manager',         color: '#0ea5e9' },
+  SALES_REP:       { label: 'Sales Rep',       color: '#10b981' },
+  USER:            { label: 'User',            color: '#64748b' },
+  VIEWER:          { label: 'Viewer',          color: '#94a3b8' },
+  GUEST:           { label: 'Guest',           color: '#cbd5e1' },
+};
 
 const SALES_ROUTES = ['/sales/organizations', '/sales/contacts', '/sales/pipeline', '/sales/dashboard'];
 const TOOLS_ROUTES = ['/automations', '/segments'];
 
 const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
+  const { role, can }    = useRole();
   const { mode, toggleTheme } = useThemeControl();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const canUseAutomations = can('automations.write');
+  const roleDisplay = ROLE_DISPLAY[role] ?? ROLE_DISPLAY.SALES_REP;
 
   const isInSales = SALES_ROUTES.some(r => location.pathname.startsWith(r));
   const isInTools = TOOLS_ROUTES.some(r => location.pathname.startsWith(r));
@@ -36,6 +53,8 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
         <span className="brand-name">HumintFlow</span>
         <span className="brand-badge">AI</span>
       </div>
+
+      <WorkspaceSwitcher />
 
       <nav className="nav-menu">
         <NavLink to="/directory" style={{ '--nav-icon-color': '#7c69ef' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
@@ -85,10 +104,24 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
           <LucideChevronDown size={13} className="nav-section-chevron" />
         </button>
         <div className={`nav-section-items ${toolsOpen ? 'is-open' : ''}`} aria-hidden={!toolsOpen}>
-          <NavLink to="/automations" style={{ '--nav-icon-color': '#f97316' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <LucideZap size={18} />
-            <span>Automations</span>
-          </NavLink>
+          {canUseAutomations ? (
+            <NavLink to="/automations" style={{ '--nav-icon-color': '#f97316' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <LucideZap size={18} />
+              <span>Automations</span>
+            </NavLink>
+          ) : (
+            /* Locked item — visible but clearly unavailable; tooltip explains why */
+            <div
+              className="nav-item nav-item--locked"
+              title="Automations require Manager or Admin access"
+              aria-label="Automations — requires higher role"
+              style={{ '--nav-icon-color': '#f97316', opacity: 0.45, cursor: 'not-allowed' }}
+            >
+              <LucideZap size={18} />
+              <span>Automations</span>
+              <LucideLock size={12} style={{ marginLeft: 'auto', flexShrink: 0 }} />
+            </div>
+          )}
           <NavLink to="/segments" style={{ '--nav-icon-color': '#ec4899' }} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
             <LucideFilter size={18} />
             <span>Segments</span>
@@ -116,8 +149,13 @@ const SidebarNavigation = ({ children, onToggleSidebar, isSidebarOpen }) => {
         >
           <img src={avatarUrl} alt="Profile" className="sidebar-avatar" />
           <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{user?.displayName || 'Admin User'}</span>
-            <span className="sidebar-user-role">Super Admin</span>
+            <span className="sidebar-user-name">{user?.displayName || user?.email || 'User'}</span>
+            <span
+              className="sidebar-user-role"
+              style={{ color: roleDisplay.color }}
+            >
+              {roleDisplay.label}
+            </span>
           </div>
         </button>
 

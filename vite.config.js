@@ -7,7 +7,7 @@ export default defineConfig({
   // Handle JSX in .js files
   esbuild: {
     loader: 'jsx',
-    include: /src\/.*\.js$/,
+    include: /src\/.*\.[jt]sx?$/,
     exclude: [],
   },
   optimizeDeps: {

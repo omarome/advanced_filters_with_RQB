@@ -9,7 +9,7 @@ import '../../styles/ProfileView.less';
  */
 export default function ProfileView() {
   const navigate = useNavigate();
-  const { user, logout, updateProfile, deleteAccount } = useAuth();
+  const { user, role, logout, updateProfile, deleteAccount } = useAuth();
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(user?.displayName || '');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -112,7 +112,9 @@ export default function ProfileView() {
           <div className="profile-settings__item">
             <div className="item-info">
               <label>Role</label>
-              <div className="value profile-settings__role-value">Super Admin</div>
+              <div className="value profile-settings__role-value">
+                {role ? role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : 'Not Assigned'}
+              </div>
             </div>
             <div className="profile-settings__icon profile-settings__icon--primary">
               <LucideShield size={18} />

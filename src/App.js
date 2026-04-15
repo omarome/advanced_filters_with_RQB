@@ -6,6 +6,8 @@ import { LucideZap, LucideSearch, LucideBell, LucideMoon, LucideSun, PanelLeftOp
 
 import CollapsibleList from './components/CollapsibleList/CollapsibleList';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import RequireRole from './components/auth/RequireRole';
+import RequirePermission from './components/auth/RequirePermission';
 import LoginPage from './components/LoginPage/LoginPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
 import ProfileView from './components/ProfileView/ProfileView';
@@ -357,30 +359,47 @@ function AppContent() {
     >
       <ErrorBoundary>
         <Routes>
-          <Route path="/directory" element={
-            <CollapsibleList
-              users={users}
-              variables={variables}
-              isDataLoading={isDataLoading}
-              isSortLoading={isSortLoading}
-              query={getQuery('/directory')}
-              onQueryChange={(q) => handleQueryChange('/directory', q)}
-              onResetQuery={() => handleResetQuery('/directory')}
-              onBulkDelete={handleBulkDeleteRequested}
-              onBulkEmail={handleBulkEmailRequested}
-              onSaveView={() => setIsSaveViewModalOpen(true)}
-              sortConfig={sortConfig}
-              onSortChange={handleSortChange}
-            />
-          } />
-          <Route path="/team" element={<TeamPage />} />
-          <Route path="/sales/organizations" element={<OrganizationsList query={getQuery('/sales/organizations')} onQueryChange={(q) => handleQueryChange('/sales/organizations', q)} onResetQuery={() => handleResetQuery('/sales/organizations')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
-          <Route path="/sales/contacts" element={<ContactsList query={getQuery('/sales/contacts')} onQueryChange={(q) => handleQueryChange('/sales/contacts', q)} onResetQuery={() => handleResetQuery('/sales/contacts')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
-          <Route path="/sales/opportunities" element={<OpportunitiesList query={getQuery('/sales/opportunities')} onQueryChange={(q) => handleQueryChange('/sales/opportunities', q)} onResetQuery={() => handleResetQuery('/sales/opportunities')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
-          <Route path="/sales/pipeline" element={<PipelinePage query={getQuery('/sales/pipeline')} onQueryChange={(q) => handleQueryChange('/sales/pipeline', q)} onResetQuery={() => handleResetQuery('/sales/pipeline')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
-          <Route path="/sales/dashboard" element={<SalesDashboard />} />
-          <Route path="/automations" element={<AutomationsPage />} />
-          <Route path="/segments" element={<CrmQueryPage />} />
+          {/* ── Directory & Team (requires TEAM_READ — available to all roles incl. GUEST) ── */}
+          <Route element={<RequirePermission perm="TEAM_READ" returnTo="/" />}>
+            <Route path="/directory" element={
+              <CollapsibleList
+                users={users}
+                variables={variables}
+                isDataLoading={isDataLoading}
+                isSortLoading={isSortLoading}
+                query={getQuery('/directory')}
+                onQueryChange={(q) => handleQueryChange('/directory', q)}
+                onResetQuery={() => handleResetQuery('/directory')}
+                onBulkDelete={handleBulkDeleteRequested}
+                onBulkEmail={handleBulkEmailRequested}
+                onSaveView={() => setIsSaveViewModalOpen(true)}
+                sortConfig={sortConfig}
+                onSortChange={handleSortChange}
+              />
+            } />
+            <Route path="/team" element={<TeamPage />} />
+          </Route>
+
+          {/* ── Sales section (requires ORGANIZATIONS_READ — VIEWER and above) ── */}
+          <Route element={<RequirePermission perm="ORGANIZATIONS_READ" returnTo="/team" />}>
+            <Route path="/sales/organizations" element={<OrganizationsList query={getQuery('/sales/organizations')} onQueryChange={(q) => handleQueryChange('/sales/organizations', q)} onResetQuery={() => handleResetQuery('/sales/organizations')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+            <Route path="/sales/contacts" element={<ContactsList query={getQuery('/sales/contacts')} onQueryChange={(q) => handleQueryChange('/sales/contacts', q)} onResetQuery={() => handleResetQuery('/sales/contacts')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+            <Route path="/sales/opportunities" element={<OpportunitiesList query={getQuery('/sales/opportunities')} onQueryChange={(q) => handleQueryChange('/sales/opportunities', q)} onResetQuery={() => handleResetQuery('/sales/opportunities')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+            <Route path="/sales/pipeline" element={<PipelinePage query={getQuery('/sales/pipeline')} onQueryChange={(q) => handleQueryChange('/sales/pipeline', q)} onResetQuery={() => handleResetQuery('/sales/pipeline')} variables={variables} users={users} onSaveView={() => setIsSaveViewModalOpen(true)} />} />
+            <Route path="/sales/dashboard" element={<SalesDashboard />} />
+          </Route>
+
+          {/* ── Automations (requires AUTOMATIONS_WRITE — MANAGER and above) ── */}
+          <Route element={<RequirePermission perm="AUTOMATIONS_WRITE" returnTo="/team" />}>
+            <Route path="/automations" element={<AutomationsPage />} />
+          </Route>
+
+          {/* ── Segments / CRM query engine (requires SEGMENTS_READ — VIEWER and above) ── */}
+          <Route element={<RequirePermission perm="SEGMENTS_READ" returnTo="/team" />}>
+            <Route path="/segments" element={<CrmQueryPage />} />
+          </Route>
+
+          {/* ── Account settings & help — any authenticated user ── */}
           <Route path="/settings/account" element={<ProfileView />} />
           <Route path="/help" element={<UserGuidePage />} />
           <Route path="*" element={<Navigate to="/team" replace />} />
