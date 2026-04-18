@@ -67,13 +67,14 @@ const TYPE_FALLBACK = {
 };
 
 const resolveIcon = (notif) => {
-  const text = `${notif.title} ${notif.message}`.toLowerCase();
+  const text = `${notif.title ?? ''} ${notif.message ?? ''}`.toLowerCase();
   for (const { keywords, icon: Icon, color, bg } of KEYWORD_MAP) {
     if (keywords.some(kw => text.includes(kw))) {
       return { Icon, color, bg };
     }
   }
-  return TYPE_FALLBACK[notif.type] || TYPE_FALLBACK.info;
+  const fallback = TYPE_FALLBACK[notif.type] ?? TYPE_FALLBACK.info;
+  return { Icon: fallback.icon, color: fallback.color, bg: fallback.bg };
 };
 
 const NotificationMenu = ({ anchorEl, onClose }) => {

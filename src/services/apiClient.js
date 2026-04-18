@@ -68,5 +68,6 @@ export async function apiJson(path, options = {}) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || err.message || `API error ${res.status}`);
   }
-  return res.json();
+  if (res.status === 204) return null;
+  return res.json().catch(() => null);
 }

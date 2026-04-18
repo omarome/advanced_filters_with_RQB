@@ -9,28 +9,59 @@ import {
 
 const NotificationContext = createContext(null);
 
+const isPersistedIdStatic = (id) => typeof id === 'number' || /^\d+$/.test(String(id));
+
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ── Load from backend on mount ───────────────────────────────────────────
+  const POLL_INTERVAL_MS = 30_000;
+
+  // ── Load from backend + poll for new notifications ───────────────────────
   useEffect(() => {
-    const loadNotifications = async () => {
+    const fetchAndMerge = async (isInitial = false) => {
       try {
-        setIsLoading(true);
+        if (isInitial) setIsLoading(true);
         const data = await fetchNotifications();
-        // Normalize backend field names (isRead / timestamp)
-        setNotifications(data);
+        setNotifications(prev => {
+          // Keep local (non-persisted) notifications, merge backend ones
+          const local = prev.filter(n => !isPersistedIdStatic(n.id));
+          // Preserve isRead state for items already read locally but not yet synced
+          const merged = data.map(n => {
+            const existing = prev.find(p => p.id === n.id);
+            return existing ? { ...n, isRead: existing.isRead || n.isRead } : n;
+          });
+          return [...local, ...merged];
+        });
       } catch (err) {
-        console.error('Failed to load notifications:', err);
-        setError(err.message);
+        if (isInitial) {
+          console.error('Failed to load notifications:', err);
+          setError(err.message);
+        }
       } finally {
-        setIsLoading(false);
+        if (isInitial) setIsLoading(false);
       }
     };
 
-    loadNotifications();
+    fetchAndMerge(true);
+    const timer = setInterval(() => fetchAndMerge(false), POLL_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
+
+  const refresh = useCallback(() => {
+    fetchNotifications()
+      .then(data => {
+        setNotifications(prev => {
+          const local = prev.filter(n => !isPersistedIdStatic(n.id));
+          const merged = data.map(n => {
+            const existing = prev.find(p => p.id === n.id);
+            return existing ? { ...n, isRead: existing.isRead || n.isRead } : n;
+          });
+          return [...local, ...merged];
+        });
+      })
+      .catch(() => {});
   }, []);
 
   const unreadCount = useMemo(() => {
@@ -39,12 +70,11 @@ export const NotificationProvider = ({ children }) => {
 
   // ── Optimistic helpers ───────────────────────────────────────────────────
   const markAsRead = useCallback(async (id) => {
-    // Optimistic update first for instant UI response
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    if (!isPersistedIdStatic(id)) return;
     try {
       await markNotificationRead(id);
     } catch (err) {
-      // Rollback on failure
       console.error('Failed to mark notification as read:', err);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
     }
@@ -64,11 +94,12 @@ export const NotificationProvider = ({ children }) => {
   const removeNotification = useCallback(async (id) => {
     const previous = notifications;
     setNotifications(prev => prev.filter(n => n.id !== id));
+    if (!isPersistedIdStatic(id)) return;
     try {
       await deleteNotificationApi(id);
     } catch (err) {
       console.error('Failed to delete notification:', err);
-      setNotifications(previous); // rollback
+      setNotifications(previous);
     }
   }, [notifications]);
 
@@ -84,12 +115,15 @@ export const NotificationProvider = ({ children }) => {
   }, [notifications]);
 
   // Keep addNotification for future use (e.g. SSE/WebSocket push)
-  const addNotification = useCallback((notification) => {
+  const addNotification = useCallback((notificationOrMessage, type) => {
+    const base = typeof notificationOrMessage === 'string'
+      ? { title: notificationOrMessage, message: '', type: type || 'info' }
+      : notificationOrMessage;
     const newNotif = {
       id: Math.random().toString(36).substr(2, 9),
       isRead: false,
       timestamp: new Date().toISOString(),
-      ...notification
+      ...base,
     };
     setNotifications(prev => [newNotif, ...prev]);
   }, []);
@@ -104,6 +138,7 @@ export const NotificationProvider = ({ children }) => {
     clearAll,
     addNotification,
     removeNotification,
+    refresh,
   };
 
   return (

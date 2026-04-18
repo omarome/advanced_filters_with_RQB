@@ -5,12 +5,13 @@ import { LucideZap, LucideBell, PanelLeftOpen, PanelLeftClose } from 'lucide-rea
 import { useThemeControl } from '../../context/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
 import NotificationMenu from '../NotificationMenu/NotificationMenu';
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import GlobalSearch from '../GlobalSearch/GlobalSearch';
 import '../../styles/Layout.less';
 
 const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, modalsContent }) => {
   const { mode } = useThemeControl();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, refresh } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
   const isHub = location.pathname === '/directory' || location.pathname.startsWith('/sales') || location.pathname.startsWith('/team') || location.pathname.startsWith('/automations') || location.pathname.startsWith('/segments');
@@ -20,7 +21,7 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
 
   // Notification Menu State
   const [notifAnchorEl, setNotifAnchorEl] = useState(null);
-  const handleNotifOpen = (event) => setNotifAnchorEl(event.currentTarget);
+  const handleNotifOpen = (event) => { setNotifAnchorEl(event.currentTarget); refresh(); };
   const handleNotifClose = () => setNotifAnchorEl(null);
 
   // Update layout when window resizes to handle responsive behavior
@@ -69,7 +70,9 @@ const Layout = ({ children, sidebarContent, analyticsContent, bannerContent, mod
                 <LucideBell size={20} />
               </Badge>
             </IconButton>
-            <NotificationMenu anchorEl={notifAnchorEl} onClose={handleNotifClose} />
+            <ErrorBoundary fallback={null}>
+              <NotificationMenu anchorEl={notifAnchorEl} onClose={handleNotifClose} />
+            </ErrorBoundary>
           </div>
         </div>
       </header>
