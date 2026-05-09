@@ -104,7 +104,7 @@ export default function CrmQueryPage() {
   useEffect(() => {
     fetchAllFields()
       .then(setAllFields)
-      .catch(() => addNotification('Could not load field metadata', 'error'))
+      .catch(() => addNotification({ title: 'Error', message: 'Could not load field metadata', type: 'error' }))
       .finally(() => setFieldsLoading(false));
   }, []);
 
@@ -143,7 +143,7 @@ export default function CrmQueryPage() {
       });
       setResults(data);
     } catch (e) {
-      addNotification(e.message || 'Query failed', 'error');
+      addNotification({ title: 'Error', message: e.message || 'Query failed', type: 'error' });
     } finally {
       setQueryLoading(false);
     }

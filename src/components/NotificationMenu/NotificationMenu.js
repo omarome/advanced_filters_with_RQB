@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { 
   Popover, 
   Typography, 
@@ -60,10 +60,10 @@ const KEYWORD_MAP = [
 ];
 
 const TYPE_FALLBACK = {
-  success: { icon: LucideCheckCircle, color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
-  warning: { icon: LucideAlertTriangle, color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-  error:   { icon: LucideAlertTriangle, color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
-  info:    { icon: LucideInfo, color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
+  success: { Icon: LucideCheckCircle, color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
+  warning: { Icon: LucideAlertTriangle, color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+  error:   { Icon: LucideAlertTriangle, color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
+  info:    { Icon: LucideInfo, color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
 };
 
 const resolveIcon = (notif) => {

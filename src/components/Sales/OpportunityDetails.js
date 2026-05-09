@@ -157,7 +157,6 @@ const OpportunityDetails = ({ id, activeTab, onNavigate }) => {
           </div>
         </>
       )}
-      )}
 
       {showShare && (
         <ShareRecordModal opportunityId={id} onClose={() => setShowShare(false)} />

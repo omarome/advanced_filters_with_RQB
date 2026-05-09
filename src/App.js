@@ -413,8 +413,8 @@ function AppContent() {
 function App() {
   return (
     <ThemeControlProvider>
-      <NotificationProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <NotificationProvider>
           <BrowserRouter>
             <Toaster 
               position="top-right"
@@ -430,8 +430,8 @@ function App() {
             />
             <AppContent />
           </BrowserRouter>
-        </AuthProvider>
-      </NotificationProvider>
+        </NotificationProvider>
+      </AuthProvider>
     </ThemeControlProvider>
   );
 }
