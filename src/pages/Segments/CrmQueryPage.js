@@ -60,11 +60,11 @@ const OPERATORS_BY_TYPE = {
 };
 
 const selectSx = {
-  bgcolor: 'rgba(255,255,255,0.03)',
+  bgcolor: 'var(--background-muted)',
   borderRadius: '10px',
-  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.08)' },
-  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--primary-color)' },
-  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--primary-color)' },
+  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--border-color)' },
+  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--primary-color) !important' },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--primary-color) !important' },
   color: 'var(--text-color)',
 };
 
@@ -185,8 +185,8 @@ export default function CrmQueryPage() {
       {/* Query Builder Panel */}
       <Paper elevation={0} sx={{
         p: 3, mb: 3, borderRadius: '20px',
-        bgcolor: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        bgcolor: 'var(--surface-color)',
+        border: '1px solid var(--border-color-light)',
       }}>
         {/* Entity type + combinator row */}
         <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -198,7 +198,7 @@ export default function CrmQueryPage() {
                 value={entityType}
                 onChange={e => handleEntityChange(e.target.value)}
                 sx={selectSx}
-                MenuProps={{ PaperProps: { sx: { bgcolor: '#1b2436' } } }}
+                MenuProps={{ PaperProps: { sx: { bgcolor: 'var(--dropdown-bg)', color: 'var(--text-color)' } } }}
               >
                 {ENTITY_TYPES.map(et => (
                   <MenuItem key={et.value} value={et.value}>{et.label}</MenuItem>
@@ -214,7 +214,7 @@ export default function CrmQueryPage() {
                 value={combinator}
                 onChange={e => setCombinator(e.target.value)}
                 sx={selectSx}
-                MenuProps={{ PaperProps: { sx: { bgcolor: '#1b2436' } } }}
+                MenuProps={{ PaperProps: { sx: { bgcolor: 'var(--dropdown-bg)', color: 'var(--text-color)' } } }}
               >
                 <MenuItem value="and">ALL rules (AND)</MenuItem>
                 <MenuItem value="or">ANY rule (OR)</MenuItem>
@@ -249,14 +249,18 @@ export default function CrmQueryPage() {
 
                   {/* Field picker */}
                   <FormControl size="small" sx={{ minWidth: 180 }}>
-                    <InputLabel sx={{ color: 'var(--text-muted)' }}>Field</InputLabel>
+                    <InputLabel sx={{ color: 'var(--text-muted)', display: rule.field ? 'block' : 'none' }}>Field</InputLabel>
                     <Select
-                      label="Field"
+                      label={rule.field ? "Field" : ""}
                       value={rule.field}
                       onChange={e => updateRule(rule.id, { field: e.target.value, operator: '=', value: '' })}
                       sx={selectSx}
-                      MenuProps={{ PaperProps: { sx: { bgcolor: '#1b2436' } } }}
+                      displayEmpty
+                      MenuProps={{ PaperProps: { sx: { bgcolor: 'var(--dropdown-bg)', color: 'var(--text-color)' } } }}
                     >
+                      <MenuItem disabled value="">
+                        <em>Select a field</em>
+                      </MenuItem>
                       {currentFields.map(f => (
                         <MenuItem key={f.name} value={f.name}>{f.label}</MenuItem>
                       ))}
@@ -271,7 +275,7 @@ export default function CrmQueryPage() {
                       value={rule.operator}
                       onChange={e => updateRule(rule.id, { operator: e.target.value })}
                       sx={selectSx}
-                      MenuProps={{ PaperProps: { sx: { bgcolor: '#1b2436' } } }}
+                      MenuProps={{ PaperProps: { sx: { bgcolor: 'var(--dropdown-bg)', color: 'var(--text-color)' } } }}
                     >
                       {ops.map(op => (
                         <MenuItem key={op.value} value={op.value}>{op.label}</MenuItem>
@@ -291,9 +295,10 @@ export default function CrmQueryPage() {
                         minWidth: 160,
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '10px',
-                          bgcolor: 'rgba(255,255,255,0.03)',
-                          '& fieldset': { borderColor: 'rgba(255,255,255,0.08)' },
-                          '&:hover fieldset': { borderColor: 'var(--primary-color)' },
+                          bgcolor: 'var(--background-muted)',
+                          '& fieldset': { borderColor: 'var(--border-color)' },
+                          '&:hover fieldset': { borderColor: 'var(--primary-color) !important' },
+                          '&.Mui-focused fieldset': { borderColor: 'var(--primary-color) !important' },
                         },
                         '& .MuiInputLabel-root': { color: 'var(--text-muted)' },
                         '& .MuiInputBase-input': { color: 'var(--text-color)' },
@@ -361,15 +366,15 @@ export default function CrmQueryPage() {
       {results && (
         <Paper elevation={0} sx={{
           borderRadius: '20px',
-          bgcolor: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          bgcolor: 'var(--surface-color)',
+          border: '1px solid var(--border-color-light)',
           overflow: 'hidden',
         }}>
           {/* Results header */}
           <Box sx={{
             px: 3, py: 2,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            borderBottom: '1px solid var(--border-color-light)',
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography variant="h6" fontWeight={700}>Results</Typography>
@@ -407,7 +412,7 @@ export default function CrmQueryPage() {
                           fontSize: '0.75rem',
                           textTransform: 'uppercase',
                           letterSpacing: 0.5,
-                          borderBottom: '1px solid rgba(255,255,255,0.06)',
+                          borderBottom: '1px solid var(--border-color-light)',
                           whiteSpace: 'nowrap',
                         }}>
                           {col.replace(/([A-Z])/g, ' $1').trim()}
@@ -420,7 +425,7 @@ export default function CrmQueryPage() {
                       <TableRow key={i} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
                         {resultColumns.map(col => (
                           <TableCell key={col} sx={{
-                            borderBottom: '1px solid rgba(255,255,255,0.03)',
+                            borderBottom: '1px solid var(--border-color)',
                             color: 'var(--text-color)',
                             fontSize: '0.85rem',
                             whiteSpace: 'nowrap',
@@ -444,7 +449,7 @@ export default function CrmQueryPage() {
                 rowsPerPage={rowsPerPage}
                 rowsPerPageOptions={[10, 20, 50]}
                 onRowsPerPageChange={e => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                sx={{ color: 'var(--text-muted)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                sx={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border-color-light)' }}
               />
             </>
           )}
