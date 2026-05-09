@@ -197,7 +197,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const updateProfile = useCallback(async (displayName) => {
-     // Optional: Call your backend to update it
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) throw new Error('Not authenticated');
+    await firebaseUpdateProfile(firebaseUser, { displayName });
+    // Force a state update so the UI immediately reflects the new display name
+    setUser({ ...firebaseUser });
   }, []);
 
   const deleteAccount = useCallback(async () => {
