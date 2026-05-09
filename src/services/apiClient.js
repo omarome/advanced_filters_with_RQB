@@ -59,14 +59,17 @@ export async function apiFetch(path, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
-/**
- * Convenience wrapper: apiFetch + throw on non-2xx + parse JSON.
- */
 export async function apiJson(path, options = {}) {
   const res = await apiFetch(path, options);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || err.message || `API error ${res.status}`);
   }
-  return res.json();
+  
+  if (res.status === 204) {
+    return null;
+  }
+
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
