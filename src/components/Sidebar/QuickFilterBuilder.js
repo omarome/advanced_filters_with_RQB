@@ -19,7 +19,7 @@ import '../../styles/QuickFilterBuilder.less';
 // Which quick-filter fields to show per entity type (order matters)
 // ---------------------------------------------------------------------------
 const QUICK_FILTERS_BY_ENTITY = {
-  TEAM_MEMBER:  ['status', 'isOnline', 'department'],
+  TEAM_MEMBER:  ['status', 'department'],
   ORGANIZATION: ['industry'],
   CONTACT:      ['lifecycleStage'],
   OPPORTUNITY:  ['probability', 'stage'],
