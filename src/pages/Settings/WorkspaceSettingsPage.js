@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import { useThemeControl } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthProvider';
@@ -6,7 +7,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { createWorkspace, updateWorkspace, deleteWorkspace } from '../../services/workspaceApi';
 import {
   LucideBuilding2, LucidePlus, LucidePencil, LucideTrash2, LucideX,
-  LucideGlobe, LucideLock, LucideCheck,
+  LucideGlobe, LucideLock,
 } from 'lucide-react';
 import './WorkspaceSettingsPage.less';
 
@@ -60,12 +61,12 @@ function WorkspaceFormModal({ workspace, onClose, onSaved, isDark }) {
     }
   };
 
-  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
+  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
   const modal   = { background: isDark ? '#1e293b' : '#fff', borderRadius: 16, padding: '32px 28px', width: 440, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', position: 'relative' };
   const inp     = { width: '100%', padding: '10px 14px', borderRadius: 8, border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, background: isDark ? '#0f172a' : '#f8fafc', color: isDark ? '#f1f5f9' : '#0f172a', fontSize: '0.9rem', boxSizing: 'border-box', marginTop: 6 };
   const label   = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: isDark ? '#94a3b8' : '#64748b', marginTop: 16 };
 
-  return (
+  return createPortal(
     <div style={overlay} onClick={onClose}>
       <div style={modal} onClick={(e) => e.stopPropagation()}>
         <button
@@ -144,7 +145,8 @@ function WorkspaceFormModal({ workspace, onClose, onSaved, isDark }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -171,11 +173,11 @@ function DeleteWorkspaceModal({ workspace, onClose, onDeleted, isDark }) {
     }
   };
 
-  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
+  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
   const modal   = { background: isDark ? '#1e293b' : '#fff', borderRadius: 16, padding: '32px 28px', width: 440, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', position: 'relative' };
   const inp     = { width: '100%', padding: '10px 14px', borderRadius: 8, border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, background: isDark ? '#0f172a' : '#f8fafc', color: isDark ? '#f1f5f9' : '#0f172a', fontSize: '0.9rem', boxSizing: 'border-box', marginTop: 6 };
 
-  return (
+  return createPortal(
     <div style={overlay} onClick={onClose}>
       <div style={modal} onClick={(e) => e.stopPropagation()}>
         <button
@@ -224,7 +226,8 @@ function DeleteWorkspaceModal({ workspace, onClose, onDeleted, isDark }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
