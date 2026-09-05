@@ -28,6 +28,15 @@ const ROLE_COLORS = {
   GUEST:           { bg: '#cbd5e1', text: '#475569', label: 'Guest' },
 };
 
+// Shown when the backend redacts a member's role (the viewer lacks
+// TEAM_READ_ALL) — distinct from ROLE_COLORS.USER so it doesn't imply a role
+// that isn't actually known.
+const HIDDEN_ROLE = { bg: '#cbd5e1', text: '#475569', label: 'Team Member' };
+
+function roleBadge(role) {
+  return role ? (ROLE_COLORS[role] || ROLE_COLORS.USER) : HIDDEN_ROLE;
+}
+
 // Roles selectable when changing an existing member's role (excludes super-admin)
 const ASSIGNABLE_ROLES = ['MANAGER', 'SALES_REP', 'VIEWER', 'GUEST', 'ADMIN'];
 
@@ -43,7 +52,7 @@ function getInitials(name = '') {
 function MemberAvatar({ member, size = 56 }) {
   const src = member.avatarUrl || member.photoUrl;
   const initials = getInitials(member.displayName);
-  const color = ROLE_COLORS[member.role] || ROLE_COLORS.USER;
+  const color = roleBadge(member.role);
 
   return src ? (
     <img
@@ -169,7 +178,7 @@ function InviteModal({ onClose, onInvited, isDark }) {
 // ─── Member Card ───────────────────────────────────────────────────────────────
 
 function MemberCard({ member, onClick }) {
-  const color = ROLE_COLORS[member.role] || ROLE_COLORS.USER;
+  const color = roleBadge(member.role);
 
   return (
     <div
@@ -325,7 +334,7 @@ function ProfileDrawer({ member, onClose, onUpdate, onDeactivate, onDeleted }) {
     }
   };
 
-  const color = ROLE_COLORS[member.role] || ROLE_COLORS.USER;
+  const color = roleBadge(member.role);
 
   return (
     <div className="team-drawer-overlay" onClick={onClose}>
