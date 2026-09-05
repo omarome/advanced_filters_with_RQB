@@ -615,8 +615,14 @@ export default function TeamPage() {
     return matchRole && matchSearch;
   });
 
+  // The backend redacts `role` entirely for viewers below MANAGER (TEAM_READ_ALL),
+  // so `presentRoles` would just be empty for them. Show the full role list anyway —
+  // greyed out and unclickable below — so the filter is visibly a MANAGER+ feature
+  // rather than silently disappearing.
   const presentRoles = [...new Set(members.map(m => m.role).filter(Boolean))];
-  const roles        = ['ALL', ...Object.keys(ROLE_COLORS).filter(r => presentRoles.includes(r))];
+  const roles        = canSeeAll
+    ? ['ALL', ...Object.keys(ROLE_COLORS).filter(r => presentRoles.includes(r))]
+    : ['ALL', ...Object.keys(ROLE_COLORS)];
 
   const totalUsers   = members.length;
   const activeUsers  = members.filter(m => m.isActive !== false).length;
@@ -730,18 +736,23 @@ export default function TeamPage() {
           </div>
 
           <div className="team-role-filters">
-            {roles.map(role => (
-              <button
-                key={role}
-                className={`team-role-btn ${roleFilter === role ? 'active' : ''}`}
-                style={roleFilter === role && role !== 'ALL'
-                  ? { background: ROLE_COLORS[role]?.bg, color: '#fff', borderColor: 'transparent' }
-                  : {}}
-                onClick={() => setRoleFilter(role)}
-              >
-                {role === 'ALL' ? 'All Roles' : (ROLE_COLORS[role]?.label || role)}
-              </button>
-            ))}
+            {roles.map(role => {
+              const isLocked = role !== 'ALL' && !canSeeAll;
+              return (
+                <button
+                  key={role}
+                  className={`team-role-btn ${roleFilter === role ? 'active' : ''} ${isLocked ? 'team-role-btn--locked' : ''}`}
+                  style={roleFilter === role && role !== 'ALL' && !isLocked
+                    ? { background: ROLE_COLORS[role]?.bg, color: '#fff', borderColor: 'transparent' }
+                    : {}}
+                  onClick={() => !isLocked && setRoleFilter(role)}
+                  disabled={isLocked}
+                  title={isLocked ? 'Filtering by role requires Manager access or above' : undefined}
+                >
+                  {role === 'ALL' ? 'All Roles' : (ROLE_COLORS[role]?.label || role)}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

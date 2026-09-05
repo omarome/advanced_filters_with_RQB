@@ -329,6 +329,19 @@
   &:hover {
     transform: translateY(-1px);
   }
+
+  // Visible-but-unusable: shown to signal the feature exists, not hidden
+  // outright, for viewers below MANAGER (who can't see roles at all).
+  &:disabled,
+  &--locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+
+    &:hover {
+      transform: none;
+    }
+  }
 }
 
 // ─── Card Grid ─────────────────────────────────────────────────────────────────
