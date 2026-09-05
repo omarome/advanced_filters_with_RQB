@@ -11,6 +11,7 @@ import RequirePermission from './components/auth/RequirePermission';
 import LoginPage from './components/LoginPage/LoginPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
 import ProfileView from './components/ProfileView/ProfileView';
+import WorkspaceSettingsPage from './pages/Settings/WorkspaceSettingsPage';
 import Layout from './components/Layout/Layout';
 import SidebarNavigation from './components/Sidebar/SidebarNavigation';
 
@@ -401,6 +402,13 @@ function AppContent() {
 
           {/* ── Account settings & help — any authenticated user ── */}
           <Route path="/settings/account" element={<ProfileView />} />
+
+          {/* ── Workspace management (requires TEAM_READ — GUEST and above can view; ── */}
+          {/* ── create/edit/delete buttons are individually gated inside the page)   ── */}
+          <Route element={<RequirePermission perm="TEAM_READ" returnTo="/team" />}>
+            <Route path="/settings/workspaces" element={<WorkspaceSettingsPage />} />
+          </Route>
+
           <Route path="/help" element={<UserGuidePage />} />
           <Route path="*" element={<Navigate to="/team" replace />} />
         </Routes>

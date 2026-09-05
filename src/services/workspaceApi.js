@@ -27,6 +27,33 @@ export async function createWorkspace(payload) {
 }
 
 /**
+ * Updates a workspace's name, slug, and/or public/private visibility.
+ * Only the fields present in `payload` are changed.
+ * PATCH /api/workspaces/{workspaceId}
+ * @param {number} workspaceId
+ * @param {{ name?: string, slug?: string, isPublic?: boolean }} payload
+ * @returns {Promise<{id, name, slug, isPublic}>}
+ */
+export async function updateWorkspace(workspaceId, payload) {
+  return apiJson(`/workspaces/${workspaceId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Permanently deletes a workspace. Rejected (409) if it still has any
+ * organizations, contacts, opportunities, or activities.
+ * DELETE /api/workspaces/{workspaceId}
+ * @param {number} workspaceId
+ */
+export async function deleteWorkspace(workspaceId) {
+  return apiJson(`/workspaces/${workspaceId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
  * Lists members of a specific workspace.
  * GET /api/workspaces/{workspaceId}/members
  * @param {number} workspaceId

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LucideBuilding2, LucideCheck, LucideChevronDown, LucideLoader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LucideBuilding2, LucideCheck, LucideChevronDown, LucideLoader2, LucideSettings } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
 import './WorkspaceSwitcher.less';
 
@@ -7,6 +8,7 @@ const WorkspaceSwitcher = () => {
   const { workspaces, activeWorkspaceId, switchWorkspace, isWorkspaceSwitching } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -74,6 +76,15 @@ const WorkspaceSwitcher = () => {
                 </button>
               );
             })}
+          </div>
+          <div className="workspace-dropdown-footer">
+            <button
+              className="workspace-manage-link"
+              onClick={() => { setIsOpen(false); navigate('/settings/workspaces'); }}
+            >
+              <LucideSettings size={14} />
+              Manage Workspaces
+            </button>
           </div>
         </div>
       )}

@@ -87,6 +87,13 @@ const PERMISSION_MIN_ROLE = {
   ADMIN_INVITE: 'ADMIN',
   ADMIN_MANAGE: 'ADMIN',
 
+  // ── Workspace lifecycle ──────────────────────────────────────────────────
+  // Create/delete: SUPER_ADMIN + WORKSPACE_OWNER only. Update (rename,
+  // re-slug, visibility): also open to ADMIN. Matches RolePermissions.java.
+  WORKSPACE_CREATE: 'WORKSPACE_OWNER',
+  WORKSPACE_UPDATE: 'ADMIN',
+  WORKSPACE_DELETE: 'WORKSPACE_OWNER',
+
   // ── Legacy dotted-name aliases (backward compat) ──────────────────────────
   'automations.write': 'MANAGER',
   'users.manage':      'ADMIN',
@@ -266,6 +273,17 @@ export function AuthProvider({ children }) {
     }
   }, [activeWorkspaceId, forceTokenRefresh]);
 
+  /**
+   * Re-fetches the caller's workspace list — call after creating, renaming,
+   * or deleting a workspace so the switcher and settings page reflect it
+   * without a full page reload.
+   */
+  const refreshWorkspaces = useCallback(async () => {
+    const list = await getMyWorkspaces();
+    setWorkspaces(list);
+    return list;
+  }, []);
+
   // ── Role & permission helpers exposed on context ──────────────────────────
 
   /** True when the user's role exactly matches one of the provided roles. */
@@ -312,6 +330,7 @@ export function AuthProvider({ children }) {
     activeWorkspaceId,
     workspaces,
     switchWorkspace,
+    refreshWorkspaces,
     isWorkspaceSwitching,
   };
 
