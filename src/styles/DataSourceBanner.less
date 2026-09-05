@@ -21,6 +21,15 @@
     background-color: #fff3e0;
     border: 1px solid #ffcc80;
     color: #e65100;
+
+    // Light-mode pale-orange/dark-text pairing has poor contrast against a
+    // dark page — swap to a translucent warning tint with a bright amber
+    // text/icon color instead.
+    .dark-mode & {
+      background-color: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
   }
 
   // ── Elements ──────────────────────────────────────────────
@@ -36,6 +45,10 @@
 
   &--mock &__icon {
     color: #e65100;
+
+    .dark-mode & {
+      color: #fbbf24;
+    }
   }
 
   &__message {
