@@ -90,15 +90,6 @@ const fieldEditorOverrides = {
     ],
     operators: selectOperators,
   },
-  isOnline: {
-    valueEditorType: 'select',
-    chipPlaceholder: 'All Statuses',
-    values: [
-      { name: 'true', label: 'Online', dot: '#10b981' },
-      { name: 'false', label: 'Offline', dot: '#ef4444' },
-    ],
-    operators: selectOperators,
-  },
   probability: {
     chipType: 'probability-heat',
     chipPlaceholder: 'Any Probability',

@@ -85,8 +85,8 @@ const CollapsibleList = ({
 
     const labelMap = new Map(variables.map((v) => [v.name, v.label]));
 
-    const keys = Object.keys(users[0]).filter(key => 
-      !['id', 'email', 'nickname', 'firstName', 'lastName'].includes(key)
+    const keys = Object.keys(users[0]).filter(key =>
+      !['id', 'email', 'nickname', 'firstName', 'lastName', 'isOnline'].includes(key)
     );
 
     // Ensure fullName is always the first column

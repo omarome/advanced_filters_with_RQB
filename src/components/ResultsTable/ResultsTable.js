@@ -230,21 +230,6 @@ const ResultsTable = ({
                          );
                       }
 
-                      if (column.key === 'isOnline') {
-                        const isOnline = Boolean(cellValue);
-                        displayValue = (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ 
-                              width: '8px', 
-                              height: '8px', 
-                              borderRadius: '50%', 
-                              backgroundColor: isOnline ? '#10b981' : '#ef4444' 
-                            }}></span>
-                            <span style={{ fontWeight: 500 }}>{isOnline ? 'Online' : 'Offline'}</span>
-                          </div>
-                        );
-                      }
-
                       if (column.key === 'status') {
                         const statusClass = cellValue?.toLowerCase() === 'active' ? 'status-active' : 
                                            cellValue?.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';

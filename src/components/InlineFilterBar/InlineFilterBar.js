@@ -193,7 +193,7 @@ function FilterShell({ activeCount, onClear, children }) {
   );
 }
 
-const DEFAULT_QUICK_FILTERS = ['status', 'pipelineStage', 'department', 'isOnline'];
+const DEFAULT_QUICK_FILTERS = ['status', 'pipelineStage', 'department'];
 
 const InlineFilterBar = ({ query, onQueryChange, onResetQuery, fields = [], quickFilters = DEFAULT_QUICK_FILTERS }) => {
   // ── Find "Hero" fields for quick chips ────────────────────────────────────
